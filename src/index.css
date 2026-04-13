@@ -1,0 +1,15 @@
+@import "../public/fonts/Avenir_Next/stylesheet.css";
+@import "../public/fonts/Montserrat/stylesheet.css";
+
+@import "tailwindcss";
+
+@theme {
+
+    --color-acc1:#2a7de1;
+    --color-acc2:#003764;
+    --color-acc3:#ff9e18;
+
+    --font-montserrat: "Montserrat", serif;
+    --font-avenir: "Avenir Next Cyr", serif;
+}
+
