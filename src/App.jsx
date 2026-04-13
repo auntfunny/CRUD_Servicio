@@ -20,6 +20,8 @@ function App() {
           <Route path="/perfil" element={<h2>Perfil</h2>} />
           <Route path="/cambiarcontraseña" element={<h2>Cambiar Contreseña</h2>} />
         </Route>
+        <Route path="/unauthorized" element={<h2>No estás autorizado</h2>} />
+        <Route path="*" element={<h2>Error 404</h2>} />
       </Routes>
     </>
   );
