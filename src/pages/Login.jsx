@@ -1,73 +1,43 @@
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+
 const estilosCampo =
-  "peer w-full border-b border-slate-200 bg-transparent pb-3 pl-10 pr-3 pt-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#5d80c8]";
+  "peer w-full border-b border-slate-200 bg-transparent pb-3 pl-12 pr-3 pt-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#5d80c8]";
 
-function IconoCorreo() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M4 7.75A1.75 1.75 0 0 1 5.75 6h12.5A1.75 1.75 0 0 1 20 7.75v8.5A1.75 1.75 0 0 1 18.25 18H5.75A1.75 1.75 0 0 1 4 16.25v-8.5Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="m5 8 5.84 4.38a2 2 0 0 0 2.32 0L19 8"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
-}
-
-function IconoContrasena() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M7.25 10.25A2.25 2.25 0 0 1 9.5 8h5a2.25 2.25 0 0 1 2.25 2.25v6A2.25 2.25 0 0 1 14.5 18.5h-5a2.25 2.25 0 0 1-2.25-2.25v-6Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M9 8V6.75a3 3 0 1 1 6 0V8"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeWidth="1.5"
-      />
-      <circle cx="12" cy="13.25" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function CampoEntrada({ icono, id, etiqueta, tipo, autocompletado }) {
+function CampoEntrada({
+  autocompletado,
+  etiqueta,
+  icono,
+  id,
+  nombre,
+  tipo,
+  valor,
+  alCambiar,
+}) {
   return (
     <label className="block">
       <span className="mb-2 block text-xs font-medium uppercase tracking-[0.28em] text-slate-400">
         {etiqueta}
       </span>
       <span className="relative block text-slate-300 transition focus-within:text-[#5d80c8]">
-        <span className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2">
-          {icono}
+        <span className="pointer-events-none absolute left-1 top-1/2 -translate-y-1/2 p-1">
+          <img
+            alt=""
+            aria-hidden="true"
+            className="h-5 w-5 object-contain opacity-80"
+            src={icono}
+          />
         </span>
         <input
           autoComplete={autocompletado}
+          onChange={alCambiar}
           className={estilosCampo}
           id={id}
-          name={id}
+          name={nombre}
           placeholder={`Ingresa tu ${etiqueta.toLowerCase()}`}
           required
           type={tipo}
+          value={valor}
         />
       </span>
     </label>
@@ -75,6 +45,26 @@ function CampoEntrada({ icono, id, etiqueta, tipo, autocompletado }) {
 }
 
 function Login() {
+  const { login, loading } = useAuth();
+  const [credenciales, setCredenciales] = useState({
+    contrasena: "",
+    email: "",
+  });
+
+  const manejarCambio = ({ target }) => {
+    const { name, value } = target;
+
+    setCredenciales((credencialesActuales) => ({
+      ...credencialesActuales,
+      [name]: value,
+    }));
+  };
+
+  const manejarEnvio = async (evento) => {
+    evento.preventDefault();
+    await login(credenciales.email, credenciales.contrasena);
+  };
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
@@ -89,7 +79,7 @@ function Login() {
 
             <div className="relative z-10 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-                <img alt="FUNVAL" className=" rounded-full h-8 w-8" src="./public/icoFunval.jpg" />
+                <img alt="FUNVAL" className=" rounded-full h-8 w-8" src="/icoFunval.jpg" />
               </div>
               <div>
                 
@@ -138,37 +128,34 @@ function Login() {
 
               <form
                 className="mt-10 space-y-7"
-                onSubmit={(evento) => evento.preventDefault()}
+                onSubmit={manejarEnvio}
               >
                 <CampoEntrada
                   autocompletado="email"
                   etiqueta="email"
-                  icono={<IconoCorreo />}
+                  alCambiar={manejarCambio}
+                  icono="/icoCorreo.png"
                   id="email"
+                  nombre="email"
                   tipo="email"
+                  valor={credenciales.email}
                 />
 
                 <CampoEntrada
                   autocompletado="current-password"
                   etiqueta="password"
-                  icono={<IconoContrasena />}
+                  alCambiar={manejarCambio}
+                  icono="/icoPassword.png"
                   id="password"
+                  nombre="contrasena"
                   tipo="password"
+                  valor={credenciales.contrasena}
                 />
 
-                <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                  <label className="inline-flex items-center gap-3 text-sm text-slate-500">
-                    <input
-                      className="h-4 w-4 rounded border-slate-300 text-[#4e76bf] focus:ring-[#4e76bf]"
-                      id="remember"
-                      name="remember"
-                      type="checkbox"
-                    />
-                    Recordarme
-                  </label>
-
+                <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-end">
                   <button
-                    className="inline-flex min-w-[180px] items-center justify-center rounded-full bg-[linear-gradient(90deg,#7796db_0%,#5d80c8_45%,#3b5f9f_100%)] px-8 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(93,128,200,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_35px_rgba(93,128,200,0.42)] focus:outline-none focus:ring-2 focus:ring-[#7b9ae0] focus:ring-offset-2"
+                    className="cursor-pointer inline-flex min-w-[180px] items-center justify-center rounded-full bg-[linear-gradient(90deg,#7796db_0%,#5d80c8_45%,#3b5f9f_100%)] px-8 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(93,128,200,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_35px_rgba(93,128,200,0.42)] focus:outline-none focus:ring-2 focus:ring-[#7b9ae0] focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
+                    disabled={loading}
                     type="submit"
                   >
                     Ingresar
@@ -180,12 +167,14 @@ function Login() {
                 <p className="font-avenir">
                   Esta pagina usa cookies para mejorar tu experiencia.
                 </p>
-                <button
-                  className="w-fit font-medium text-[#5d80c8] underline decoration-[#c5d3f2] underline-offset-4"
-                  type="button"
+                <a
+                  className=" cursor-pointer w-fit font-medium text-[#5d80c8] underline decoration-[#c5d3f2] underline-offset-4"
+                  href="https://github.com/auntfunny/CRUD_Servicio.git"
+                  rel="noreferrer"
+                  target="_blank"
                 >
                   GitHub
-                </button>
+                </a>
               </div>
             </div>
           </div>
