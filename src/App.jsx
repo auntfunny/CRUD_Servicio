@@ -1,10 +1,11 @@
 import { Outlet, Route, Routes } from "react-router-dom";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/login" element={<h2>Login</h2>} />
+        <Route path="/login" element={<Login />} />
         <Route element={<Outlet />}>
           <Route path="/" element={<h2>Admin Dashboard</h2>}/>
           <Route path="/usuarios" element={<h2>Admin Usuarios</h2>}/>
