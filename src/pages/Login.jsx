@@ -79,7 +79,7 @@ function Login() {
 
             <div className="relative z-10 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-                <img alt="FUNVAL" className=" rounded-full h-8 w-8" src="/icoFunval.jpg" />
+                <img alt="FUNVAL" className=" rounded-full h-8 w-8" src="./public/icons/icoFunval.jpg" />
               </div>
               <div>
                 
@@ -134,7 +134,7 @@ function Login() {
                   autocompletado="email"
                   etiqueta="email"
                   alCambiar={manejarCambio}
-                  icono="/icoCorreo.png"
+                  icono="./public/icons/icoCorreo.png"
                   id="email"
                   nombre="email"
                   tipo="email"
@@ -145,7 +145,7 @@ function Login() {
                   autocompletado="current-password"
                   etiqueta="password"
                   alCambiar={manejarCambio}
-                  icono="/icoPassword.png"
+                  icono="./public/icons/icoPassword.png"
                   id="password"
                   nombre="contrasena"
                   tipo="password"
