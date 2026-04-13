@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 
 const ProtectedAdmin = () => {
-    const user = ""
+    const { user } = useAuth();
     if(user.role !== "ADMIN") return <Navigate to="/unauthorized" />
     return <Outlet />
 }
