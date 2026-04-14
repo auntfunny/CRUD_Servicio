@@ -6,6 +6,7 @@ const estilosCampo =
 
 function CampoEntrada({
   autocompletado,
+  campo,
   etiqueta,
   icono,
   id,
@@ -24,13 +25,14 @@ function CampoEntrada({
           <img
             alt=""
             aria-hidden="true"
-            className="h-5 w-5 object-contain opacity-80"
+            className="h-5 w-5 object-contain opacity-100 brightness-[0.45]"
             src={icono}
           />
         </span>
         <input
           autoComplete={autocompletado}
           onChange={alCambiar}
+          data-campo={campo}
           className={estilosCampo}
           id={id}
           name={nombre}
@@ -52,11 +54,12 @@ function Login() {
   });
 
   const manejarCambio = ({ target }) => {
-    const { name, value } = target;
+    const { dataset, value } = target;
+    const campo = dataset.campo;
 
     setCredenciales((credencialesActuales) => ({
       ...credencialesActuales,
-      [name]: value,
+      [campo]: value,
     }));
   };
 
@@ -67,6 +70,20 @@ function Login() {
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] px-4 py-8 sm:px-6 lg:px-8">
+      <style>
+        {`
+          input:-webkit-autofill,
+          input:-webkit-autofill:hover,
+          input:-webkit-autofill:focus,
+          input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+            -webkit-text-fill-color: #334155 !important;
+            caret-color: #334155 !important;
+            border-radius: 0;
+            transition: background-color 9999s ease-in-out 0s;
+          }
+        `}
+      </style>
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
         <section className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_35px_100px_rgba(7,19,39,0.32)] lg:grid-cols-[0.95fr_1.2fr]">
           <aside className="relative flex min-h-[320px] flex-col justify-between overflow-hidden bg-[#143963] px-7 py-8 sm:px-10 sm:py-9">
@@ -79,7 +96,7 @@ function Login() {
 
             <div className="relative z-10 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-                <img alt="FUNVAL" className=" rounded-full h-8 w-8" src="./public/icons/icoFunval.jpg" />
+                <img alt="FUNVAL" className=" rounded-full h-8 w-8" src="/icons/icoFunval.jpg" />
               </div>
               <div>
                 
@@ -123,18 +140,20 @@ function Login() {
                 <span className="text-[#4e76bf]">FUNVAL</span>
               </h2>
               <p className="mt-4 max-w-md font-avenir text-base leading-7 text-slate-500">
-                Ingresa tu correo y contraseña de funval de Funval para acceder a tu cuenta y reportar tus horas de servicio.
+                Ingresa tu correo y contraseña de Funval para acceder a tu cuenta y reportar tus horas de servicio.
               </p>
 
               <form
+                autoComplete="on"
                 className="mt-10 space-y-7"
                 onSubmit={manejarEnvio}
               >
                 <CampoEntrada
-                  autocompletado="email"
+                  autocompletado="username"
+                  campo="email"
                   etiqueta="email"
                   alCambiar={manejarCambio}
-                  icono="./public/icons/icoCorreo.png"
+                  icono="/icons/icoCorreo.png"
                   id="email"
                   nombre="email"
                   tipo="email"
@@ -143,11 +162,12 @@ function Login() {
 
                 <CampoEntrada
                   autocompletado="current-password"
+                  campo="contrasena"
                   etiqueta="password"
                   alCambiar={manejarCambio}
-                  icono="./public/icons/icoPassword.png"
+                  icono="/icons/icoPassword.png"
                   id="password"
-                  nombre="contrasena"
+                  nombre="password"
                   tipo="password"
                   valor={credenciales.contrasena}
                 />
