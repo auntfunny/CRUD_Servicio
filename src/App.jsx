@@ -1,5 +1,6 @@
 import { Outlet, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
+import DashboardEstudiante from "./pages/DashboardEstudiante";
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
           <Route path="/reportes" element={<h2>Admin Reportes</h2>}/>
         </Route>
         <Route path="/estudiante"  element={<Outlet />}>
-          <Route path="dash" element={<h2>Student Dashboard</h2>}/>
+          <Route path="dash" element={<DashboardEstudiante />} />
           <Route path="reportes" element={<h2>Student Reportes</h2>}/>
         </Route>
         <Route element={<Outlet />}>
