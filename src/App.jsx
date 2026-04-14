@@ -1,5 +1,6 @@
 import { Outlet, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
+import Perfil from "./pages/Perfil";
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
           <Route path="reportes" element={<h2>Student Reportes</h2>}/>
         </Route>
         <Route element={<Outlet />}>
-          <Route path="/perfil" element={<h2>Perfil</h2>} />
+          <Route path="/perfil" element={<Perfil/>} />
           <Route path="/cambiarcontraseña" element={<h2>Cambiar Contreseña</h2>} />
         </Route>
       </Routes>
