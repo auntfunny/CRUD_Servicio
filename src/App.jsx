@@ -1,4 +1,5 @@
 import { Outlet, Route, Routes } from "react-router-dom";
+import DemoPaginacion from "./pages/DemoPaginacion";
 import Login from "./pages/Login";
 
 function App() {
@@ -8,6 +9,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route element={<Outlet />}>
           <Route path="/" element={<h2>Admin Dashboard</h2>}/>
+          <Route path="/demo-paginacion" element={<DemoPaginacion />}/>
           <Route path="/usuarios" element={<h2>Admin Usuarios</h2>}/>
           <Route path="/categorias" element={<h2>Admin Categorias</h2>}/>
           <Route path="/paises" element={<h2>Admin Paises</h2>}/>
