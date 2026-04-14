@@ -2,12 +2,13 @@ import { Route, Routes } from "react-router-dom";
 import ProtectedAdmin from "./routes/ProtectedAdmin";
 import ProtectedStudent from "./routes/ProtectedStudent";
 import ProtectedAnyUser from "./routes/ProtectedAnyUser";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/login" element={<h2>Login</h2>} />
+        <Route path="/login" element={<Login />} />
         <Route element={<ProtectedAdmin />}>
           <Route path="/" element={<h2>Admin Dashboard</h2>}/>
           <Route path="/usuarios" element={<h2>Admin Usuarios</h2>}/>
