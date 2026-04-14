@@ -8,6 +8,7 @@ import ProtectedStudent from "./routes/ProtectedStudent";
 import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
 import Unauthorized from "./pages/Unauthorized";
+import CambiarPassword from "./components/CambiarPassword";
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
         </Route>
         <Route element={<ProtectedAnyUser />}>
           <Route path="/perfil" element={<Perfil/>} />
-          <Route path="/cambiarcontraseña" element={<h2>Cambiar Contreseña</h2>}/>
+          <Route path="/cambiarpassword" element={<CambiarPassword/>}/>
         </Route>
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<h2>Error 404</h2>} />

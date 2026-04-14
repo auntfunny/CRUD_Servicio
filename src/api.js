@@ -1,11 +1,12 @@
 import axios from "axios";
 
 export const instance = axios.create({
-  baseURL: "/api/v1",
+  baseURL: "https://hs-api.devfunval.cloud/api/v1",
   headers: {
     "Content-Type": "application/json",
     accept: "application/json",
   },
+  withCredentials: true,
 });
 
 instance.interceptors.response.use(
