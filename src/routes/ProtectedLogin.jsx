@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 const ProtectedLogin = ({children}) => {
     const { user } = useAuth();
     if(user) {
-        if(user.role === "ADMIN"){
+        if(user?.role === "ADMIN"){
             return <Navigate to="/" />
         } else {
             return <Navigate to="/estudiante/dash" />

@@ -6,9 +6,9 @@ const Unauthorized = () => {
     const navigate = useNavigate();
 
     const handleClick = () => {
-        if(!user.role){
+        if(!user?.role){
             navigate("/login")
-        } else if(user.role === "ADMIN") {
+        } else if(user?.role === "ADMIN") {
             navigate("/");
         } else {
             navigate("/estudiante/dash");
