@@ -140,7 +140,7 @@ function Login() {
                 <span className="text-[#4e76bf]">FUNVAL</span>
               </h2>
               <p className="mt-4 max-w-md font-avenir text-base leading-7 text-slate-500">
-                Ingresa tu correo y contraseña Funval para acceder a tu cuenta y reportar tus horas de servicio.
+                Ingresa tu correo y contraseña de Funval para acceder a tu cuenta y reportar tus horas de servicio.
               </p>
 
               <form
