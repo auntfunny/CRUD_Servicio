@@ -9,6 +9,9 @@ import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
 import Unauthorized from "./pages/Unauthorized";
 import CambiarPassword from "./components/CambiarPassword";
+import Usuarios from "./pages/Usuarios";
+import EditarUsuario from "./pages/EditarUsuario";
+import CrearUsuario from "./pages/CrearUsuario";
 
 function App() {
   return (
@@ -18,7 +21,9 @@ function App() {
         <Route element={<ProtectedAdmin />}>
           <Route element={<Outlet />}>
             <Route path="/" element={<DashboardAdmin />} />
-            <Route path="/usuarios" element={<h2>Admin Usuarios</h2>} />
+            <Route path="/usuarios" element={<Usuarios/>} />
+            <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
+            <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
             <Route path="/reportes" element={<h2>Admin Reportes</h2>} />
