@@ -18,10 +18,10 @@ instance.interceptors.response.use(
     const status = error.response?.status;
 
     if (status === 401) {
-      console.log("Credentials Incorrectas o sessión expirada");
+      console.log("Credenciales incorrectas o sesion expirada");
       window.location.href = "/login";
     } else if (status === 403) {
-      console.log("No estás autorizado para eso");
+      console.log("No estas autorizado para eso");
       window.location.href = "/unauthorized";
     }
 

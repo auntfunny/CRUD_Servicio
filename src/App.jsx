@@ -1,19 +1,22 @@
 import { Outlet, Route, Routes } from "react-router-dom";
-import DemoPaginacion from "./pages/DemoPaginacion";
 import DashboardAdmin from "./pages/DashboardAdmin";
-import Login from "./pages/Login";
 import DashboardEstudiante from "./pages/DashboardEstudiante";
+import Login from "./pages/Login";
+import ListaCursosPage from "./pages/ListaCursosPage";
+import PaginacionPage from "./pages/PaginacionPage";
+import UsuariosApiPage from "./pages/UsuariosApiPage";
+import Unauthorized from "./pages/Unauthorized";
 import ProtectedAdmin from "./routes/ProtectedAdmin";
-import ProtectedStudent from "./routes/ProtectedStudent";
 import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
-import Unauthorized from "./pages/Unauthorized";
+import ProtectedStudent from "./routes/ProtectedStudent";
 
 function App() {
   return (
     <>
       <Routes>
         <Route path="/login" element={<ProtectedLogin><Login /></ProtectedLogin>} />
+
         <Route element={<ProtectedAdmin />}>
           <Route element={<Outlet />}>
             <Route path="/" element={<DashboardAdmin />} />
@@ -23,16 +26,22 @@ function App() {
             <Route path="/reportes" element={<h2>Admin Reportes</h2>} />
           </Route>
         </Route>
+
         <Route path="/estudiante" element={<ProtectedStudent />}>
           <Route element={<Outlet />}>
             <Route path="dash" element={<DashboardEstudiante />} />
             <Route path="reportes" element={<h2>Student Reportes</h2>} />
           </Route>
         </Route>
+
         <Route element={<ProtectedAnyUser />}>
+          <Route path="/paginacion" element={<PaginacionPage />} />
+          <Route path="/cursos-locales" element={<ListaCursosPage />} />
+          <Route path="/usuarios-api" element={<UsuariosApiPage />} />
           <Route path="/perfil" element={<h2>Perfil</h2>} />
-          <Route path="/cambiarcontraseña" element={<h2>Cambiar Contreseña</h2>}/>
+          <Route path="/cambiarclave" element={<h2>Cambiar clave</h2>} />
         </Route>
+
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<h2>Error 404</h2>} />
       </Routes>
