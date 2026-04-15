@@ -22,7 +22,7 @@ function ReportesAdmin() {
 
 
   // Para cargar los reportes, enviamos la pagina y el page_size como query params.
-  const { data, error, loading } = useAxios("/reports/", {
+  const { data, error, loading } = useAxios("/users/", {
     params: { page, page_size: pageSize },
   });
 

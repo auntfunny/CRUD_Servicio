@@ -26,7 +26,9 @@ function ReportesEstudiante() {
     params: { page, page_size: pageSize },
   });
 
-  const { data: categoriasData } = useAxios("/categories/");
+  const { data: categoriasData } = useAxios("/categories/", {
+    auto: modalCrearAbierto,
+  });
 
   const {
     guardandoReporte,
