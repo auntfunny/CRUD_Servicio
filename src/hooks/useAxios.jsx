@@ -13,7 +13,7 @@ const useAxios = (url, {method = "GET", body = null, headers = {}, auto = true, 
             const { data } = await instance({
                 method: config?.method || method,
                 url: config?.url || url,
-                data: config?.body || body,
+                data: JSON.stringify(config?.body) || JSON.stringify(body),
                 params: config?.params || params,
                 headers: config?.headers || headers,
             })

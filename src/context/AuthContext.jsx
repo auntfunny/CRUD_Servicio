@@ -64,7 +64,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const loginResponse = await loginRequest({
-        body: JSON.stringify({ email: email, password: password }),
+        body: { email: email, password: password },
       });
 
       const token = loginResponse?.access_token;
