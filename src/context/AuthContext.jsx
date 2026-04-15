@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authCheck, setAuthCheck] = useState(false);
   const navigate = useNavigate();
-  const { pathname } = useLocation()
+  const { pathname } = useLocation();
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
   const {
     loading: loginLoading,
@@ -44,13 +44,13 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = cookies.token;
     if (token) {
-      reload(token);
+      reload();
     } else {
       setAuthCheck(true);
     }
   }, [cookies.token, pathname]);
 
-  const reload = async (token) => {
+  const reload = async () => {
     try {
       const data = await userRequest();
 
@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
     } catch (error) {
       console.error(error);
       await logout();
-    } 
+    }
   };
 
   const login = async (email, password) => {
@@ -69,12 +69,14 @@ export function AuthProvider({ children }) {
       });
 
       const token = loginResponse?.access_token;
-      setCookie("token", token, { path: "/", maxAge: 10 });
+      setCookie("token", token, { path: "/", maxAge: 10 /* 86400 */ });
 
       if (!token) return;
 
       try {
         const data = await userRequest();
+
+        console.log(data);
 
         setUser(data);
         setAuthCheck(true);
@@ -112,6 +114,7 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         authCheck,
         login,
         logout,

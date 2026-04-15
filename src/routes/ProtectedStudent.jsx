@@ -4,12 +4,16 @@ import Autenticando from "../components/Autenticando";
 import { useCookies } from "react-cookie";
 
 const ProtectedStudent = () => {
-    const { user, authCheck } = useAuth();
-    const [cookies] = useCookies(["token"])
-    if(!authCheck) return <Autenticando />
-    if(!user?.role || !cookies?.token) return <Navigate to="/login" />
-    if(user?.role !== "STUDENT") return <Navigate to="/unauthorized" />
-    return <Outlet />
-}
+  const { user, authCheck } = useAuth();
+  const [cookies] = useCookies(["token"]);
+  if (!authCheck) return <Autenticando />;
+  if (!user?.role && !cookies?.token) return <Navigate to="/login" />;
+  if (user?.role && !cookies?.token) {
+    //Insert TOAST notification data
+    return <Navigate to="/login" />;
+  }
+  if (user?.role !== "STUDENT") return <Navigate to="/unauthorized" />;
+  return <Outlet />;
+};
 
 export default ProtectedStudent;
