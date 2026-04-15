@@ -55,11 +55,6 @@ export function AuthProvider({ children }) {
 
       setUser(data);
       setAuthCheck(true);
-      if (data.role === "ADMIN") {
-        navigate("/");
-      } else if (data.role === "STUDENT") {
-        navigate("/estudiante/dash");
-      }
     } catch (error) {
       console.error(error);
       await logout();
@@ -69,7 +64,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const loginResponse = await loginRequest({
-        body: JSON.stringify({ email: email, password: password }),
+        body: { email: email, password: password },
       });
 
       const token = loginResponse?.access_token;
