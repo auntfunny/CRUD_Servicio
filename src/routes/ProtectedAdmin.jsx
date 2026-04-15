@@ -1,11 +1,14 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Autenticando from "../components/Autenticando";
+import { useCookies } from "react-cookie";
 
 const ProtectedAdmin = () => {
     const { user, authCheck } = useAuth();
+    const [cookies] = useCookies(["token"])
     if(!authCheck) return <Autenticando />
-    if(!user?.role) return <Navigate to="/login" />
+    if(!user?.role && !cookies?.token) return <Navigate to="/login" />
+    if(user?.role && !cookies?.token) return <Navigate to="/unauthorized" />
     if(user?.role !== "ADMIN") return <Navigate to="/unauthorized" />
     return <Outlet />
 }

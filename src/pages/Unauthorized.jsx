@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../assets/Logo.png"
+import { useCookies } from "react-cookie";
 
 const Unauthorized = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const [cookies] = useCookies(["token"])
 
     const handleClick = () => {
-        if(!user?.role){
+        if(!user?.role || !cookies?.token){
             navigate("/login")
         } else if(user?.role === "ADMIN") {
             navigate("/");
