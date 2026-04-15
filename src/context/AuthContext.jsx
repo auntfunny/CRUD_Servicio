@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import useAxios from "../hooks/useAxios";
 
@@ -9,7 +9,6 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authCheck, setAuthCheck] = useState(false);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const [cookies, setCookie, removeCookie] = useCookies(["token"]);
   const {
     loading: loginLoading,
@@ -48,7 +47,7 @@ export function AuthProvider({ children }) {
     } else {
       setAuthCheck(true);
     }
-  }, [cookies.token, pathname]);
+  }, [cookies.token]);
 
   const reload = async () => {
     try {
@@ -69,14 +68,12 @@ export function AuthProvider({ children }) {
       });
 
       const token = loginResponse?.access_token;
-      setCookie("token", token, { path: "/", maxAge: 10 /* 86400 */ });
+      setCookie("token", token, { path: "/", maxAge: 86400 });
 
       if (!token) return;
 
       try {
         const data = await userRequest();
-
-        console.log(data);
 
         setUser(data);
         setAuthCheck(true);

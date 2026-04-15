@@ -1,21 +1,23 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCookies } from "react-cookie";
 import { useLocation } from "react-router-dom";
 
 const useSession = (user) => {
   const [cookies] = useCookies(["token"]);
-  const {pathname} = useLocation
-  let notification = "";
+  const { pathname } = useLocation();
+  const [notification, setNotification] = useState("");
+
+  const checkedUser = cookies?.token ? user : null;
 
   useEffect(() => {
     if (user?.role && !cookies?.token) {
-      user = null;
-      notification = "Sesión expirada, por favor ingrese de nuevo.";
+      setNotification("Sesión expirada, por favor ingrese de nuevo.");
+    } else {
+      setNotification("");
     }
   }, [user, cookies.token, pathname]);
 
-
-  return { user, notification };
+  return { user: checkedUser, notification };
 };
 
 export default useSession;
