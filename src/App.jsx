@@ -1,15 +1,19 @@
 import { Outlet, Route, Routes } from "react-router-dom";
 import DashboardAdmin from "./pages/DashboardAdmin";
-import DashboardEstudiante from "./pages/DashboardEstudiante";
 import Login from "./pages/Login";
-import ListaCursosPage from "./pages/ListaCursosPage";
-import PaginacionPage from "./pages/PaginacionPage";
-import UsuariosApiPage from "./pages/UsuariosApiPage";
+import Perfil from "./pages/Perfil";
+import DashboardEstudiante from "./pages/DashboardEstudiante";
+import ReportesAdmin from "./pages/ReportesAdmin";
+import ReportesEstudiante from "./pages/ReportesEstudiante";
 import Unauthorized from "./pages/Unauthorized";
 import ProtectedAdmin from "./routes/ProtectedAdmin";
 import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
 import ProtectedStudent from "./routes/ProtectedStudent";
+import CambiarPassword from "./components/CambiarPassword";
+import Usuarios from "./pages/Usuarios";
+import EditarUsuario from "./pages/EditarUsuario";
+import CrearUsuario from "./pages/CrearUsuario";
 
 function App() {
   return (
@@ -20,26 +24,25 @@ function App() {
         <Route element={<ProtectedAdmin />}>
           <Route element={<Outlet />}>
             <Route path="/" element={<DashboardAdmin />} />
-            <Route path="/usuarios" element={<h2>Admin Usuarios</h2>} />
+            <Route path="/usuarios" element={<Usuarios/>} />
+            <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
+            <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
-            <Route path="/reportes" element={<h2>Admin Reportes</h2>} />
+            <Route path="/reportes" element={<ReportesAdmin />} />
           </Route>
         </Route>
 
         <Route path="/estudiante" element={<ProtectedStudent />}>
           <Route element={<Outlet />}>
             <Route path="dash" element={<DashboardEstudiante />} />
-            <Route path="reportes" element={<h2>Student Reportes</h2>} />
+            <Route path="reportes" element={<ReportesEstudiante />} />
           </Route>
         </Route>
 
         <Route element={<ProtectedAnyUser />}>
-          <Route path="/paginacion" element={<PaginacionPage />} />
-          <Route path="/cursos-locales" element={<ListaCursosPage />} />
-          <Route path="/usuarios-api" element={<UsuariosApiPage />} />
-          <Route path="/perfil" element={<h2>Perfil</h2>} />
-          <Route path="/cambiarclave" element={<h2>Cambiar clave</h2>} />
+          <Route path="/perfil" element={<Perfil/>} />
+          <Route path="/cambiarpassword" element={<CambiarPassword/>}/>
         </Route>
 
         <Route path="/unauthorized" element={<Unauthorized />} />

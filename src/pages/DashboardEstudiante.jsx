@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import TarjetaEstadistica from "../components/TarjetaEstadistica";
 import FilaCategoria from "../components/FilaCategoria";
 
@@ -21,18 +22,23 @@ const datosEstudiante = {
     porcentaje_progreso: 0,
   },
   categorias_top: [
-    { id: 1, nombre: "Visita al templo", total_reportes: 1, horas_aprobadas: 0 },
-    { id: 2, nombre: "Indexación",       total_reportes: 3, horas_aprobadas: 3 },
+    {
+      id: 1,
+      nombre: "Visita al templo",
+      total_reportes: 1,
+      horas_aprobadas: 0,
+    },
+    { id: 2, nombre: "Indexación", total_reportes: 3, horas_aprobadas: 3 },
   ],
 };
 
 // Componente principal.
 export default function DashboardEstudiante() {
+  const navigate = useNavigate();
   const { reportes, progreso_curso, categorias_top } = datosEstudiante;
 
   return (
     <div className="bg-gray-50 min-h-screen px-6 py-8 max-w-5xl mx-auto">
-
       {/* Acciones rápidas */}
       <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
         Acciones rápidas
@@ -41,7 +47,11 @@ export default function DashboardEstudiante() {
         <button className="bg-[#ff9e18] text-[#003764] font-bold rounded-2xl py-4 px-5 text-sm flex items-center gap-3 shadow hover:brightness-95 transition">
           <span className="text-lg">＋</span> Nuevo reporte
         </button>
-        <button className="bg-[#2a7de1] text-white font-bold rounded-2xl py-4 px-5 text-sm flex items-center gap-3 shadow hover:brightness-95 transition">
+        <button
+          className="bg-[#2a7de1] text-white font-bold rounded-2xl py-4 px-5 text-sm flex items-center gap-3 shadow hover:brightness-95 transition"
+          type="button"
+          onClick={() => navigate("/estudiante/reportes")}
+        >
           <span className="text-lg">📋</span> Mis reportes
         </button>
         <button className="bg-[#003764] text-white font-bold rounded-2xl py-4 px-5 text-sm flex items-center gap-3 shadow hover:brightness-95 transition">
@@ -54,20 +64,27 @@ export default function DashboardEstudiante() {
         Progreso del curso
       </p>
       <div className="bg-[#003764] rounded-2xl p-6 shadow-lg text-white mb-8">
-        <h2 className="text-2xl font-extrabold mb-1">{progreso_curso.nombre_curso}</h2>
+        <h2 className="text-2xl font-extrabold mb-1">
+          {progreso_curso.nombre_curso}
+        </h2>
         <p className="text-sm text-white/60 mb-5">
-          Horas de servicio requeridas: {progreso_curso.horas_servicio_requeridas} hrs
+          Horas de servicio requeridas:{" "}
+          {progreso_curso.horas_servicio_requeridas} hrs
         </p>
 
         <div className="flex gap-8 mb-5">
           <div>
-            <p className="text-3xl font-extrabold text-[#ff9e18]">{progreso_curso.horas_aprobadas}</p>
+            <p className="text-3xl font-extrabold text-[#ff9e18]">
+              {progreso_curso.horas_aprobadas}
+            </p>
             <p className="text-[10px] uppercase tracking-wide text-white/50 font-semibold mt-1">
               Horas aprobadas
             </p>
           </div>
           <div>
-            <p className="text-3xl font-extrabold text-[#ff9e18]">{progreso_curso.horas_restantes}</p>
+            <p className="text-3xl font-extrabold text-[#ff9e18]">
+              {progreso_curso.horas_restantes}
+            </p>
             <p className="text-[10px] uppercase tracking-wide text-white/50 font-semibold mt-1">
               Horas restantes
             </p>
@@ -93,12 +110,36 @@ export default function DashboardEstudiante() {
         Mis reportes
       </p>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
-        <TarjetaEstadistica valor={reportes.total}            etiqueta="Total reportes"    colorBorde="border-[#2a7de1]" />
-        <TarjetaEstadistica valor={reportes.pendientes}        etiqueta="Pendientes"        colorBorde="border-[#ff9e18]" />
-        <TarjetaEstadistica valor={reportes.aprobados}         etiqueta="Aprobados"         colorBorde="border-green-500" />
-        <TarjetaEstadistica valor={reportes.rechazados}        etiqueta="Rechazados"        colorBorde="border-red-400"   />
-        <TarjetaEstadistica valor={reportes.horas_presentadas} etiqueta="Horas presentadas" colorBorde="border-[#003764]" />
-        <TarjetaEstadistica valor={reportes.horas_aprobadas}   etiqueta="Horas aprobadas"   colorBorde="border-green-500" />
+        <TarjetaEstadistica
+          valor={reportes.total}
+          etiqueta="Total reportes"
+          colorBorde="border-[#2a7de1]"
+        />
+        <TarjetaEstadistica
+          valor={reportes.pendientes}
+          etiqueta="Pendientes"
+          colorBorde="border-[#ff9e18]"
+        />
+        <TarjetaEstadistica
+          valor={reportes.aprobados}
+          etiqueta="Aprobados"
+          colorBorde="border-green-500"
+        />
+        <TarjetaEstadistica
+          valor={reportes.rechazados}
+          etiqueta="Rechazados"
+          colorBorde="border-red-400"
+        />
+        <TarjetaEstadistica
+          valor={reportes.horas_presentadas}
+          etiqueta="Horas presentadas"
+          colorBorde="border-[#003764]"
+        />
+        <TarjetaEstadistica
+          valor={reportes.horas_aprobadas}
+          etiqueta="Horas aprobadas"
+          colorBorde="border-green-500"
+        />
       </div>
 
       {/* Categorías de servicio */}
@@ -110,7 +151,6 @@ export default function DashboardEstudiante() {
           <FilaCategoria key={cat.id} {...cat} />
         ))}
       </div>
-
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const instance = axios.create({
-  baseURL: "https://hs-api.devfunval.cloud/api/v1",
+  baseURL: "/api/v1",
   headers: {
     "Content-Type": "application/json",
     accept: "application/json",
@@ -18,11 +18,11 @@ instance.interceptors.response.use(
     const status = error.response?.status;
 
     if (status === 401) {
-      console.log("Credenciales incorrectas o sesion expirada");
-      window.location.href = "/login";
+      console.log("Credentials Incorrectas o sessión expirada");
+      window.location.href = "/#/login";
     } else if (status === 403) {
-      console.log("No estas autorizado para eso");
-      window.location.href = "/unauthorized";
+      console.log("No estás autorizado para eso");
+      window.location.href = "/#/unauthorized";
     }
 
     return Promise.reject(error);
