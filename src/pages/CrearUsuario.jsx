@@ -8,12 +8,20 @@ export default function CrearUsuario() {
   const [form, setForm] = useState({
     email: "",
     first_name: "",
+    middle_name: "",
     last_name: "",
+    second_lastname: "",
     document_number: "",
+    phone_number: "",
+    birthdate: "",
+    country_id: "",
+    course_id: "",
     role: "STUDENT",
+    password: "",
   });
 
   const [mensaje, setMensaje] = useState(null);
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
@@ -23,7 +31,9 @@ export default function CrearUsuario() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    // ✅ Validación dominio
+    setErrors({});
+    setMensaje(null);
+
     if (!form.email.endsWith("@funval.com")) {
       setMensaje({
         tipo: "error",
@@ -34,18 +44,31 @@ export default function CrearUsuario() {
 
     setLoading(true);
 
+    const payload = {
+      email: form.email,
+      first_name: form.first_name,
+      middle_name: form.middle_name || undefined,
+      last_name: form.last_name,
+      second_lastname: form.second_lastname || undefined,
+      document_number: form.document_number,
+      phone_number: form.phone_number || undefined,
+      birthdate: form.birthdate || undefined,
+      role: form.role,
+      password: form.password || form.document_number,
+      country_id: form.country_id ? Number(form.country_id) : undefined,
+      course_id: form.course_id ? Number(form.course_id) : undefined,
+    };
+
+    console.log("PAYLOAD:", payload);
+
     try {
-      await api.post("/users/", {
-        ...form,
-        password: form.document_number, // 👈 clave inicial
-      });
+      await api.post("/users/", payload);
 
       setMensaje({
         tipo: "ok",
-        texto: "Usuario creado correctamente (API)",
+        texto: "Usuario creado correctamente",
       });
 
-      // volver a la lista
       setTimeout(() => {
         navigate("/usuarios");
       }, 1200);
@@ -53,17 +76,32 @@ export default function CrearUsuario() {
     } catch (error) {
       console.log("ERROR API:", error.response?.data);
 
-      // 🔥 fallback simulado
-      await new Promise((res) => setTimeout(res, 800));
+      const response = error.response?.data;
 
-      setMensaje({
-        tipo: "ok",
-        texto: "Usuario creado (SIMULADO)",
-      });
+      if (response?.errors) {
+        const apiErrors = {};
 
-      setTimeout(() => {
-        navigate("/usuarios");
-      }, 1200);
+        response.errors.forEach((e, index) => {
+          const field = e.loc?.length
+            ? e.loc[e.loc.length - 1]
+            : e.field || `error_${index}`;
+
+          apiErrors[field] = e.msg || "Error en el campo";
+        });
+
+        setErrors(apiErrors);
+
+        setMensaje({
+          tipo: "error",
+          texto: "Revisa los campos ❌",
+        });
+
+      } else {
+        setMensaje({
+          tipo: "error",
+          texto: response?.detail || "Error del servidor ❌",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -78,61 +116,33 @@ export default function CrearUsuario() {
           Crear Usuario
         </h2>
 
-        <p className="text-sm text-slate-500 mt-2">
-          La contraseña inicial será el número de documento
-        </p>
-
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
 
-          <input
-            name="first_name"
-            placeholder="Nombre"
-            value={form.first_name}
-            onChange={handleChange}
-            className="w-full border-b border-slate-300 pb-2 outline-none focus:border-[#5d80c8]"
-            required
-          />
+          <input name="first_name" placeholder="Nombre" value={form.first_name} onChange={handleChange} className="w-full border-b pb-2" required />
+          <input name="middle_name" placeholder="Segundo nombre" value={form.middle_name} onChange={handleChange} className="w-full border-b pb-2" />
+          <input name="last_name" placeholder="Apellido" value={form.last_name} onChange={handleChange} className="w-full border-b pb-2" required />
+          <input name="second_lastname" placeholder="Segundo apellido" value={form.second_lastname} onChange={handleChange} className="w-full border-b pb-2" />
 
-          <input
-            name="last_name"
-            placeholder="Apellido"
-            value={form.last_name}
-            onChange={handleChange}
-            className="w-full border-b border-slate-300 pb-2 outline-none focus:border-[#5d80c8]"
-            required
-          />
+          <input name="email" placeholder="Email (@funval.com)" value={form.email} onChange={handleChange} className="w-full border-b pb-2" required />
+          <input name="document_number" placeholder="Documento" value={form.document_number} onChange={handleChange} className="w-full border-b pb-2" required />
 
-          <input
-            name="email"
-            placeholder="Email (@funval.com)"
-            value={form.email}
-            onChange={handleChange}
-            className="w-full border-b border-slate-300 pb-2 outline-none focus:border-[#5d80c8]"
-            required
-          />
+          <input name="phone_number" placeholder="Teléfono" value={form.phone_number} onChange={handleChange} className="w-full border-b pb-2" />
 
-          <input
-            name="document_number"
-            placeholder="Documento"
-            value={form.document_number}
-            onChange={handleChange}
-            className="w-full border-b border-slate-300 pb-2 outline-none focus:border-[#5d80c8]"
-            required
-          />
+          <input type="date" name="birthdate" value={form.birthdate} onChange={handleChange} className="w-full border-b pb-2" />
 
-          <select
-            name="role"
-            value={form.role}
-            onChange={handleChange}
-            className="w-full border-b border-slate-300 pb-2 outline-none focus:border-[#5d80c8]"
-          >
+          <input name="country_id" placeholder="ID País (ej: 79)" value={form.country_id} onChange={handleChange} className="w-full border-b pb-2" required />
+          <input name="course_id" placeholder="ID Curso (ej: 1)" value={form.course_id} onChange={handleChange} className="w-full border-b pb-2" required />
+
+          <input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} className="w-full border-b pb-2" required />
+
+          <select name="role" value={form.role} onChange={handleChange} className="w-full border-b pb-2">
             <option value="ADMIN">ADMIN</option>
             <option value="STUDENT">STUDENT</option>
           </select>
 
           <button
             disabled={loading}
-            className="w-full rounded-full bg-[linear-gradient(90deg,#7796db_0%,#5d80c8_45%,#3b5f9f_100%)] px-6 py-3 text-white font-semibold shadow-lg hover:scale-[1.02] transition disabled:opacity-60"
+            className="w-full rounded-full bg-[linear-gradient(90deg,#7796db,#3b5f9f)] px-6 py-3 text-white font-semibold"
           >
             {loading ? "Creando..." : "Crear usuario"}
           </button>
@@ -140,13 +150,9 @@ export default function CrearUsuario() {
         </form>
 
         {mensaje && (
-          <div
-            className={`mt-6 rounded-lg px-4 py-3 text-sm font-medium ${
-              mensaje.tipo === "ok"
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}
-          >
+          <div className={`mt-6 px-4 py-3 text-sm ${
+            mensaje.tipo === "ok" ? "text-green-600" : "text-red-600"
+          }`}>
             {mensaje.texto}
           </div>
         )}
