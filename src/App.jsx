@@ -1,6 +1,7 @@
 import { Outlet, Route, Routes } from "react-router-dom";
 import DashboardAdmin from "./pages/DashboardAdmin";
 import Login from "./pages/Login";
+import Perfil from "./pages/Perfil";
 import DashboardEstudiante from "./pages/DashboardEstudiante";
 import ProtectedAdmin from "./routes/ProtectedAdmin";
 import ProtectedStudent from "./routes/ProtectedStudent";
@@ -8,6 +9,10 @@ import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
 import Unauthorized from "./pages/Unauthorized";
 import MainLayout from "./layouts/MainLayout";
+import CambiarPassword from "./components/CambiarPassword";
+import Usuarios from "./pages/Usuarios";
+import EditarUsuario from "./pages/EditarUsuario";
+import CrearUsuario from "./pages/CrearUsuario";
 
 function App() {
   return (
@@ -17,7 +22,9 @@ function App() {
         <Route element={<ProtectedAdmin />}>
           <Route element={<MainLayout/>}>
             <Route path="/" element={<DashboardAdmin />} />
-            <Route path="/usuarios" element={<h2>Admin Usuarios</h2>} />
+            <Route path="/usuarios" element={<Usuarios/>} />
+            <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
+            <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
             <Route path="/reportes" element={<h2>Admin Reportes</h2>} />
@@ -30,8 +37,8 @@ function App() {
           </Route>
         </Route>
         <Route element={<ProtectedAnyUser />}>
-          <Route path="/perfil" element={<h2>Perfil</h2>} />
-          <Route path="/cambiarcontraseña" element={<h2>Cambiar Contreseña</h2>}/>
+          <Route path="/perfil" element={<Perfil/>} />
+          <Route path="/cambiarpassword" element={<CambiarPassword/>}/>
         </Route>
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<h2>Error 404</h2>} />
