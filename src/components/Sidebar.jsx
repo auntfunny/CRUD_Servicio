@@ -2,8 +2,10 @@
 import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
-export default function Sidebar() {
+export default function Sidebar({abierto}) {
   const { role } = useAuth();
+
+  if (!role) return null;
 
   //Menu administrador
   const adminMenu = [
@@ -26,7 +28,7 @@ export default function Sidebar() {
   const menu = role === "ADMIN" ? adminMenu : studentMenu;
 
   return (
-    <div>
+    <div className={`${abierto ? "block" : "hidden"} md:block`}>
       <ul>
         {menu.map((item) => (
           <li key={item.name}>

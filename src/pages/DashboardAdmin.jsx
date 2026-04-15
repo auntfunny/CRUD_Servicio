@@ -1,66 +1,15 @@
-const respuesta = {
-  "users": {
-    "total_students": 7,
-    "total_admins": 4
-  },
-  "reports": {
-    "total": 3,
-    "pending": 1,
-    "approved": 2,
-    "rejected": 0,
-    "total_hours_submitted": 17,
-    "total_hours_approved": 12
-  },
-  "top_categories": [
-    {
-      "id": 1,
-      "name": "Tutorias",
-      "total_reports": 1,
-      "total_hours_approved": 2
-    },
-    {
-      "id": 2,
-      "name": "Visita al templo",
-      "total_reports": 1,
-      "total_hours_approved": 0
-    },
-    {
-      "id": 3,
-      "name": "Indexacion",
-      "total_reports": 1,
-      "total_hours_approved": 10
-    }
-  ],
-  "top_courses": [
-    {
-      "id": 32,
-      "name": "Desarrollo Web",
-      "total_students": 1
-    },
-    {
-      "id": 37,
-      "name": "Atención al Cliente",
-      "total_students": 1
-    },
-    {
-      "id": 31,
-      "name": "Inglés",
-      "total_students": 0
-    },
-    {
-      "id": 33,
-      "name": "Auxiliar de Farmacias",
-      "total_students": 0
-    },
-    {
-      "id": 41,
-      "name": "dota 2",
-      "total_students": 0
-    }
-  ]
-}
+import { useAuth } from "../context/AuthContext";
+
+
 function DashboardAdmin() {
+  const { user, role } = useAuth();
+  const respuesta = {
+    role: role,
+    userName: user?.id,
+  }; 
+
   return (
+    
 
     <main className="grid grid-cols-1 md:grid-cols-2 lg:px-12 lg:gap-x-6">
       <section className="p-4">
