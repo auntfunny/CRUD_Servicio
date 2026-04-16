@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ModalConfirmacion from "../components/ModalConfirmacion";
 
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
@@ -137,7 +138,6 @@ export default function Usuarios() {
 
             {/* TABLA */}
             <div className="overflow-hidden rounded-2xl border border-slate-100">
-
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-slate-500">
                   <tr>
@@ -202,20 +202,16 @@ export default function Usuarios() {
                           >
                             Eliminar
                           </button>
-
                         </div>
                       </td>
-
                     </tr>
                   ))}
                 </tbody>
               </table>
-
             </div>
 
             {/* PAGINACIÓN */}
             <div className="flex justify-between items-center mt-6">
-
               <span className="text-sm text-slate-500">
                 Página {page} de {totalPages}
               </span>
@@ -238,41 +234,19 @@ export default function Usuarios() {
                 </button>
               </div>
             </div>
-
           </div>
         </section>
       </div>
 
       {/* MODAL */}
       {userToDelete && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
-
-            <h3 className="text-lg font-semibold text-slate-800">
-              Confirmar eliminación
-            </h3>
-
-            <p className="text-sm text-slate-500 mt-2">
-              ¿Seguro que deseas eliminar a {userToDelete.full_name}?
-            </p>
-
-            <div className="flex justify-end gap-3 mt-6">
-              <button onClick={() => setUserToDelete(null)}>
-                Cancelar
-              </button>
-
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              >
-                Eliminar
-              </button>
-            </div>
-
-          </div>
-        </div>
+        <ModalConfirmacion
+          titulo="Confirmar eliminación"
+          mensaje={`¿Seguro que deseas eliminar a ${userToDelete.full_name}?`}
+          onConfirm={handleDelete}
+          onCancel={() => setUserToDelete(null)}
+        />
       )}
-
     </main>
   );
 }
