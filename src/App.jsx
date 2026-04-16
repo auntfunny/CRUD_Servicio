@@ -11,6 +11,7 @@ import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
 import MainLayout from "./layouts/MainLayout";
 import CambiarPassword from "./components/CambiarPassword";
+import Usuarios from "./pages/Usuarios";
 function App() {
   return (
     <>

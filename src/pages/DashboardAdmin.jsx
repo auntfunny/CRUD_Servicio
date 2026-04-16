@@ -1,10 +1,11 @@
-import { useAuth } from "../context/AuthContext";
+
 import useAxios from "../hooks/useAxios";
+
 
 
 function DashboardAdmin() {
   const { data, loading, error } = useAxios("/dashboard/stats");
-
+  
 
   if (loading) return <p>Cargando dashboard...</p>;
   if (error) return <p>Error cargando datos</p>; 
@@ -33,13 +34,7 @@ function DashboardAdmin() {
             <p>Horas aprobadas: {data?.reports?.total_hours_approved}</p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => navigate("/reportes")}
-            className="mt-4 inline-flex items-center justify-center rounded-2xl border border-white/40 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
-          >
-            Ver reportes
-          </button>
+         
         </div>
       </section>
       <section className="p-4">
