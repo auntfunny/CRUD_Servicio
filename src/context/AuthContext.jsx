@@ -43,21 +43,21 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = cookies.token;
     if (token) {
-      reload(false);
+      reload();
     } else {
       setAuthCheck(true)
     }
   }, [cookies.token]);
 
-  const reload = async (redirectAfterLoad = false) => {
+  const reload = async () => {
     try {
       const data = await userRequest();
 
       setUser(data);
       setAuthCheck(true);
-      if (redirectAfterLoad && data.role === "ADMIN") {
+      if (data.role === "ADMIN") {
         navigate("/");
-      } else if (redirectAfterLoad && data.role === "STUDENT") {
+      } else if (data.role === "STUDENT") {
         navigate("/estudiante/dash");
       }
     } catch (error) {
