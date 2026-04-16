@@ -9,6 +9,7 @@ import Unauthorized from "./pages/Unauthorized";
 import ProtectedAdmin from "./routes/ProtectedAdmin";
 import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
+import ProtectedStudent from "./routes/ProtectedStudent";
 import MainLayout from "./layouts/MainLayout";
 import CambiarPassword from "./components/CambiarPassword";
 function App() {
