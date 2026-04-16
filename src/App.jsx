@@ -14,6 +14,9 @@ import Usuarios from "./pages/Usuarios";
 import EditarUsuario from "./pages/EditarUsuario";
 import CrearUsuario from "./pages/CrearUsuario";
 import PaisesAdmin from "./pages/PaisesAdmin";
+import ReportesAdmin from "./pages/ReportesAdmin";
+import ReportesEstudiante from "./pages/ReportesEstudiante";
+import Categorias from "./pages/Categorias";
 
 function App() {
   return (
@@ -26,15 +29,16 @@ function App() {
             <Route path="/usuarios" element={<Usuarios />} />
             <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
             <Route path="/usuarios/crear" element={<CrearUsuario />} />
-            <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
-            <Route path="/paises" element={<PaisesAdmin/>} />
-            <Route path="/reportes" element={<h2>Admin Reportes</h2>} />
+            <Route path="/categorias" element={<Categorias />} />
+            <Route path="/paises" element={<h2>Admin Paises</h2>} />
+            <Route path="/cursos" element={<h2>Admin Cursos</h2>} />
+            <Route path="/reportes" element={<ReportesAdmin />} />
           </Route>
         </Route>
         <Route path="/estudiante" element={<ProtectedStudent />}>
           <Route element={<MainLayout />}>
             <Route path="dash" element={<DashboardEstudiante />} />
-            <Route path="reportes" element={<h2>Student Reportes</h2>} />
+            <Route path="reportes" element={<ReportesEstudiante />} />
           </Route>
         </Route>
         <Route element={<ProtectedAnyUser />}>

@@ -18,7 +18,7 @@ const ProtectedAdmin = () => {
 
   if (!authCheck) return <Autenticando />;
   if (!checkedUser) return <Navigate to="/login" />;
-  if (checkedUser.role !== "ADMIN") return <Navigate to="/unauthorized" />;
+  if (checkedUser.role !== "ADMIN") return <Navigate to="/estudiante/dash" />;
   return <Outlet />;
 };
 

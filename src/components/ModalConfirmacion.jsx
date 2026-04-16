@@ -1,6 +1,6 @@
 function ModalConfirmacion({ titulo, mensaje, onConfirm, onCancel }) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-80 shadow-xl">
         <h2 className="text-lg font-bold mb-2">{titulo}</h2>
         <p className="text-gray-600 mb-6">{mensaje}</p>

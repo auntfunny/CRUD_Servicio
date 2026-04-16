@@ -49,7 +49,7 @@ function CampoEntrada({
 function Login() {
   const { login, loading } = useAuth();
   const [credenciales, setCredenciales] = useState({
-    contrasena: "",
+    clave: "",
     email: "",
   });
 
@@ -65,7 +65,7 @@ function Login() {
 
   const manejarEnvio = async (evento) => {
     evento.preventDefault();
-    await login(credenciales.email, credenciales.contrasena);
+    await login(credenciales.email, credenciales.clave);
   };
 
   return (
@@ -96,10 +96,9 @@ function Login() {
 
             <div className="relative z-10 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-                <img alt="FUNVAL" className=" rounded-full h-8 w-8" src="/icons/icoFunval.jpg" />
+                <img alt="FUNVAL" className="rounded-full h-8 w-8" src="/icons/icoFunval.jpg" />
               </div>
               <div>
-                
                 <h1 className="font-montserrat text-2xl font-bold tracking-[0.2em] text-white">
                   FUNVAL
                 </h1>
@@ -108,7 +107,7 @@ function Login() {
 
             <div className="relative z-10 mt-12 max-w-xs text-white sm:mt-16">
               <span className="inline-flex rounded-full border border-white/25 bg-white/10 px-3 py-1 text-xs font-medium tracking-[0.24em] text-white/80 uppercase backdrop-blur-sm">
-                Bienvenido/a. 
+                Bienvenido/a.
               </span>
               <h2 className="mt-5 font-montserrat text-3xl font-semibold leading-tight sm:text-[2.35rem]">
                 Reporte de horas de servicio
@@ -119,8 +118,8 @@ function Login() {
             </div>
 
             <div className="relative z-10 mt-10 flex items-end justify-between text-white/80">
-              <div> 
-                <p className="mt-2 mb-2 font-avenir text-sm text-white/70">
+              <div>
+                <p className="mb-2 mt-2 font-avenir text-sm text-white/70">
                   Hecho por estudiantes de Funval.
                 </p>
               </div>
@@ -140,7 +139,7 @@ function Login() {
                 <span className="text-[#4e76bf]">FUNVAL</span>
               </h2>
               <p className="mt-4 max-w-md font-avenir text-base leading-7 text-slate-500">
-                Ingresa tu correo y contraseña de Funval para acceder a tu cuenta y reportar tus horas de servicio.
+                Ingresa tu correo y clave de Funval para acceder a tu cuenta y reportar tus horas de servicio.
               </p>
 
               <form
@@ -162,14 +161,14 @@ function Login() {
 
                 <CampoEntrada
                   autocompletado="current-password"
-                  campo="contrasena"
+                  campo="clave"
                   etiqueta="password"
                   alCambiar={manejarCambio}
                   icono="/icons/icoPassword.png"
                   id="password"
                   nombre="password"
                   tipo="password"
-                  valor={credenciales.contrasena}
+                  valor={credenciales.clave}
                 />
 
                 <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-end">
@@ -188,7 +187,7 @@ function Login() {
                   Esta pagina usa cookies para mejorar tu experiencia.
                 </p>
                 <a
-                  className=" cursor-pointer w-fit font-medium text-[#5d80c8] underline decoration-[#c5d3f2] underline-offset-4"
+                  className="cursor-pointer w-fit font-medium text-[#5d80c8] underline decoration-[#c5d3f2] underline-offset-4"
                   href="https://github.com/auntfunny/CRUD_Servicio.git"
                   rel="noreferrer"
                   target="_blank"
