@@ -16,6 +16,7 @@ import CrearUsuario from "./pages/CrearUsuario";
 import ReportesAdmin from "./pages/ReportesAdmin";
 import ReportesEstudiante from "./pages/ReportesEstudiante";
 import EstudiantesDeuda from "./pages/EstudiantesDeuda";
+import Categorias from "./pages/Categorias";
 
 function App() {
   return (
@@ -28,8 +29,9 @@ function App() {
             <Route path="/usuarios" element={<Usuarios />} />
             <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
             <Route path="/usuarios/crear" element={<CrearUsuario />} />
-            <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
+            <Route path="/categorias" element={<Categorias />} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
+            <Route path="/cursos" element={<h2>Admin Cursos</h2>} />
             <Route path="/reportes" element={<ReportesAdmin />} />
             <Route path="/estudiantes-pendientes" element={<EstudiantesDeuda />} />
           </Route>
