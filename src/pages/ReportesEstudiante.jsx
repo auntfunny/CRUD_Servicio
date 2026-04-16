@@ -9,10 +9,11 @@ import useAxios from "../hooks/useAxios";
 import { estadoOptions } from "../utils/reportes";
 
 function ReportesEstudiante() {
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const [page, setPage] = useState(1);
   const pageSize = 8;
   const [modalCrearAbierto, setModalCrearAbierto] = useState(false);
+  const [reporteEditando, setReporteEditando] = useState(null);
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
   const [estadoFiltro, setEstadoFiltro] = useState("");
   const [ordenActual, setOrdenActual] = useState("fecha-desc");
@@ -27,10 +28,12 @@ function ReportesEstudiante() {
   });
 
   const { data: categoriasData } = useAxios("/categories/", {
-    auto: modalCrearAbierto,
+    auto: modalCrearAbierto || Boolean(reporteEditando),
   });
 
   const {
+    actualizarReporte,
+    actualizandoReporte,
     guardandoReporte,
     guardarReporte,
   } = useUpload();
@@ -74,6 +77,19 @@ function ReportesEstudiante() {
     setReporteSeleccionado(null);
   };
 
+  const abrirEditar = () => {
+    if (!reporteSeleccionado || reporteSeleccionado.status !== "PENDING") {
+      return;
+    }
+
+    setReporteEditando(reporteSeleccionado);
+    cerrarDetalle();
+  };
+
+  const cerrarEditar = () => {
+    setReporteEditando(null);
+  };
+
   const abrirCrear = () => {
     setModalCrearAbierto(true);
   };
@@ -85,6 +101,16 @@ function ReportesEstudiante() {
   const guardarNuevoReporte = async (formData) => {
     await guardarReporte(formData);
     cerrarCrear();
+    await recargarReportes({
+      params: { page, page_size: pageSize },
+    });
+  };
+
+  const guardarEdicionReporte = async (formData) => {
+    if (!reporteEditando) return;
+
+    await actualizarReporte(reporteEditando.id, formData);
+    cerrarEditar();
     await recargarReportes({
       params: { page, page_size: pageSize },
     });
@@ -106,23 +132,13 @@ function ReportesEstudiante() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
-              onClick={logout}
-              type="button"
-            >
-              Logout
-            </button>
-
-            <button
-              className="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-              onClick={abrirCrear}
-              type="button"
-            >
-              Agregar nuevo
-            </button>
-          </div>
+          <button
+            className="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            onClick={abrirCrear}
+            type="button"
+          >
+            Agregar nuevo
+          </button>
         </div>
       </section>
 
@@ -193,11 +209,22 @@ function ReportesEstudiante() {
         />
       ) : null}
 
+      {reporteEditando ? (
+        <ReporteFormModal
+          categorias={categorias}
+          initialData={reporteEditando}
+          loading={actualizandoReporte}
+          onClose={cerrarEditar}
+          onSubmit={guardarEdicionReporte}
+          title="Editar reporte pendiente"
+        />
+      ) : null}
+
       {reporteSeleccionado ? (
         <ReporteDetalleModal
-          deleteEnabled={false}
+          canEdit={reporteSeleccionado.status === "PENDING"}
           onClose={cerrarDetalle}
-          onDelete={() => {}}
+          onEdit={abrirEditar}
           reporte={reporteSeleccionado}
         />
       ) : null}

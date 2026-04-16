@@ -1,31 +1,36 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Paginacion from "../components/Paginacion";
 import ReporteCard from "../components/ReporteCard";
-import { useAuth } from "../context/AuthContext";
+import ReporteDetalleModal from "../components/ReporteDetalleModal";
+import ReporteRevisionModal from "../components/ReporteRevisionModal";
 import useAxios from "../hooks/useAxios";
 import { estadoOptions } from "../utils/reportes";
 
 function ReportesAdmin() {
-  const navigate = useNavigate();
-  const { logout } = useAuth();
-
-//Creamos estados para manejar la paginación
   const [page, setPage] = useState(1);
   const pageSize = 8;
-
-
   const [estadoFiltro, setEstadoFiltro] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
   const [ordenActual, setOrdenActual] = useState("fecha-desc");
+  const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
+  const [reporteRevisando, setReporteRevisando] = useState(null);
 
-
-  // Para cargar los reportes, enviamos la pagina y el page_size como query params.
-  const { data, error, loading } = useAxios("/users/", {
+  const {
+    data,
+    error,
+    loading,
+    request: recargarReportes,
+  } = useAxios("/reports/", {
     params: { page, page_size: pageSize },
   });
-
+  const {
+    loading: guardandoRevision,
+    request: actualizarReporte,
+  } = useAxios("/reports/", {
+    auto: false,
+    method: "PATCH",
+  });
 
   const { data: categoriasData } = useAxios("/categories/");
 
@@ -74,22 +79,47 @@ function ReportesAdmin() {
     });
   }, [busqueda, categoriaFiltro, estadoFiltro, ordenActual, reportes]);
 
+  const abrirDetalle = (reporte) => {
+    setReporteSeleccionado(reporte);
+  };
+
+  const cerrarDetalle = () => {
+    setReporteSeleccionado(null);
+  };
+
+  const abrirRevision = () => {
+    if (!reporteSeleccionado) return;
+
+    setReporteRevisando(reporteSeleccionado);
+    cerrarDetalle();
+  };
+
+  const cerrarRevision = () => {
+    setReporteRevisando(null);
+  };
+
+  const guardarRevision = async (payload) => {
+    if (!reporteRevisando) return;
+
+    await actualizarReporte({
+      url: `/reports/${reporteRevisando.id}/review`,
+      body: payload,
+      method: "PATCH",
+    });
+
+    cerrarRevision();
+    await recargarReportes({
+      params: { page, page_size: pageSize },
+    });
+  };
+
   return (
     <main className="mx-auto max-w-7xl p-6">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border p-4">
-        <div>Panel admin</div>
-        <div className="flex gap-2">
-          <button className="rounded border px-4 py-2" onClick={() => navigate("/perfil")} type="button">
-            Perfil
-          </button>
-          <button className="rounded border px-4 py-2" onClick={logout} type="button">
-            Logout
-          </button>
-        </div>
-      </header>
-
-      <section className="mb-6 border p-4 text-center">
-        <h1 className="text-2xl font-semibold">Reportes del admin</h1>
+      <section className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h1 className="text-2xl font-semibold text-slate-900">Reportes del admin</h1>
+        <p className="mt-2 text-sm text-slate-500">
+          Revisa, filtra y ordena los reportes desde la vista administrativa.
+        </p>
       </section>
 
       <section className="mb-6 grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-2 xl:grid-cols-4">
@@ -158,7 +188,12 @@ function ReportesAdmin() {
         <>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {reportesVisibles.map((reporte) => (
-              <ReporteCard key={reporte.id} reporte={reporte} showStudent />
+              <ReporteCard
+                key={reporte.id}
+                onClick={() => abrirDetalle(reporte)}
+                reporte={reporte}
+                showStudent
+              />
             ))}
           </section>
 
@@ -171,7 +206,24 @@ function ReportesAdmin() {
             />
           </div>
         </>
+      ) : null}
 
+      {reporteSeleccionado ? (
+        <ReporteDetalleModal
+          canReview
+          onClose={cerrarDetalle}
+          onReview={abrirRevision}
+          reporte={reporteSeleccionado}
+        />
+      ) : null}
+
+      {reporteRevisando ? (
+        <ReporteRevisionModal
+          loading={guardandoRevision}
+          onClose={cerrarRevision}
+          onSubmit={guardarRevision}
+          reporte={reporteRevisando}
+        />
       ) : null}
     </main>
   );

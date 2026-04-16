@@ -21,7 +21,15 @@ function ReporteDetalleModal({
         <p><strong>Descripcion:</strong> {reporte.description}</p>
         <p><strong>Fecha:</strong> {formatFecha(reporte.created_at)}</p>
         <p><strong>Estudiante:</strong> {reporte.student?.full_name ?? "Sin dato"}</p>
-        <p><strong>Notas de revision:</strong> {reporte.reviewer_notes ?? "Sin notas"}</p>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            Comentarios de revision
+          </p>
+          <p className="text-sm text-slate-700">
+            {reporte.reviewer_notes ?? "Todavia no hay comentarios de revision."}
+          </p>
+        </div>
 
         {reporte.web_view_link ? (
           <a
@@ -47,10 +55,7 @@ function ReporteDetalleModal({
             Revisar
           </button>
         ) : null}
-
-        
       </div>
-
     </ModalBase>
   );
 }

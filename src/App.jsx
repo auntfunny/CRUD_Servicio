@@ -11,22 +11,22 @@ import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
 import ProtectedStudent from "./routes/ProtectedStudent";
 import CambiarPassword from "./components/CambiarPassword";
-import Usuarios from "./pages/Usuarios";
-import EditarUsuario from "./pages/EditarUsuario";
-import CrearUsuario from "./pages/CrearUsuario";
-
 function App() {
   return (
     <>
       <Routes>
-        <Route path="/login" element={<ProtectedLogin><Login /></ProtectedLogin>} />
+        <Route
+          path="/login"
+          element={
+            <ProtectedLogin>
+              <Login />
+            </ProtectedLogin>
+          }
+        />
 
         <Route element={<ProtectedAdmin />}>
           <Route element={<Outlet />}>
             <Route path="/" element={<DashboardAdmin />} />
-            <Route path="/usuarios" element={<Usuarios/>} />
-            <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
-            <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
             <Route path="/reportes" element={<ReportesAdmin />} />
@@ -41,8 +41,8 @@ function App() {
         </Route>
 
         <Route element={<ProtectedAnyUser />}>
-          <Route path="/perfil" element={<Perfil/>} />
-          <Route path="/cambiarpassword" element={<CambiarPassword/>}/>
+          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/cambiarpassword" element={<CambiarPassword />} />
         </Route>
 
         <Route path="/unauthorized" element={<Unauthorized />} />
