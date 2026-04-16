@@ -30,6 +30,7 @@ function App() {
             <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
+            <Route path="/cursos" element={<h2>Admin Cursos</h2>} />
             <Route path="/reportes" element={<ReportesAdmin />} />
           </Route>
         </Route>

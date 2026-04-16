@@ -13,6 +13,7 @@ export default function Sidebar({abierto}) {
     { name: "Usuarios", path: "/usuarios" },
     { name: "Categorías", path: "/categorias" },
     { name: "Países", path: "/paises" },
+    { name: "Cursos", path: "/cursos" },
     { name: "Reportes", path: "/reportes" },
     { name: "Dashboard", path: "/" },
   ];
