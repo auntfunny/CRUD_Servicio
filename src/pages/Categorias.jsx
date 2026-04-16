@@ -47,21 +47,19 @@ const Categorias = () => {
   const borrarCurso = async () => {
     try {
       setConfirmarBorrar(false);
-      await requestBorrar({url: `/categories/${idBorrar}`});
+      await requestBorrar({ url: `/categories/${idBorrar}` });
       request();
     } catch (err) {
-      console.error(err)
+      console.error(err);
     } finally {
       setIdBorrar(null);
     }
-  }
+  };
 
   const cancelarBorrar = () => {
     setIdBorrar(null);
     setConfirmarBorrar(false);
-  }
-
-
+  };
 
   return (
     <div className="flex flex-col items-center gap-10 py-18 w-full min-h-screen">
@@ -79,7 +77,14 @@ const Categorias = () => {
           cerrar={handleCerrarEditar}
         />
       )}
-      {confirmarBorrar && <ModalConfirmacion titulo={"Confirma Borrar"} mensaje={"Estás segur@ que quieres borrar este curso?"} onConfirm={borrarCurso} onCancel={cancelarBorrar} />}
+      {confirmarBorrar && (
+        <ModalConfirmacion
+          titulo={"Confirma Borrar"}
+          mensaje={"Estás segur@ que quieres borrar este curso?"}
+          onConfirm={borrarCurso}
+          onCancel={cancelarBorrar}
+        />
+      )}
       <div className="flex justify-between items-center w-11/12 md:w-4/5 h-20 bg-gray-200 rounded-xl p-6">
         <h2 className="text-lg text-acc2 font-avenir font-medium">
           Gestión de Categorias
@@ -106,6 +111,11 @@ const Categorias = () => {
         </button>
       </div>
       <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 place-items-center gap-2 lg:gap-4">
+        {error && (
+          <p className="col-span-4 text-red-500 text-2xl text-center">
+            Error en cargar las categorias
+          </p>
+        )}
         {loading
           ? Array(4)
               .fill()

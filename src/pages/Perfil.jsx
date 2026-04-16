@@ -15,45 +15,45 @@ export default function Perfil() {
     country_id: "",
   });
 
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const { request: getProfile } = useAxios("/profile/me", { auto: false });
+  const {data: perfil, loading: loadingPerfil, error: errorPerfil } = useAxios("/profile/me");
+  const {loading: loadingPais, error: errorPais,request: requestPais} = useAxios("", {auto: false});
+
+  const loading = loadingPerfil || loadingPais;
 
   useEffect(() => {
     const load = async () => {
       try {
-        const profile = await getProfile();
+        const pais = await requestPais({url: `/countries/${perfil.country_id}`})
 
         setForm({
-          id: profile.id || "",
-          first_name: profile.first_name || "",
-          last_name: profile.last_name || "",
-          middle_name: profile.middle_name || "",
-          second_lastname: profile.second_lastname || "",
-          email: profile.email || "",
-          phone_number: profile.phone_number || "",
+          id: perfil.id || "",
+          first_name: perfil.first_name || "",
+          last_name: perfil.last_name || "",
+          middle_name: perfil.middle_name || "",
+          second_lastname: perfil.second_lastname || "",
+          email: perfil.email || "",
+          phone_number: perfil.phone_number || "",
           // 🔥 CORRECCIÓN FECHA
-          birthdate: profile.birthdate
-            ? profile.birthdate.split("T")[0]
+          birthdate: perfil.birthdate
+            ? perfil.birthdate.split("T")[0]
             : "",
-          country_id: profile.country_id
-            ? String(profile.country_id)
-            : "",
+          country_id: pais.name,
         });
       } catch (err) {
         console.error("Error cargando perfil:", err);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
-
-    load();
-  }, []);
+    
+    if(perfil){
+      load();
+    }
+  }, [perfil]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
+      <div className="min-h-screen flex items-center justify-center text-acc1">
         Cargando perfil...
       </div>
     );
@@ -98,24 +98,23 @@ export default function Perfil() {
 
               {/* 🔥 PAÍS DESDE API */}
               <input
-                value={form.country_id ? `ID País: ${form.country_id}` : "No definido"}
+                value={form.country_id}
                 disabled
                 className="w-full border-b pb-2 bg-gray-100"
               />
 
               {/* 🔥 BOTÓN CORREGIDO */}
               <button
-                onClick={() => navigate(`/usuarios/${form.id}/editar`)}
+                onClick={() => navigate(`/perfil/editar`)}
                 className="w-full rounded-full bg-[linear-gradient(90deg,#f4a024_0%,#f7b347_50%,#f4a024_100%)] px-6 py-3 text-white font-semibold shadow-lg hover:scale-[1.02] transition"
               >
                 Editar Perfil
               </button>
-
               <button
-                onClick={() => navigate("/usuarios/crear")}
-                className="w-full rounded-full bg-[linear-gradient(90deg,#5d80c8_0%,#3b5f9f_100%)] px-6 py-3 text-white font-semibold shadow-lg hover:scale-[1.02] transition"
+                onClick={() => navigate(`/cambiarpassword`)}
+                className="w-full rounded-full bg-linear-to-r from-acc2 via-acc1 to-acc2 px-6 py-3 text-white font-semibold shadow-lg hover:scale-[1.02] transition"
               >
-                Crear Usuario
+                Cambiar Contraseña
               </button>
 
             </div>

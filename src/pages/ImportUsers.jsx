@@ -1,28 +1,47 @@
 import { useState } from "react";
-import { importUsersCSV, getUsers } from "../services/usersService";
+import useAxios from "../hooks/useAxios";
 
 export default function ImportUsers() {
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
+
+  const { loading, error, request } = useAxios("/users/bulk", {
+    method: "POST",
+  });
+  const { request: requestUsuarios } = useAxios("/users/", {
+    auto: false,
+    params: { page_size: 100 },
+  });
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
 
+  const importUsersCSV = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const response = await request({
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const handleUpload = async () => {
     if (!file) return;
 
     try {
-      setLoading(true);
       const data = await importUsersCSV(file);
       setResult(data);
     } catch (error) {
       console.error(error);
       alert("Error al importar usuarios");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -30,19 +49,33 @@ export default function ImportUsers() {
   const exportToCSV = async () => {
     try {
       setExporting(true);
+      let page = 1;
+      let allUsers = [];
+      let hasMore = true;
 
-      const data = await getUsers();
+      while (hasMore) {
+        const response = await requestUsuarios({ params: { page: page } });
+        allUsers = [...allUsers, ...response.items];
 
-      const users = data.items || data;
+        if (allUsers.length >= response.total || response.items.length === 0) {
+          hasMore = false;
+        } else {
+          page++;
+        }
+      }
 
-      const headers =
-        "email,first_name,last_name,document_number,role\n";
+      const headers = "email,first_name,last_name,document_number,role\n";
 
-      const rows = users
-        .map(
-          (u) =>
-            `${u.email},${u.first_name},${u.last_name},${u.document_number},${u.role || "STUDENT"}`
-        )
+      const rows = allUsers
+        .map((u) => {
+          return [
+            `"${u.email}"`,
+            `"${u.first_name}"`,
+            `"${u.last_name}"`,
+            `"${u.document_number}"`,
+            `"${u.role || "STUDENT"}"`,
+          ].join(",");
+        })
         .join("\n");
 
       const csvContent = headers + rows;
@@ -67,7 +100,6 @@ export default function ImportUsers() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
-
         <h2 className="text-2xl font-bold text-gray-800 mb-2">
           📥 Importar usuarios
         </h2>
@@ -93,11 +125,7 @@ export default function ImportUsers() {
             Selecciona un archivo CSV
           </label>
 
-          {file && (
-            <p className="mt-3 text-sm text-gray-600">
-              📄 {file.name}
-            </p>
-          )}
+          {file && <p className="mt-3 text-sm text-gray-600">📄 {file.name}</p>}
         </div>
 
         {/* IMPORT BUTTON */}
@@ -120,9 +148,7 @@ export default function ImportUsers() {
           disabled={exporting}
           className="w-full mt-3 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition"
         >
-          {exporting
-            ? "Exportando..."
-            : "📤 Exportar usuarios a CSV"}
+          {exporting ? "Exportando..." : "📤 Exportar usuarios a CSV"}
         </button>
 
         {/* RESULT */}
@@ -144,9 +170,7 @@ export default function ImportUsers() {
 
             {result.errors?.length > 0 && (
               <div>
-                <h4 className="font-semibold text-red-600 mb-2">
-                  Errores
-                </h4>
+                <h4 className="font-semibold text-red-600 mb-2">Errores</h4>
 
                 <ul className="list-disc pl-5 text-sm text-red-500 space-y-1">
                   {result.errors.map((err, i) => (

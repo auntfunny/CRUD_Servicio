@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 
-export default function EditarUsuario() {
+export default function EditarPerfil() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -22,7 +22,7 @@ export default function EditarUsuario() {
   const [countries, setCountries] = useState([]);
 
   const { request: getProfile } = useAxios("/profile/me", { auto: false });
-  const { request: updateProfile } = useAxios("/profile/me", {
+  const { loading: updateLoading, request: updateProfile } = useAxios("/profile/me", {
     method: "PATCH",
     auto: false,
   });
@@ -108,7 +108,7 @@ export default function EditarUsuario() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white">
+      <div className="min-h-screen flex items-center justify-center text-acc1">
         Cargando...
       </div>
     );
@@ -165,7 +165,7 @@ export default function EditarUsuario() {
               </select>
 
               <button className="w-full rounded-full bg-[linear-gradient(90deg,#f4a024,#f7b347,#f4a024)] py-3 text-white font-semibold">
-                Guardar Cambios
+                {updateLoading? "Guardando..." : "Guardar Cambios"}
               </button>
 
             </form>

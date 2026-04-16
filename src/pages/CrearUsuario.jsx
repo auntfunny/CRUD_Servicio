@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { instance as api } from "../api";
 import { useNavigate } from "react-router-dom";
+import useAxios from "../hooks/useAxios";
 
 export default function CrearUsuario() {
   const navigate = useNavigate();
@@ -22,7 +22,10 @@ export default function CrearUsuario() {
 
   const [mensaje, setMensaje] = useState(null);
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
+
+  const {data: paisData, loading: paisLoading, error: paisError} = useAxios("/countries/");
+  const {data: cursoData, loading: cursoLoading, error: cursoError} = useAxios("/courses/");
+  const {data, loading, error, request} = useAxios("/users/", {method: "POST"});
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -42,8 +45,6 @@ export default function CrearUsuario() {
       return;
     }
 
-    setLoading(true);
-
     const payload = {
       email: form.email,
       first_name: form.first_name,
@@ -55,14 +56,13 @@ export default function CrearUsuario() {
       birthdate: form.birthdate || undefined,
       role: form.role,
       password: form.password || form.document_number,
-      country_id: form.country_id ? Number(form.country_id) : undefined,
-      course_id: form.course_id ? Number(form.course_id) : undefined,
+      country_id: form.country_id,
+      course_id: form.course_id,
     };
 
-    console.log("PAYLOAD:", payload);
 
     try {
-      await api.post("/users/", payload);
+      await request({body: payload});
 
       setMensaje({
         tipo: "ok",
@@ -102,13 +102,11 @@ export default function CrearUsuario() {
           texto: response?.detail || "Error del servidor ❌",
         });
       }
-    } finally {
-      setLoading(false);
-    }
+    } 
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] flex items-center justify-center px-4">
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] p-4 flex items-center justify-center px-4">
 
       <div className="w-full max-w-lg bg-white rounded-[32px] p-8 shadow-[0_35px_100px_rgba(7,19,39,0.32)]">
 
@@ -130,10 +128,20 @@ export default function CrearUsuario() {
 
           <input type="date" name="birthdate" value={form.birthdate} onChange={handleChange} className="w-full border-b pb-2" />
 
-          <input name="country_id" placeholder="ID País (ej: 79)" value={form.country_id} onChange={handleChange} className="w-full border-b pb-2" required />
-          <input name="course_id" placeholder="ID Curso (ej: 1)" value={form.course_id} onChange={handleChange} className="w-full border-b pb-2" required />
+          <select name="country_id" id="country_id" onChange={handleChange} className="w-full border-b pb-2" required>
+            <option value="">Seleccione un país</option>
+            {paisData?.map((pais) => (
+              <option key={pais.id} value={pais.id}>{pais.name}</option>
+            ))}
+          </select>
+          <select name="course_id" id="course_id" onChange={handleChange} className="w-full border-b pb-2" required>
+            <option value="">Seleccione un curso</option>
+            {cursoData?.map((curso) => (
+              <option key={curso.id} value={curso.id}>{curso.name}</option>
+            ))}
+          </select>
 
-          <input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} className="w-full border-b pb-2" required />
+          <input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} className="w-full border-b pb-2"  />
 
           <select name="role" value={form.role} onChange={handleChange} className="w-full border-b pb-2">
             <option value="ADMIN">ADMIN</option>

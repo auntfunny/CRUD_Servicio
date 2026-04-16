@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { instance as api } from "../api";
+import useAxios from "../hooks/useAxios";
+import { useNavigate } from "react-router-dom";
 
 export default function CambiarPassword() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     current_password: "",
     new_password: "",
@@ -9,7 +11,9 @@ export default function CambiarPassword() {
   });
 
   const [mensaje, setMensaje] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const { loading, error, request } = useAxios("/profile/password", {
+    method: "PATCH",
+  });
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -23,16 +27,19 @@ export default function CambiarPassword() {
       return;
     }
 
-    setLoading(true);
-
     try {
-      await api.patch("/profile/password", {
-        current_password: form.current_password,
-        new_password: form.new_password,
+      await request({
+        body: {
+          current_password: form.current_password,
+          new_password: form.new_password,
+        },
       });
 
       setMensaje({ tipo: "ok", texto: "Contraseña actualizada correctamente" });
-
+      
+      setTimeout(() => {
+        navigate("/perfil");
+      }, 1200)
     } catch (error) {
       console.log("ERROR:", error.response?.data);
 
@@ -41,16 +48,12 @@ export default function CambiarPassword() {
       } else {
         setMensaje({ tipo: "error", texto: "Error inesperado" });
       }
-    } finally {
-      setLoading(false);
     }
   }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] px-4 py-8 flex items-center justify-center">
-
       <div className="w-full max-w-lg rounded-[32px] bg-white shadow-[0_35px_100px_rgba(7,19,39,0.32)] px-8 py-10">
-
         {/* HEADER */}
         <span className="inline-flex rounded-full bg-[#eaf1ff] px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-[#476fb5]">
           Seguridad
@@ -66,7 +69,6 @@ export default function CambiarPassword() {
 
         {/* FORM */}
         <form onSubmit={handleSubmit} className="mt-10 space-y-7">
-
           <input
             type="password"
             name="current_password"
@@ -102,7 +104,6 @@ export default function CambiarPassword() {
           >
             {loading ? "Procesando..." : "Actualizar contraseña"}
           </button>
-
         </form>
 
         {/* MENSAJE */}
@@ -117,7 +118,6 @@ export default function CambiarPassword() {
             {mensaje.texto}
           </div>
         )}
-
       </div>
     </main>
   );
