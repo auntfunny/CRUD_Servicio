@@ -1,11 +1,10 @@
-
+import { useAuth } from "../context/AuthContext";
 import useAxios from "../hooks/useAxios";
-
 
 
 function DashboardAdmin() {
   const { data, loading, error } = useAxios("/dashboard/stats");
-  
+
 
   if (loading) return <p>Cargando dashboard...</p>;
   if (error) return <p>Error cargando datos</p>; 
@@ -34,7 +33,6 @@ function DashboardAdmin() {
             <p>Horas aprobadas: {data?.reports?.total_hours_approved}</p>
           </div>
 
-         
         </div>
       </section>
       <section className="p-4">
@@ -47,7 +45,8 @@ function DashboardAdmin() {
                 <p>Total reportes: {item.total_reports}</p>
                 <p>Horas aprobadas: {item.total_hours_approved}</p>
               </div>
-            ))}
+            )
+            )}
           </div>
         </div>
       </section>
@@ -61,11 +60,15 @@ function DashboardAdmin() {
                 <p className="text-[#3578C8] font-montserrat font-bold">{item.name}</p>
                 <p>Total estudiantes: {item.total_students}</p>
               </div>
-            ))}
+            )
+            )}
           </div>
         </div>
       </section>
+
     </main>
-  );
+
+  )
+
 }
-export default DashboardAdmin;
+export default DashboardAdmin
