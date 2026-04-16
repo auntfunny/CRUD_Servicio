@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import ArchivoPdfField from "./ArchivoPdfField";
 import ModalBase from "./ModalBase";
 import {
   buildReporteFormData,
@@ -15,9 +16,11 @@ function ReporteFormModal({
 }) {
   const [formulario, setFormulario] = useState(createReporteFormState(initialData));
   const [errorLocal, setErrorLocal] = useState("");
+  const [errorArchivo, setErrorArchivo] = useState("");
 
   useEffect(() => {
     setFormulario(createReporteFormState(initialData));
+    setErrorArchivo("");
   }, [initialData]);
 
   const textoBoton = useMemo(() => {
@@ -26,15 +29,7 @@ function ReporteFormModal({
   }, [initialData, loading]);
 
   const handleChange = ({ target }) => {
-    const { name, value, files } = target;
-
-    if (name === "evidence") {
-      setFormulario((valorActual) => ({
-        ...valorActual,
-        evidence: files?.[0] ?? null,
-      }));
-      return;
-    }
+    const { name, value } = target;
 
     setFormulario((valorActual) => ({
       ...valorActual,
@@ -42,9 +37,29 @@ function ReporteFormModal({
     }));
   };
 
+  const handleArchivoChange = (archivo, errorArchivoNuevo) => {
+    setErrorArchivo(errorArchivoNuevo);
+    setFormulario((valorActual) => ({
+      ...valorActual,
+      evidence: archivo,
+    }));
+  };
+
+  const handleArchivoRemove = () => {
+    setErrorArchivo("");
+    setFormulario((valorActual) => ({
+      ...valorActual,
+      evidence: null,
+    }));
+  };
+
   const handleSubmit = async (evento) => {
     evento.preventDefault();
     setErrorLocal("");
+
+    if (errorArchivo) {
+      return;
+    }
 
     if (!initialData && !formulario.evidence) {
       setErrorLocal("Debes seleccionar un archivo PDF.");
@@ -109,17 +124,13 @@ function ReporteFormModal({
           />
         </label>
 
-        <label className="flex flex-col gap-2 text-sm">
-          Archivo PDF
-          <input
-            accept="application/pdf"
-            className="rounded border px-3 py-2"
-            name="evidence"
-            onChange={handleChange}
-            type="file"
-          />
-          
-        </label>
+        <ArchivoPdfField
+          archivoActual={formulario.evidence}
+          error={errorArchivo}
+          nombreArchivoActual={initialData?.evidence_name ?? ""}
+          onChange={handleArchivoChange}
+          onRemove={handleArchivoRemove}
+        />
 
         {errorLocal ? <p className="text-sm text-red-600">{errorLocal}</p> : null}
 

@@ -1,5 +1,7 @@
+import BadgeEstadoReporte from "./BadgeEstadoReporte";
+import EvidenciaPdfAcciones from "./EvidenciaPdfAcciones";
 import ModalBase from "./ModalBase";
-import { formatFecha, formatHoras, getEstadoLabel } from "../utils/reportes";
+import { formatFecha, formatHoras } from "../utils/reportes";
 
 function ReporteDetalleModal({
   canEdit = false,
@@ -12,11 +14,14 @@ function ReporteDetalleModal({
   if (!reporte) return null;
 
   return (
-    <ModalBase onClose={onClose} title={`Reporte #${reporte.id}`}>
+    <ModalBase onClose={onClose} title="Detalle del reporte">
       <div className="space-y-3 text-sm">
         <p><strong>Categoria:</strong> {reporte.category?.name ?? "Sin categoria"}</p>
         <p><strong>Horas:</strong> {formatHoras(reporte.hours_spent)}</p>
-        <p><strong>Estado:</strong> {getEstadoLabel(reporte.status)}</p>
+        <div className="flex items-center gap-2">
+          <strong>Estado:</strong>
+          <BadgeEstadoReporte estado={reporte.status} />
+        </div>
         <p><strong>Horas aprobadas:</strong> {formatHoras(reporte.approved_hours ?? 0)}</p>
         <p><strong>Descripcion:</strong> {reporte.description}</p>
         <p><strong>Fecha:</strong> {formatFecha(reporte.created_at)}</p>
@@ -31,16 +36,7 @@ function ReporteDetalleModal({
           </p>
         </div>
 
-        {reporte.web_view_link ? (
-          <a
-            className="inline-block rounded border px-3 py-2"
-            href={reporte.web_view_link}
-            rel="noreferrer"
-            target="_blank"
-          >
-            Ver archivo
-          </a>
-        ) : null}
+        <EvidenciaPdfAcciones reporteId={reporte.id} />
       </div>
 
       <div className="mt-6 flex flex-wrap justify-end gap-3">
