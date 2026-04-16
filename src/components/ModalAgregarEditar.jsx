@@ -46,12 +46,15 @@ const ModalAgregarEditar = ({ url, campos, cerrar }) => {
   };
 
   const handleClose = (event) => {
-    const current =
-    cerrar();
+    const current = event.target.closest("form");
+    const button = event.target.closest("button");
+    if (!current || button?.id === "close") {
+      cerrar();
+    }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-40">
+    <div onClick={handleClose} className="fixed inset-0 bg-black/70 flex items-center justify-center z-40">
       {confirmar && (
         <ModalConfirmacion
           titulo={"Confirma Acción"}
@@ -64,21 +67,22 @@ const ModalAgregarEditar = ({ url, campos, cerrar }) => {
         onSubmit={handleSubmit}
         className="relative flex flex-col items-center gap-8 p-6 w-xs md:w-sm font-montserrat bg-white border border-acc1 rounded-2xl"
       >
-        <svg
-            onClick={handleClose}
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="2.5"
-          stroke="currentColor"
-          className="absolute top-3 right-3 size-6 text-gray-400 hover:text-red-500 active:scale-125"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M6 18 18 6M6 6l12 12"
-          />
-        </svg>
+        <button type="button" id="close">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="2.5"
+            stroke="currentColor"
+            className="absolute top-3 right-3 size-6 text-gray-400 hover:text-red-500 hover:cursor-pointer active:scale-125"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6 18 18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
 
         <h2 className="text-2xl font-avenir font-bold">
           {metodo === "POST" ? "Crear" : "Editar"} {traducciones[urlInfo[0]]}
