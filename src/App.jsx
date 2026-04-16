@@ -23,8 +23,7 @@ function App() {
         <Route element={<ProtectedAdmin />}>
           <Route element={<Outlet />}>
             <Route path="/" element={<DashboardAdmin />} />
-            <Route path="/usuarios" element={<Usuarios/>} />
-            <Route path="/usuarios-tarjetas" element={<UsuariosCards />} />
+            <Route path="/usuarios" element={<UsuariosCards />} />
             <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
             <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/users/import" element={<ImportUsers />} />
