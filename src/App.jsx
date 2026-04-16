@@ -12,6 +12,7 @@ import CambiarPassword from "./components/CambiarPassword";
 import Usuarios from "./pages/Usuarios";
 import EditarUsuario from "./pages/EditarUsuario";
 import CrearUsuario from "./pages/CrearUsuario";
+import Categorias from "./pages/Categorias";
 
 function App() {
   return (
@@ -24,7 +25,7 @@ function App() {
             <Route path="/usuarios" element={<Usuarios/>} />
             <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
             <Route path="/usuarios/crear" element={<CrearUsuario />} />
-            <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
+            <Route path="/categorias" element={<Categorias />} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
             <Route path="/reportes" element={<h2>Admin Reportes</h2>} />
           </Route>
