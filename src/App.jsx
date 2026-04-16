@@ -13,12 +13,9 @@ import CambiarPassword from "./components/CambiarPassword";
 import Usuarios from "./pages/Usuarios";
 import EditarUsuario from "./pages/EditarUsuario";
 import CrearUsuario from "./pages/CrearUsuario";
-<<<<<<< HEAD
-import Categorias from "./pages/Categorias";
-=======
 import ReportesAdmin from "./pages/ReportesAdmin";
 import ReportesEstudiante from "./pages/ReportesEstudiante";
->>>>>>> 72fbeb26e9702654e24ca1dcada461d72109cb23
+import Categorias from "./pages/Categorias";
 
 function App() {
   return (
