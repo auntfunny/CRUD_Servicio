@@ -18,7 +18,7 @@ export default function MainLayout() {
                     <div>
                     <Sidebar abierto={abierto} />
                 </div>
-                <div>                    
+                <div className="w-full">                    
                     <Outlet />
                 </div>
                 </div>
