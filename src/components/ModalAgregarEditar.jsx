@@ -31,14 +31,17 @@ const ModalAgregarEditar = ({ url, campos, cerrar }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(formBody);
     setConfirmar(true);
   };
 
-  const handleConfirm = () => {
-    request({ body: formBody });
-    setConfirmar(false);
-    cerrar();
+  const handleConfirm = async () => {
+    try {
+      await request({ body: formBody });
+      setConfirmar(false);
+      cerrar(true);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleCancel = () => {
@@ -49,7 +52,7 @@ const ModalAgregarEditar = ({ url, campos, cerrar }) => {
     const current = event.target.closest("form");
     const button = event.target.closest("button");
     if (!current || button?.id === "close") {
-      cerrar();
+      cerrar(false);
     }
   };
 
