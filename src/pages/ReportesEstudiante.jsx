@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Paginacion from "../components/Paginacion";
 import ReporteCard from "../components/ReporteCard";
 import ReporteDetalleModal from "../components/ReporteDetalleModal";
@@ -6,7 +6,7 @@ import ReporteFormModal from "../components/ReporteFormModal";
 import { useAuth } from "../context/AuthContext";
 import useUpload from "../hooks/useUpload";
 import useAxios from "../hooks/useAxios";
-import { estadoOptions } from "../utils/reportes";
+import { estadoOptions, getFechaOrdenable } from "../utils/reportes";
 
 function ReportesEstudiante() {
   const { user } = useAuth();
@@ -17,6 +17,20 @@ function ReportesEstudiante() {
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
   const [estadoFiltro, setEstadoFiltro] = useState("");
   const [ordenActual, setOrdenActual] = useState("fecha-desc");
+  const [pageConsulta, setPageConsulta] = useState(1);
+
+  const paramsConsulta = useMemo(() => {
+    const params = {
+      page: pageConsulta,
+      page_size: pageSize,
+    };
+
+    if (estadoFiltro) {
+      params.status = estadoFiltro;
+    }
+
+    return params;
+  }, [estadoFiltro, pageConsulta, pageSize]);
 
   const {
     data,
@@ -24,7 +38,7 @@ function ReportesEstudiante() {
     loading,
     request: recargarReportes,
   } = useAxios("/reports/", {
-    params: { page, page_size: pageSize },
+    params: paramsConsulta,
   });
 
   const { data: categoriasData } = useAxios("/categories/", {
@@ -38,36 +52,60 @@ function ReportesEstudiante() {
     guardarReporte,
   } = useUpload();
 
-  const reportes = data?.items ?? data?.data ?? [];
-  const total = data?.total ?? 0;
-  const categorias = categoriasData?.items ?? categoriasData?.data ?? categoriasData ?? [];
+  const reportes = Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data?.results)
+        ? data.results
+        : Array.isArray(data)
+          ? data
+          : [];
+  const categorias = Array.isArray(categoriasData?.items)
+    ? categoriasData.items
+    : Array.isArray(categoriasData?.data)
+      ? categoriasData.data
+      : Array.isArray(categoriasData?.results)
+        ? categoriasData.results
+        : Array.isArray(categoriasData)
+          ? categoriasData
+          : [];
   const mensajeError =
     error?.response?.data?.detail?.[0]?.msg ??
     "No se pudieron cargar los reportes.";
 
+  const total = data?.total ?? reportes.length;
   const reportesVisibles = useMemo(() => {
-    const listaBase = [...reportes];
+    const lista = [...reportes];
 
-    const listaFiltrada = estadoFiltro
-      ? listaBase.filter((reporte) => reporte.status === estadoFiltro)
-      : listaBase;
-
-    return listaFiltrada.sort((reporteA, reporteB) => {
-      if (ordenActual === "fecha-asc") {
-        return new Date(reporteA.created_at) - new Date(reporteB.created_at);
-      }
-
-      if (ordenActual === "horas-desc") {
-        return Number(reporteB.hours_spent ?? 0) - Number(reporteA.hours_spent ?? 0);
-      }
-
-      if (ordenActual === "horas-asc") {
+    const listaOrdenada = lista.sort((reporteA, reporteB) => {
+      if (ordenActual === "horas-desc" || ordenActual === "horas-asc") {
         return Number(reporteA.hours_spent ?? 0) - Number(reporteB.hours_spent ?? 0);
       }
 
-      return new Date(reporteB.created_at) - new Date(reporteA.created_at);
+      return getFechaOrdenable(reporteA.created_at) - getFechaOrdenable(reporteB.created_at);
     });
-  }, [estadoFiltro, ordenActual, reportes]);
+
+    if (ordenActual === "fecha-desc" || ordenActual === "horas-desc") {
+      return [...listaOrdenada].reverse();
+    }
+
+    return listaOrdenada;
+  }, [ordenActual, reportes]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [estadoFiltro, ordenActual]);
+
+  useEffect(() => {
+    if (ordenActual !== "fecha-asc") {
+      setPageConsulta(page);
+      return;
+    }
+
+    const totalPaginas = Math.max(1, Math.ceil(total / pageSize));
+    setPageConsulta(Math.max(1, totalPaginas - page + 1));
+  }, [ordenActual, page, pageSize, total]);
 
   const abrirDetalle = (reporte) => {
     setReporteSeleccionado(reporte);
@@ -102,7 +140,7 @@ function ReportesEstudiante() {
     await guardarReporte(formData);
     cerrarCrear();
     await recargarReportes({
-      params: { page, page_size: pageSize },
+      params: paramsConsulta,
     });
   };
 
@@ -112,7 +150,7 @@ function ReportesEstudiante() {
     await actualizarReporte(reporteEditando.id, formData);
     cerrarEditar();
     await recargarReportes({
-      params: { page, page_size: pageSize },
+      params: paramsConsulta,
     });
   };
 

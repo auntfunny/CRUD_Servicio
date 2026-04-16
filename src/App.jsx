@@ -15,6 +15,7 @@ import EditarUsuario from "./pages/EditarUsuario";
 import CrearUsuario from "./pages/CrearUsuario";
 import ReportesAdmin from "./pages/ReportesAdmin";
 import ReportesEstudiante from "./pages/ReportesEstudiante";
+import EstudiantesDeuda from "./pages/EstudiantesDeuda";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
             <Route path="/reportes" element={<ReportesAdmin />} />
+            <Route path="/estudiantes-pendientes" element={<EstudiantesDeuda />} />
           </Route>
         </Route>
         <Route path="/estudiante" element={<ProtectedStudent />}>

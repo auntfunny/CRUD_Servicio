@@ -6,6 +6,7 @@ function ReporteRevisionModal({ loading = false, onClose, onSubmit, reporte }) {
   const [approvedHours, setApprovedHours] = useState(reporte?.approved_hours ?? 0);
   const [reviewerNotes, setReviewerNotes] = useState(reporte?.reviewer_notes ?? "");
   const [errorLocal, setErrorLocal] = useState("");
+  const horasReportadas = Number(reporte?.hours_spent ?? 0);
 
   const handleSubmit = async (evento) => {
     evento.preventDefault();
@@ -25,23 +26,34 @@ function ReporteRevisionModal({ loading = false, onClose, onSubmit, reporte }) {
   };
 
   return (
-    <ModalBase onClose={onClose} title={`Revisar reporte #${reporte?.id ?? ""}`}>
+    <ModalBase onClose={onClose} title="Revisar reporte">
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-          <p className="font-semibold text-slate-900">Horas reportadas por el estudiante</p>
+          <p className="font-semibold text-slate-900">
+            Horas reportadas por el estudiante {reporte?.student?.full_name ?? "Sin dato"}
+          </p>
           <p className="mt-1">{formatHoras(reporte?.hours_spent ?? 0)}</p>
         </div>
 
         <label className="flex flex-col gap-2 text-sm">
-          Horas aprobadas
-          <input
-            className="rounded border px-3 py-2"
-            min="0"
-            onChange={(evento) => setApprovedHours(evento.target.value)}
-            step="0.5"
-            type="number"
-            value={approvedHours}
-          />
+          <span>Horas aprobadas</span>
+          <span className="relative block">
+            <input
+              className="w-full rounded border px-3 py-2 pr-24"
+              min="0"
+              onChange={(evento) => setApprovedHours(evento.target.value)}
+              step="0.5"
+              type="number"
+              value={approvedHours}
+            />
+            <button
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-white hover:text-slate-900"
+              onClick={() => setApprovedHours(horasReportadas)}
+              type="button"
+            >
+              Usar todas
+            </button>
+          </span>
         </label>
 
         <label className="flex flex-col gap-2 text-sm">
@@ -53,10 +65,6 @@ function ReporteRevisionModal({ loading = false, onClose, onSubmit, reporte }) {
             value={reviewerNotes}
           />
         </label>
-
-        <p className="text-xs text-slate-500">
-          La API calcula el estado automaticamente segun las horas aprobadas.
-        </p>
 
         {errorLocal ? <p className="text-sm text-red-600">{errorLocal}</p> : null}
 
