@@ -9,7 +9,7 @@ import Unauthorized from "./pages/Unauthorized";
 import ProtectedAdmin from "./routes/ProtectedAdmin";
 import ProtectedAnyUser from "./routes/ProtectedAnyUser";
 import ProtectedLogin from "./routes/ProtectedLogin";
-import ProtectedStudent from "./routes/ProtectedStudent";
+import MainLayout from "./layouts/MainLayout";
 import CambiarPassword from "./components/CambiarPassword";
 function App() {
   return (
@@ -25,8 +25,11 @@ function App() {
         />
 
         <Route element={<ProtectedAdmin />}>
-          <Route element={<Outlet />}>
+          <Route element={<MainLayout />}>
             <Route path="/" element={<DashboardAdmin />} />
+            <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
+            <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
             <Route path="/reportes" element={<ReportesAdmin />} />
@@ -34,15 +37,17 @@ function App() {
         </Route>
 
         <Route path="/estudiante" element={<ProtectedStudent />}>
-          <Route element={<Outlet />}>
+          <Route element={<MainLayout />}>
             <Route path="dash" element={<DashboardEstudiante />} />
             <Route path="reportes" element={<ReportesEstudiante />} />
           </Route>
         </Route>
 
         <Route element={<ProtectedAnyUser />}>
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/cambiarpassword" element={<CambiarPassword />} />
+          <Route element={<MainLayout />}>
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/cambiarpassword" element={<CambiarPassword />} />
+          </Route>
         </Route>
 
         <Route path="/unauthorized" element={<Unauthorized />} />

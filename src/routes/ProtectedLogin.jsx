@@ -1,9 +1,11 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useCookies } from "react-cookie";
 
 const ProtectedLogin = ({children}) => {
     const { user } = useAuth();
-    if(user?.role) {
+    const [cookies] = useCookies(["token"])
+    if(user?.role && cookies?.token) {
         if(user?.role === "ADMIN"){
             return <Navigate to="/" />
         } else {
