@@ -23,7 +23,7 @@ const useAxios = (url, options = {}) => {
         const finalMethod = (config.method || method).toUpperCase();
         const finalBody = config.hasOwnProperty("body") ? config.body : body;
         
-        const response = await instance({
+        const { data } = await instance({
           method: finalMethod,
           url: config.url || url,
           data: finalBody !== null ? finalBody : undefined,
@@ -31,8 +31,8 @@ const useAxios = (url, options = {}) => {
           headers: { ...headers, ...config.headers },
         });
 
-        setData(response.data);
-        return response.data;
+        setData(data);
+        return data;
       } catch (err) {
         setError(err);
         console.error("Algo salió mal: ", err);
