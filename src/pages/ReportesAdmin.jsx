@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import Paginacion from "../components/Paginacion";
 import ReporteCard from "../components/ReporteCard";
 import ReporteDetalleModal from "../components/ReporteDetalleModal";
 import ReporteRevisionModal from "../components/ReporteRevisionModal";
 import useAxios from "../hooks/useAxios";
-import { estadoOptions } from "../utils/reportes";
+import { estadoOptions, getFechaOrdenable } from "../utils/reportes";
 
 function ReportesAdmin() {
   const [page, setPage] = useState(1);
@@ -12,9 +13,35 @@ function ReportesAdmin() {
   const [estadoFiltro, setEstadoFiltro] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState("");
   const [busqueda, setBusqueda] = useState("");
+  const [busquedaAplicada, setBusquedaAplicada] = useState("");
   const [ordenActual, setOrdenActual] = useState("fecha-desc");
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
   const [reporteRevisando, setReporteRevisando] = useState(null);
+  const [pageConsulta, setPageConsulta] = useState(1);
+  const [reportesBusqueda, setReportesBusqueda] = useState([]);
+  const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
+  const [errorBusqueda, setErrorBusqueda] = useState(null);
+
+  const paramsConsulta = useMemo(() => {
+    const params = {
+      page: pageConsulta,
+      page_size: pageSize,
+    };
+
+    if (estadoFiltro) {
+      params.status = estadoFiltro;
+    }
+
+    if (categoriaFiltro) {
+      params.category_id = categoriaFiltro;
+    }
+
+    if (busqueda.trim()) {
+      params.search = busqueda.trim();
+    }
+
+    return params;
+  }, [busqueda, categoriaFiltro, estadoFiltro, pageConsulta, pageSize]);
 
   const {
     data,
@@ -22,7 +49,10 @@ function ReportesAdmin() {
     loading,
     request: recargarReportes,
   } = useAxios("/reports/", {
-    params: { page, page_size: pageSize },
+    params: paramsConsulta,
+  });
+  const { request: consultarReportes } = useAxios("/reports/", {
+    auto: false,
   });
   const {
     loading: guardandoRevision,
@@ -34,50 +64,189 @@ function ReportesAdmin() {
 
   const { data: categoriasData } = useAxios("/categories/");
 
-  const reportes = data?.items ?? data?.data ?? [];
-  const total = data?.total ?? 0;
-  const categorias = categoriasData?.items ?? categoriasData?.data ?? categoriasData ?? [];
+  const reportes = Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(data?.data)
+      ? data.data
+      : Array.isArray(data?.results)
+        ? data.results
+        : Array.isArray(data)
+          ? data
+          : [];
+  const categorias = Array.isArray(categoriasData?.items)
+    ? categoriasData.items
+    : Array.isArray(categoriasData?.data)
+      ? categoriasData.data
+      : Array.isArray(categoriasData?.results)
+        ? categoriasData.results
+        : Array.isArray(categoriasData)
+          ? categoriasData
+          : [];
   const mensajeError =
+    errorBusqueda?.response?.data?.detail?.[0]?.msg ??
     error?.response?.data?.detail?.[0]?.msg ??
     "No se pudieron cargar los reportes.";
 
+  const textoBusqueda = busquedaAplicada.trim().toLowerCase();
+  const reportesFuente = textoBusqueda ? reportesBusqueda : reportes;
+
+  const reportesFiltrados = useMemo(() => {
+    return reportesFuente.filter((reporte) => {
+      if (!textoBusqueda) {
+        return true;
+      }
+
+      const valoresBusqueda = [
+        reporte.id,
+        reporte.description,
+        reporte.category?.name,
+        reporte.student?.full_name,
+      ]
+        .filter(Boolean)
+        .map((valor) => String(valor).toLowerCase());
+
+      return valoresBusqueda.some((valor) => valor.includes(textoBusqueda));
+    });
+  }, [reportesFuente, textoBusqueda]);
+
+  const total = busqueda.trim() ? reportesFiltrados.length : data?.total ?? reportes.length;
   const reportesVisibles = useMemo(() => {
-    const textoBusqueda = busqueda.trim().toLowerCase();
+    const lista = [...reportesFiltrados];
 
-    const listaFiltrada = reportes.filter((reporte) => {
-      const coincideEstado = estadoFiltro ? reporte.status === estadoFiltro : true;
-      const coincideCategoria = categoriaFiltro
-        ? String(reporte.category?.id ?? reporte.category_id ?? "") === categoriaFiltro
-        : true;
-      const nombreEstudiante = reporte.student?.full_name?.toLowerCase() ?? "";
-      const nombreCategoria = reporte.category?.name?.toLowerCase() ?? "";
-      const coincideBusqueda = textoBusqueda
-        ? nombreEstudiante.includes(textoBusqueda) || nombreCategoria.includes(textoBusqueda)
-        : true;
-
-      return coincideEstado && coincideCategoria && coincideBusqueda;
-    });
-
-    return [...listaFiltrada].sort((reporteA, reporteB) => {
-      if (ordenActual === "fecha-asc") {
-        return new Date(reporteA.created_at) - new Date(reporteB.created_at);
-      }
-
-      if (ordenActual === "horas-desc") {
-        return Number(reporteB.hours_spent ?? 0) - Number(reporteA.hours_spent ?? 0);
-      }
-
-      if (ordenActual === "horas-asc") {
-        return Number(reporteA.hours_spent ?? 0) - Number(reporteB.hours_spent ?? 0);
-      }
-
+    return lista.sort((reporteA, reporteB) => {
       if (ordenActual === "estudiante-asc") {
-        return (reporteA.student?.full_name ?? "").localeCompare(reporteB.student?.full_name ?? "");
+        return (reporteA.student?.full_name ?? "").localeCompare(
+          reporteB.student?.full_name ?? "",
+        );
       }
 
-      return new Date(reporteB.created_at) - new Date(reporteA.created_at);
+      if (ordenActual === "horas-desc" || ordenActual === "horas-asc") {
+        const diferenciaHoras =
+          Number(reporteA.hours_spent ?? 0) - Number(reporteB.hours_spent ?? 0);
+        return ordenActual === "horas-desc" ? -diferenciaHoras : diferenciaHoras;
+      }
+
+      const diferenciaFecha =
+        getFechaOrdenable(reporteA.created_at) - getFechaOrdenable(reporteB.created_at);
+      return ordenActual === "fecha-desc" ? -diferenciaFecha : diferenciaFecha;
     });
-  }, [busqueda, categoriaFiltro, estadoFiltro, ordenActual, reportes]);
+  }, [ordenActual, reportesFiltrados]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setBusquedaAplicada(busqueda);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [busqueda]);
+
+  useEffect(() => {
+    if (textoBusqueda) {
+      setPageConsulta(1);
+      return;
+    }
+
+    if (ordenActual !== "fecha-asc") {
+      setPageConsulta(page);
+      return;
+    }
+
+    const totalPaginas = Math.max(1, Math.ceil(total / pageSize));
+    setPageConsulta(Math.max(1, totalPaginas - page + 1));
+  }, [ordenActual, page, pageSize, textoBusqueda, total]);
+
+  useEffect(() => {
+    if (!textoBusqueda) {
+      setReportesBusqueda([]);
+      setCargandoBusqueda(false);
+      setErrorBusqueda(null);
+      return;
+    }
+
+    let cancelado = false;
+
+    const cargarReportesBusqueda = async () => {
+      setCargandoBusqueda(true);
+      setErrorBusqueda(null);
+
+      try {
+        let paginaActual = 1;
+        let totalPaginas = 1;
+        const acumulados = [];
+
+        while (paginaActual <= totalPaginas) {
+          const respuesta = await consultarReportes({
+            params: {
+              page: paginaActual,
+              page_size: pageSize,
+              ...(estadoFiltro ? { status: estadoFiltro } : {}),
+              ...(categoriaFiltro ? { category_id: categoriaFiltro } : {}),
+            },
+          });
+
+          const itemsPagina = Array.isArray(respuesta?.items)
+            ? respuesta.items
+            : Array.isArray(respuesta?.data)
+              ? respuesta.data
+              : Array.isArray(respuesta?.results)
+                ? respuesta.results
+                : Array.isArray(respuesta)
+                  ? respuesta
+                  : [];
+
+          acumulados.push(...itemsPagina);
+
+          const totalItems = Number(respuesta?.total ?? acumulados.length);
+          totalPaginas = Math.max(1, Math.ceil(totalItems / pageSize));
+          paginaActual += 1;
+        }
+
+        if (!cancelado) {
+          setReportesBusqueda(acumulados);
+        }
+      } catch (err) {
+        if (!cancelado) {
+          setErrorBusqueda(err);
+          setReportesBusqueda([]);
+        }
+      } finally {
+        if (!cancelado) {
+          setCargandoBusqueda(false);
+        }
+      }
+    };
+
+    cargarReportesBusqueda();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [categoriaFiltro, consultarReportes, estadoFiltro, pageSize, textoBusqueda]);
+
+  const resetearPaginacion = () => {
+    setPage(1);
+    setPageConsulta(1);
+  };
+
+  const cambiarBusqueda = (evento) => {
+    setBusqueda(evento.target.value);
+    resetearPaginacion();
+  };
+
+  const cambiarEstado = (evento) => {
+    setEstadoFiltro(evento.target.value);
+    resetearPaginacion();
+  };
+
+  const cambiarCategoria = (evento) => {
+    setCategoriaFiltro(evento.target.value);
+    resetearPaginacion();
+  };
+
+  const cambiarOrden = (evento) => {
+    setOrdenActual(evento.target.value);
+    resetearPaginacion();
+  };
 
   const abrirDetalle = (reporte) => {
     setReporteSeleccionado(reporte);
@@ -109,17 +278,28 @@ function ReportesAdmin() {
 
     cerrarRevision();
     await recargarReportes({
-      params: { page, page_size: pageSize },
+      params: paramsConsulta,
     });
   };
 
   return (
     <main className="mx-auto max-w-7xl p-6">
       <section className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-slate-900">Reportes del admin</h1>
-        <p className="mt-2 text-sm text-slate-500">
-          Revisa, filtra y ordena los reportes desde la vista administrativa.
-        </p>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">Reportes del admin</h1>
+            <p className="mt-2 text-sm text-slate-500">
+              Revisa, filtra y ordena los reportes desde la vista administrativa.
+            </p>
+          </div>
+
+          <Link
+            className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+            to="/estudiantes-pendientes"
+          >
+            Ver estudiantes pendientes
+          </Link>
+        </div>
       </section>
 
       <section className="mb-6 grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-2 xl:grid-cols-4">
@@ -127,7 +307,7 @@ function ReportesAdmin() {
           Buscar
           <input
             className="rounded-2xl border border-slate-300 px-4 py-3"
-            onChange={(evento) => setBusqueda(evento.target.value)}
+            onChange={cambiarBusqueda}
             placeholder="Estudiante o categoria"
             type="text"
             value={busqueda}
@@ -138,7 +318,7 @@ function ReportesAdmin() {
           Estado
           <select
             className="rounded-2xl border border-slate-300 px-4 py-3"
-            onChange={(evento) => setEstadoFiltro(evento.target.value)}
+            onChange={cambiarEstado}
             value={estadoFiltro}
           >
             {estadoOptions.map((estado) => (
@@ -153,7 +333,7 @@ function ReportesAdmin() {
           Categoria
           <select
             className="rounded-2xl border border-slate-300 px-4 py-3"
-            onChange={(evento) => setCategoriaFiltro(evento.target.value)}
+            onChange={cambiarCategoria}
             value={categoriaFiltro}
           >
             <option value="">Todas</option>
@@ -169,7 +349,7 @@ function ReportesAdmin() {
           Ordenar por
           <select
             className="rounded-2xl border border-slate-300 px-4 py-3"
-            onChange={(evento) => setOrdenActual(evento.target.value)}
+            onChange={cambiarOrden}
             value={ordenActual}
           >
             <option value="fecha-desc">Mas recientes</option>
@@ -181,10 +361,12 @@ function ReportesAdmin() {
         </label>
       </section>
 
-      {loading ? <p>Cargando reportes...</p> : null}
-      {!loading && error ? <p className="text-red-600">{mensajeError}</p> : null}
+      {loading || cargandoBusqueda ? <p>Cargando reportes...</p> : null}
+      {!loading && !cargandoBusqueda && (error || errorBusqueda) ? (
+        <p className="text-red-600">{mensajeError}</p>
+      ) : null}
 
-      {!loading && !error ? (
+      {!loading && !cargandoBusqueda && !error && !errorBusqueda ? (
         <>
           <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {reportesVisibles.map((reporte) => (

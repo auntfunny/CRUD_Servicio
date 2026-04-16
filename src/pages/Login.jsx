@@ -5,7 +5,6 @@ const estilosCampo =
   "peer w-full border-b border-slate-200 bg-transparent pb-3 pl-12 pr-3 pt-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#5d80c8]";
 
 function CampoEntrada({
-  autocompletado,
   campo,
   etiqueta,
   icono,
@@ -30,7 +29,6 @@ function CampoEntrada({
           />
         </span>
         <input
-          autoComplete={autocompletado}
           onChange={alCambiar}
           data-campo={campo}
           className={estilosCampo}
@@ -49,7 +47,7 @@ function CampoEntrada({
 function Login() {
   const { login, loading } = useAuth();
   const [credenciales, setCredenciales] = useState({
-    clave: "",
+    contrasena: "",
     email: "",
   });
 
@@ -65,7 +63,7 @@ function Login() {
 
   const manejarEnvio = async (evento) => {
     evento.preventDefault();
-    await login(credenciales.email, credenciales.clave);
+    await login(credenciales.email, credenciales.contrasena);
   };
 
   return (
@@ -143,12 +141,10 @@ function Login() {
               </p>
 
               <form
-                autoComplete="on"
                 className="mt-10 space-y-7"
                 onSubmit={manejarEnvio}
               >
                 <CampoEntrada
-                  autocompletado="username"
                   campo="email"
                   etiqueta="email"
                   alCambiar={manejarCambio}
@@ -160,15 +156,14 @@ function Login() {
                 />
 
                 <CampoEntrada
-                  autocompletado="current-password"
-                  campo="clave"
+                  campo="contrasena"
                   etiqueta="password"
                   alCambiar={manejarCambio}
                   icono="/icons/icoPassword.png"
                   id="password"
                   nombre="password"
                   tipo="password"
-                  valor={credenciales.clave}
+                  valor={credenciales.contrasena}
                 />
 
                 <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-end">
