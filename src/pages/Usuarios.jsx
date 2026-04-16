@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { instance as api } from "../api";
 import { useNavigate } from "react-router-dom";
+import ModalConfirmacion from "../components/ModalConfirmacion";
 
 export default function Usuarios() {
   const [usuarios, setUsuarios] = useState([]);
@@ -134,7 +135,6 @@ export default function Usuarios() {
                         </button>
 
                       </td>
-
                     </tr>
                   ))
                 )}

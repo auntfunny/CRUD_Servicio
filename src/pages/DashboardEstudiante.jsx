@@ -1,54 +1,56 @@
 import TarjetaEstadistica from "../components/TarjetaEstadistica";
 import FilaCategoria from "../components/FilaCategoria";
-
-// datos de la API
-const datosEstudiante = {
-  reportes: {
-    total: 1,
-    pendientes: 1,
-    aprobados: 0,
-    rechazados: 0,
-    horas_presentadas: 5,
-    horas_aprobadas: 0,
-    tasa_de_aprobación: 0,
-  },
-  progreso_curso: {
-    id_curso: 32,
-    nombre_curso: "Desarrollo Web",
-    horas_servicio_requeridas: 60,
-    horas_aprobadas: 0,
-    horas_restantes: 60,
-    porcentaje_progreso: 0,
-  },
-  categorias_top: [
-    { id: 1, nombre: "Visita al templo", total_reportes: 1, horas_aprobadas: 0 },
-    { id: 2, nombre: "Indexación",       total_reportes: 3, horas_aprobadas: 3 },
-  ],
-};
+import { useMemo } from "react";
+import useAxios from "../hooks/useAxios";
 
 // Componente principal.
 export default function DashboardEstudiante() {
-  const { reportes, progreso_curso, categorias_top } = datosEstudiante;
+  const { data, loading, error } = useAxios("/dashboard/stats");
 
+// Mapeo de la API.
+  const { reportes, progreso_curso, categorias_top } = useMemo(() => {
+    if (!data) return { reportes: null, progreso_curso: null, categorias_top: [] };
+
+ return {
+      reportes: {
+        total:             data.reports.total,
+        pendientes:        data.reports.pending,
+        aprobados:         data.reports.approved,
+        rechazados:        data.reports.rejected,
+        horas_presentadas: data.reports.total_hours_submitted,
+        horas_aprobadas:   data.reports.total_hours_approved,
+      },
+      progreso_curso: {
+        nombre_curso:             data.course_progress.course_name,
+        horas_servicio_requeridas: data.course_progress.required_service_hours,
+        horas_aprobadas:          data.course_progress.hours_approved,
+        horas_restantes:          data.course_progress.hours_remaining,
+        porcentaje_progreso:      data.course_progress.progress_percentage,
+      },
+      categorias_top: data.top_categories.map((cat) => ({
+        id:            cat.id,
+        nombre:        cat.name,
+        total_reportes: cat.total_reports,
+        horas_aprobadas: cat.total_hours_approved,
+      })),
+    };
+  }, [data]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      Cargando...
+    </div>
+  );
+
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 text-red-500">
+      Error al cargar los datos
+    </div>
+  );
+
+  if (!reportes) return null;
   return (
     <div className="bg-gray-50 min-h-screen px-6 py-8 max-w-5xl mx-auto">
-
-      {/* Acciones rápidas */}
-      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
-        Acciones rápidas
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-        <button className="bg-[#ff9e18] text-[#003764] font-bold rounded-2xl py-4 px-5 text-sm flex items-center gap-3 shadow hover:brightness-95 transition">
-          <span className="text-lg">＋</span> Nuevo reporte
-        </button>
-        <button className="bg-[#2a7de1] text-white font-bold rounded-2xl py-4 px-5 text-sm flex items-center gap-3 shadow hover:brightness-95 transition">
-          <span className="text-lg">📋</span> Mis reportes
-        </button>
-        <button className="bg-[#003764] text-white font-bold rounded-2xl py-4 px-5 text-sm flex items-center gap-3 shadow hover:brightness-95 transition">
-          <span className="text-lg">📈</span> Progreso del curso
-        </button>
-      </div>
-
       {/* Progreso del curso */}
       <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
         Progreso del curso
@@ -88,10 +90,15 @@ export default function DashboardEstudiante() {
         </div>
       </div>
 
-      {/* Estadísticas de mis reportes */}
-      <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
-        Mis reportes
-      </p>
+        {/* Estadísticas de mis reportes */}
+        <div className="flex justify-between items-center mb-3">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
+           Mis reportes
+          </p>
+          <button className="bg-[#ff9e18] text-[#003764] font-bold rounded-full px-5 py-2 text-xs flex items-center gap-2 shadow hover:brightness-95 transition">
+          <span>＋</span> Nuevo reporte
+          </button>
+        </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
         <TarjetaEstadistica valor={reportes.total}            etiqueta="Total reportes"    colorBorde="border-[#2a7de1]" />
         <TarjetaEstadistica valor={reportes.pendientes}        etiqueta="Pendientes"        colorBorde="border-[#ff9e18]" />
