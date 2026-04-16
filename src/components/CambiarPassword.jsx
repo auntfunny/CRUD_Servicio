@@ -96,8 +96,6 @@ export default function CambiarPassword() {
             className="w-full border-b border-slate-200 bg-transparent pb-3 pt-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#5d80c8]"
             required
           />
-
-          {/* BOTÓN IGUAL AL LOGIN */}
           <button
             disabled={loading}
             className="w-full rounded-full bg-[linear-gradient(90deg,#7796db_0%,#5d80c8_45%,#3b5f9f_100%)] px-8 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_rgba(93,128,200,0.35)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_35px_rgba(93,128,200,0.42)] focus:outline-none focus:ring-2 focus:ring-[#7b9ae0] focus:ring-offset-2 disabled:opacity-60"

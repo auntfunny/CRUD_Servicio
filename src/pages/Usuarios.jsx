@@ -13,29 +13,43 @@ export default function Usuarios() {
     cargarUsuarios();
   }, []);
 
- async function cargarUsuarios() {
-  setLoading(true);
-  setError(null);
+  async function cargarUsuarios() {
+    setLoading(true);
+    setError(null);
 
-  try {
-    const res = await api.get("/users/");
-    const data = res.data;
+    try {
+      const res = await api.get("/users/");
+      const data = res.data;
 
-    console.log("USUARIOS API:", data);
+      console.log("USUARIOS API:", data);
 
-    setUsuarios(
-      Array.isArray(data)
-        ? data
-        : data.items || data.results || []
-    );
+      setUsuarios(
+        Array.isArray(data)
+          ? data
+          : data.items || data.results || []
+      );
 
-  } catch (err) {
-    console.error("Error cargando usuarios:", err.response?.data);
-    setError("No se pudieron cargar los usuarios ❌");
-  } finally {
-    setLoading(false);
+    } catch (err) {
+      console.error("Error cargando usuarios:", err.response?.data);
+      setError("No se pudieron cargar los usuarios ❌");
+    } finally {
+      setLoading(false);
+    }
   }
-}
+
+  async function eliminarUsuario(id) {
+    const confirmar = window.confirm("¿Seguro que quieres eliminar este usuario?");
+    if (!confirmar) return;
+
+    try {
+      await api.delete(`/users/${id}`);
+      setUsuarios((prev) => prev.filter((u) => u.id !== id));
+
+    } catch (err) {
+      console.error("Error eliminando usuario:", err.response?.data);
+      alert("No se pudo eliminar el usuario ❌");
+    }
+  }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] px-4 py-8">
@@ -55,17 +69,17 @@ export default function Usuarios() {
           </button>
         </div>
 
-        {/* 🔄 LOADING */}
+        {/*LOADING */}
         {loading && (
           <p className="text-center text-slate-600">Cargando usuarios...</p>
         )}
 
-        {/* ❌ ERROR */}
+        {/*ERROR */}
         {error && (
           <p className="text-center text-red-500">{error}</p>
         )}
 
-        {/* ✅ LISTADO */}
+        {/*LISTADO */}
         {!loading && !error && (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -101,13 +115,24 @@ export default function Usuarios() {
 
                       <td>{u.role}</td>
 
-                      <td>
+                      <td className="flex gap-4 items-center py-3">
+
+                        {/* EDITAR */}
                         <button
                           onClick={() => navigate(`/usuarios/${u.id}/editar`)}
                           className="text-blue-600 hover:underline"
                         >
                           Editar
                         </button>
+
+                        {/* ELIMINAR */}
+                        <button
+                          onClick={() => eliminarUsuario(u.id)}
+                          className="text-red-600 hover:underline"
+                        >
+                          Eliminar
+                        </button>
+
                       </td>
 
                     </tr>

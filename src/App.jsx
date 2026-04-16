@@ -12,6 +12,8 @@ import CambiarPassword from "./components/CambiarPassword";
 import Usuarios from "./pages/Usuarios";
 import EditarUsuario from "./pages/EditarUsuario";
 import CrearUsuario from "./pages/CrearUsuario";
+import ImportUsers from "./pages/ImportUsers";
+import UsuariosCards from "./pages/UsuariosCards";
 
 function App() {
   return (
@@ -22,8 +24,10 @@ function App() {
           <Route element={<Outlet />}>
             <Route path="/" element={<DashboardAdmin />} />
             <Route path="/usuarios" element={<Usuarios/>} />
+            <Route path="/usuarios-tarjetas" element={<UsuariosCards />} />
             <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
             <Route path="/usuarios/crear" element={<CrearUsuario />} />
+            <Route path="/users/import" element={<ImportUsers />} />
             <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
             <Route path="/paises" element={<h2>Admin Paises</h2>} />
             <Route path="/reportes" element={<h2>Admin Reportes</h2>} />
