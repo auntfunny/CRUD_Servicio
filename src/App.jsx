@@ -20,9 +20,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<ProtectedLogin><Login /></ProtectedLogin>} />
         <Route element={<ProtectedAdmin />}>
-          <Route element={<MainLayout/>}>
+          <Route element={<MainLayout />}>
             <Route path="/" element={<DashboardAdmin />} />
-            <Route path="/usuarios" element={<Usuarios/>} />
+            <Route path="/usuarios" element={<Usuarios />} />
             <Route path="/usuarios/:id/editar" element={<EditarUsuario />} />
             <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/categorias" element={<h2>Admin Categorias</h2>} />
@@ -31,14 +31,16 @@ function App() {
           </Route>
         </Route>
         <Route path="/estudiante" element={<ProtectedStudent />}>
-          <Route element={<MainLayout/>}>
+          <Route element={<MainLayout />}>
             <Route path="dash" element={<DashboardEstudiante />} />
             <Route path="reportes" element={<h2>Student Reportes</h2>} />
           </Route>
         </Route>
         <Route element={<ProtectedAnyUser />}>
-          <Route path="/perfil" element={<Perfil/>} />
-          <Route path="/cambiarpassword" element={<CambiarPassword/>}/>
+          <Route element={<MainLayout />}>
+            <Route path="/perfil" element={<Perfil />} />
+            <Route path="/cambiarpassword" element={<CambiarPassword />} />
+          </Route>
         </Route>
         <Route path="/unauthorized" element={<Unauthorized />} />
         <Route path="*" element={<h2>Error 404</h2>} />

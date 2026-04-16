@@ -14,12 +14,15 @@ export default function MainLayout() {
                 <div>
                     <Navbar abierto={abierto} setAbierto={setAbierto} />
                 </div>
-                <div>
+                <div className="flex flex-1 flex-col md:flex-row" >
+                    <div>
                     <Sidebar abierto={abierto} />
                 </div>
-                <div>
+                <div>                    
                     <Outlet />
                 </div>
+                </div>
+                
                 <div>
                     <Footer />
                 </div>
