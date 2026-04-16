@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (error) {
-      console.error("Algo salió mal: ", error);
+      console.error("Algo salio mal: ", error);
     }
   }, [error]);
 
@@ -52,14 +52,8 @@ export function AuthProvider({ children }) {
   const reload = async () => {
     try {
       const data = await userRequest();
-
       setUser(data);
       setAuthCheck(true);
-      if (redirectAfterLoad && data.role === "ADMIN") {
-        navigate("/");
-      } else if (redirectAfterLoad && data.role === "STUDENT") {
-        navigate("/estudiante/dash");
-      }
     } catch (error) {
       console.error(error);
       await logout();
