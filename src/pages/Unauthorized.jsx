@@ -18,7 +18,6 @@ const Unauthorized = () => {
             navigate("/estudiante/dash");
         }
     }
-
     return (
         <div className="flex flex-col justify-center items-center w-full min-h-screen max-w-5xl mx-auto gap-12">
             <img src={Logo} alt="Funval Logo" className="w-xs" />
