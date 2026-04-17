@@ -19,6 +19,7 @@ import ReportesEstudiante from "./pages/ReportesEstudiante";
 import EstudiantesDeuda from "./pages/EstudiantesDeuda";
 import Categorias from "./pages/Categorias";
 import PaisesAdmin from "./pages/PaisesAdmin";
+import Usuarios from "./pages/Usuarios";
 
 function App() {
   return (
@@ -28,7 +29,8 @@ function App() {
         <Route element={<ProtectedAdmin />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<DashboardAdmin />} />
-            <Route path="/usuarios" element={<UsuariosCards />} />
+            <Route path="/usuarios" element={<Usuarios />} />
+            <Route path="/usuariosCards" element={<UsuariosCards />} />
             <Route path="/usuarios/crear" element={<CrearUsuario />} />
             <Route path="/usuarios/import" element={<ImportUsers />} />
             <Route path="/categorias" element={<Categorias />} />
