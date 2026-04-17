@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { PageShell, PageHero, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
-import { PageShell } from "../components/PageShell";
 
 function CampoPerfil({ etiqueta, valor }) {
   return (
@@ -26,9 +26,7 @@ export default function Perfil() {
     birthdate: "",
     country_id: "",
   });
-
   const navigate = useNavigate();
-
   const { data: perfil, loading: loadingPerfil } = useAxios("/profile/me");
   const { loading: loadingPais, request: requestPais } = useAxios("", { auto: false });
 
@@ -38,7 +36,6 @@ export default function Perfil() {
     const load = async () => {
       try {
         const pais = await requestPais({ url: `/countries/${perfil.country_id}` });
-
         setForm({
           id: perfil.id || "",
           first_name: perfil.first_name || "",
@@ -50,8 +47,8 @@ export default function Perfil() {
           birthdate: perfil.birthdate ? perfil.birthdate.split("T")[0] : "",
           country_id: pais.name || "",
         });
-      } catch (err) {
-        console.error("Error cargando perfil:", err);
+      } catch (error) {
+        console.error("Error cargando perfil:", error);
       }
     };
 
@@ -61,15 +58,7 @@ export default function Perfil() {
   }, [perfil, requestPais]);
 
   const nombreCompleto = useMemo(
-    () =>
-      [
-        form.first_name,
-        form.middle_name,
-        form.last_name,
-        form.second_lastname,
-      ]
-        .filter(Boolean)
-        .join(" "),
+    () => [form.first_name, form.middle_name, form.last_name, form.second_lastname].filter(Boolean).join(" "),
     [form.first_name, form.middle_name, form.last_name, form.second_lastname],
   );
 
@@ -79,51 +68,39 @@ export default function Perfil() {
   }, [form.first_name, form.last_name]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-acc1">
-        Cargando perfil...
-      </div>
-    );
+    return <div className="flex min-h-[60vh] items-center justify-center text-acc1">Cargando perfil...</div>;
   }
 
   return (
     <PageShell>
-      <section className="rounded-[2rem] bg-white/60 p-3 shadow-[0_12px_28px_rgba(15,23,42,0.04)] backdrop-blur-sm md:p-4">
-        <div className="overflow-hidden rounded-[1.7rem] bg-white shadow-[0_24px_60px_rgba(15,23,42,0.06)]">
-          <div className="h-28 bg-[linear-gradient(90deg,_rgba(160,198,243,0.95),_rgba(230,236,247,0.92)_55%,_rgba(251,241,204,0.92))] md:h-32" />
-
-          <div className="px-5 pb-6 pt-0 md:px-8 md:pb-8">
-            <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-              <div className="flex flex-col gap-4 md:flex-row md:items-center">
-                <div className="-mt-12 flex h-24 w-24 items-center justify-center rounded-full border-[6px] border-white bg-[linear-gradient(135deg,_#1f6ed4,_#7aa8eb)] font-montserrat text-2xl font-bold text-white shadow-[0_16px_30px_rgba(31,110,212,0.22)] md:-mt-14 md:h-28 md:w-28 md:text-3xl">
-                  {iniciales}
-                </div>
-
-                <div className="pt-1 md:pt-10">
-                  <p className="font-montserrat text-2xl font-bold text-slate-800 md:text-3xl">
-                    {nombreCompleto || "Mi perfil"}
-                  </p>
-                  <p className="mt-2 text-base text-slate-500">{form.email || "--"}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3 md:pt-8">
-                <button
-                  onClick={() => navigate("/perfil/editar")}
-                  className="inline-flex min-w-[150px] items-center justify-center rounded-xl bg-[var(--color-acc1)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_24px_rgba(42,125,225,0.24)] transition hover:brightness-95"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => navigate("/cambiarpassword")}
-                  className="inline-flex min-w-[170px] items-center justify-center rounded-xl bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
-                >
-                  Cambiar contrasena
-                </button>
-              </div>
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
+        <PageHero
+          eyebrow="Perfil"
+          title={nombreCompleto || "Mi perfil"}
+          description={form.email || "--"}
+          actions={(
+            <>
+              <button className={secondaryButtonClass} onClick={() => navigate("/cambiarpassword")} type="button">
+                Cambiar contrasena
+              </button>
+              <button className={primaryButtonClass} onClick={() => navigate("/perfil/editar")} type="button">
+                Editar perfil
+              </button>
+            </>
+          )}
+          meta={(
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[linear-gradient(135deg,_#1f6ed4,_#7aa8eb)] font-montserrat text-3xl font-bold text-white shadow-[0_16px_30px_rgba(31,110,212,0.22)]">
+              {iniciales}
             </div>
+          )}
+        />
 
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+          <article className={`${panelBaseClass} !bg-white`}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Informacion personal
+            </p>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
               <CampoPerfil etiqueta="Primer nombre" valor={form.first_name} />
               <CampoPerfil etiqueta="Segundo nombre" valor={form.middle_name} />
               <CampoPerfil etiqueta="Apellido" valor={form.last_name} />
@@ -133,27 +110,22 @@ export default function Perfil() {
               <CampoPerfil etiqueta="Fecha de nacimiento" valor={form.birthdate} />
               <CampoPerfil etiqueta="Pais" valor={form.country_id} />
             </div>
+          </article>
 
-            <div className="mt-8 rounded-[1.4rem] bg-slate-50 px-5 py-5">
-              <p className="text-sm font-semibold text-slate-700">Resumen rapido</p>
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                <div className="rounded-[1.1rem] bg-white px-4 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Estado</p>
-                  <p className="mt-2 font-montserrat text-2xl font-bold text-[var(--color-acc2)]">Activo</p>
-                </div>
-                <div className="rounded-[1.1rem] bg-white px-4 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Pais</p>
-                  <p className="mt-2 text-base font-medium text-slate-700">{form.country_id || "--"}</p>
-                </div>
-                <div className="rounded-[1.1rem] bg-white px-4 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">ID de usuario</p>
-                  <p className="mt-2 text-base font-medium text-slate-700">{form.id || "--"}</p>
-                </div>
+          <aside className="space-y-6">
+            <section className={`${panelBaseClass} !bg-white`}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Resumen
+              </p>
+              <div className="mt-5 space-y-4 text-sm text-slate-600">
+                <p><span className="font-semibold text-slate-800">Estado:</span> Activo</p>
+                <p><span className="font-semibold text-slate-800">Pais:</span> {form.country_id || "--"}</p>
+                <p><span className="font-semibold text-slate-800">ID de usuario:</span> {form.id || "--"}</p>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </section>
+          </aside>
+        </section>
+      </div>
     </PageShell>
   );
 }
