@@ -2,8 +2,10 @@ import { useState } from "react";
 import useAxios from "../hooks/useAxios";
 import ModalAgregarEditar from "../components/ModalAgregarEditar";
 import ModalConfirmacion from "../components/ModalConfirmacion";
+import { useToast } from "../context/ToastContext";
 
 function PaisesAdmin() {
+    const {setToastMensaje} = useToast()
     // ESTADOS PARA MODALES Y SELECCIÓN
     const [modalAgregar, setModalAgregar] = useState(false);
     const [modalEditar, setModalEditar] = useState(false);
@@ -23,7 +25,10 @@ function PaisesAdmin() {
     
     const handleCerrarAgregar = (actualizar) => {
         setModalAgregar(false);
-        if (actualizar) request();
+        if (actualizar) {
+            setToastMensaje("País creado exitosamente");
+            request();
+        }
     };
 
     const handleAbrirEditar = (pais) => {
@@ -36,7 +41,10 @@ function PaisesAdmin() {
         setModalEditar(false);
         setEditarCampos(null);
         setEditarId(null);
-        if (actualizar) request();
+        if (actualizar) {
+            setToastMensaje("País editado exitosamente");
+            request();
+        }
     };
 
     const handleAbrirBorrar = (id) => {
@@ -56,6 +64,7 @@ function PaisesAdmin() {
             });
 
             setConfirmarBorrar(false);
+            setToastMensaje("País eliminado exitosamente");
             request();
             setIdBorrar(null);
         } catch (err) {
