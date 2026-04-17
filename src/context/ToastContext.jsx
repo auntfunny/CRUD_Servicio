@@ -1,41 +1,45 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import ToastCaja from "../components/ToastCaja";
-
 
 const ToastContext = createContext();
 
-export const ToastProvider = ({children}) => {
-    const [toastMensaje, setToastMensaje] = useState("");
-    const [mostrarToast, setMostrarToast] = useState(false);
-    const [toastClases, setToastClases] = useState("translate-y-40");
+export const ToastProvider = ({ children }) => {
+  const [toastMensaje, setToastMensaje] = useState("");
+  const [mostrarToast, setMostrarToast] = useState(false);
+  const timeoutRef = useRef(null);
 
+  const cerrarToast = () => {
+    setMostrarToast(false);
+    window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => {
+      setToastMensaje("");
+    }, 220);
+  };
 
-    useEffect(() => {
-        if(toastMensaje){
-            setMostrarToast(true);
+  useEffect(() => {
+    if (!toastMensaje) return undefined;
 
-            setTimeout(() => {
-                setMostrarToast(false);
-                setToastMensaje("")
-            }, 3000)
-        }
-    }, [toastMensaje]);
+    setMostrarToast(true);
+    window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => {
+      cerrarToast();
+    }, 3000);
 
-    useEffect(() => {
-        if(mostrarToast){
-            setToastClases("");
-        } else {
-            setToastClases("translate-y-40")
-        }
-    }, [mostrarToast]);
+    return () => {
+      window.clearTimeout(timeoutRef.current);
+    };
+  }, [toastMensaje]);
 
-    return (
-        <ToastContext.Provider value={{ setToastMensaje }}>
-            <ToastCaja toastMensaje={toastMensaje} toastClases={toastClases} setMostrarToast={setMostrarToast}/>
-            {children}
-        </ToastContext.Provider>
-    )
+  return (
+    <ToastContext.Provider value={{ setToastMensaje }}>
+      <ToastCaja
+        onClose={cerrarToast}
+        toastMensaje={toastMensaje}
+        visible={mostrarToast && Boolean(toastMensaje)}
+      />
+      {children}
+    </ToastContext.Provider>
+  );
+};
 
-}
-
-export const useToast = () => useContext(ToastContext)
+export const useToast = () => useContext(ToastContext);

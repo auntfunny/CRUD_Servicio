@@ -3,6 +3,7 @@ import useAxios from "../hooks/useAxios";
 import ModalAgregarEditar from "../components/ModalAgregarEditar";
 import ModalConfirmacion from "../components/ModalConfirmacion";
 import { PageShell, panelBaseClass, primaryButtonClass } from "../components/PageShell";
+import { useToast } from "../context/ToastContext";
 
 const Categorias = () => {
   const {setToastMensaje} = useToast();

@@ -4,6 +4,7 @@ import BadgeEstadoReporte from "../components/BadgeEstadoReporte";
 import Paginacion from "../components/Paginacion";
 import ReporteDetalleModal from "../components/ReporteDetalleModal";
 import ReporteRevisionModal from "../components/ReporteRevisionModal";
+import TarjetaEstadistica from "../components/TarjetaEstadistica";
 import {
   PageShell,
   controlClass,
@@ -11,11 +12,16 @@ import {
   primaryButtonClass,
 } from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
-import { estadoOptions, getFechaOrdenable } from "../utils/reportes";
+import {
+  estadoOptions,
+  getFechaOrdenable,
+  formatFecha,
+  formatHoras,
+} from "../utils/reportes";
 import { useToast } from "../context/ToastContext";
 
 function ReportesAdmin() {
-  const {setToastMensaje} = useToast();
+  const { setToastMensaje } = useToast();
   const [page, setPage] = useState(1);
   const pageSize = 8;
   const [estadoFiltro, setEstadoFiltro] = useState("");
@@ -25,14 +31,13 @@ function ReportesAdmin() {
   const [ordenActual, setOrdenActual] = useState("fecha-desc");
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
   const [reporteRevisando, setReporteRevisando] = useState(null);
-  const [pageConsulta, setPageConsulta] = useState(1);
   const [reportesBusqueda, setReportesBusqueda] = useState([]);
   const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const [errorBusqueda, setErrorBusqueda] = useState(null);
 
   const paramsConsulta = useMemo(() => {
     const params = {
-      page: pageConsulta,
+      page: page,
       page_size: pageSize,
     };
 
@@ -41,18 +46,26 @@ function ReportesAdmin() {
     if (busqueda.trim()) params.search = busqueda.trim();
 
     return params;
-  }, [busqueda, categoriaFiltro, estadoFiltro, pageConsulta, pageSize]);
+  }, [busqueda, categoriaFiltro, estadoFiltro, page, pageSize]);
 
-  const { data, error, loading, request: recargarReportes } = useAxios("/reports/", {
+  const {
+    data,
+    error,
+    loading,
+    request: recargarReportes,
+  } = useAxios("/reports/", {
     params: paramsConsulta,
   });
   const { request: consultarReportes } = useAxios("/reports/", {
     auto: false,
   });
-  const { loading: guardandoRevision, request: actualizarReporte } = useAxios("/reports/", {
-    auto: false,
-    method: "PATCH",
-  });
+  const { loading: guardandoRevision, request: actualizarReporte } = useAxios(
+    "/reports/",
+    {
+      auto: false,
+      method: "PATCH",
+    },
+  );
   const { data: categoriasData } = useAxios("/categories/");
   const { data: dashboardData } = useAxios("/dashboard/stats");
 
@@ -99,32 +112,44 @@ function ReportesAdmin() {
     });
   }, [reportesFuente, textoBusqueda]);
 
-  const total = busqueda.trim() ? reportesFiltrados.length : data?.total ?? reportes.length;
+  const total = busqueda.trim()
+    ? reportesFiltrados.length
+    : (data?.total ?? reportes.length);
 
   const reportesVisibles = useMemo(() => {
     const lista = [...reportesFiltrados];
 
     return lista.sort((reporteA, reporteB) => {
       if (ordenActual === "estudiante-asc") {
-        return (reporteA.student?.full_name ?? "").localeCompare(reporteB.student?.full_name ?? "");
+        return (reporteA.student?.full_name ?? "").localeCompare(
+          reporteB.student?.full_name ?? "",
+        );
       }
 
       if (ordenActual === "horas-desc" || ordenActual === "horas-asc") {
-        const diferenciaHoras = Number(reporteA.hours_spent ?? 0) - Number(reporteB.hours_spent ?? 0);
-        return ordenActual === "horas-desc" ? -diferenciaHoras : diferenciaHoras;
+        const diferenciaHoras =
+          Number(reporteA.hours_spent ?? 0) - Number(reporteB.hours_spent ?? 0);
+        return ordenActual === "horas-desc"
+          ? -diferenciaHoras
+          : diferenciaHoras;
       }
 
-      const diferenciaFecha = getFechaOrdenable(reporteA.created_at) - getFechaOrdenable(reporteB.created_at);
+      const diferenciaFecha =
+        getFechaOrdenable(reporteA.created_at) -
+        getFechaOrdenable(reporteB.created_at);
       return ordenActual === "fecha-desc" ? -diferenciaFecha : diferenciaFecha;
     });
   }, [ordenActual, reportesFiltrados]);
 
-  const resumen = useMemo(() => ({
-    aprobados: dashboardData?.reports?.approved ?? 0,
-    pendientes: dashboardData?.reports?.pending ?? 0,
-    rechazados: dashboardData?.reports?.rejected ?? 0,
-    total: dashboardData?.reports?.total ?? total,
-  }), [dashboardData, total]);
+  const resumen = useMemo(
+    () => ({
+      aprobados: dashboardData?.reports?.approved ?? 0,
+      pendientes: dashboardData?.reports?.pending ?? 0,
+      rechazados: dashboardData?.reports?.rejected ?? 0,
+      total: dashboardData?.reports?.total ?? total,
+    }),
+    [dashboardData, total],
+  );
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -133,21 +158,6 @@ function ReportesAdmin() {
 
     return () => clearTimeout(timeoutId);
   }, [busqueda]);
-
-  useEffect(() => {
-    if (textoBusqueda) {
-      setPageConsulta(1);
-      return;
-    }
-
-    if (ordenActual !== "fecha-asc") {
-      setPageConsulta(page);
-      return;
-    }
-
-    const totalPaginas = Math.max(1, Math.ceil(total / pageSize));
-    setPageConsulta(Math.max(1, totalPaginas - page + 1));
-  }, [ordenActual, page, pageSize, textoBusqueda, total]);
 
   useEffect(() => {
     if (!textoBusqueda) {
@@ -211,11 +221,16 @@ function ReportesAdmin() {
     return () => {
       cancelado = true;
     };
-  }, [categoriaFiltro, consultarReportes, estadoFiltro, pageSize, textoBusqueda]);
+  }, [
+    categoriaFiltro,
+    consultarReportes,
+    estadoFiltro,
+    pageSize,
+    textoBusqueda,
+  ]);
 
   const resetearPaginacion = () => {
     setPage(1);
-    setPageConsulta(1);
   };
 
   const abrirDetalle = (reporte) => setReporteSeleccionado(reporte);
@@ -255,7 +270,8 @@ function ReportesAdmin() {
               Revision administrativa
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Busca, filtra y revisa reportes desde una vista mas ordenada y operativa.
+              Busca, filtra y revisa reportes desde una vista mas ordenada y
+              operativa.
             </p>
           </div>
 
@@ -265,10 +281,26 @@ function ReportesAdmin() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <MiniStat label="Total" tone="text-slate-800" value={resumen.total} />
-          <MiniStat label="Pendientes" tone="text-amber-700" value={resumen.pendientes} />
-          <MiniStat label="Aprobados" tone="text-emerald-700" value={resumen.aprobados} />
-          <MiniStat label="Rechazados" tone="text-rose-700" value={resumen.rechazados} />
+          <TarjetaEstadistica
+            label="Total"
+            tone="text-slate-800"
+            value={resumen.total}
+          />
+          <TarjetaEstadistica
+            label="Pendientes"
+            tone="text-amber-700"
+            value={resumen.pendientes}
+          />
+          <TarjetaEstadistica
+            label="Aprobados"
+            tone="text-emerald-700"
+            value={resumen.aprobados}
+          />
+          <TarjetaEstadistica
+            label="Rechazados"
+            tone="text-rose-700"
+            value={resumen.rechazados}
+          />
         </section>
 
         <section className={`${panelBaseClass} !bg-white`}>
@@ -289,10 +321,14 @@ function ReportesAdmin() {
 
             <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
               Estado
-              <select className={controlClass} onChange={(evento) => {
-                setEstadoFiltro(evento.target.value);
-                resetearPaginacion();
-              }} value={estadoFiltro}>
+              <select
+                className={controlClass}
+                onChange={(evento) => {
+                  setEstadoFiltro(evento.target.value);
+                  resetearPaginacion();
+                }}
+                value={estadoFiltro}
+              >
                 {estadoOptions.map((estado) => (
                   <option key={estado.value} value={estado.value}>
                     {estado.label}
@@ -303,10 +339,14 @@ function ReportesAdmin() {
 
             <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
               Categoria
-              <select className={controlClass} onChange={(evento) => {
-                setCategoriaFiltro(evento.target.value);
-                resetearPaginacion();
-              }} value={categoriaFiltro}>
+              <select
+                className={controlClass}
+                onChange={(evento) => {
+                  setCategoriaFiltro(evento.target.value);
+                  resetearPaginacion();
+                }}
+                value={categoriaFiltro}
+              >
                 <option value="">Todas</option>
                 {categorias.map((categoria) => (
                   <option key={categoria.id} value={String(categoria.id)}>
@@ -318,10 +358,14 @@ function ReportesAdmin() {
 
             <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
               Ordenar por
-              <select className={controlClass} onChange={(evento) => {
-                setOrdenActual(evento.target.value);
-                resetearPaginacion();
-              }} value={ordenActual}>
+              <select
+                className={controlClass}
+                onChange={(evento) => {
+                  setOrdenActual(evento.target.value);
+                  resetearPaginacion();
+                }}
+                value={ordenActual}
+              >
                 <option value="fecha-desc">Mas recientes</option>
                 <option value="fecha-asc">Mas antiguos</option>
                 <option value="horas-desc">Mas horas</option>
@@ -332,14 +376,18 @@ function ReportesAdmin() {
           </div>
         </section>
 
-        {loading || cargandoBusqueda ? <p className="text-sm text-slate-500">Cargando reportes...</p> : null}
+        {loading || cargandoBusqueda ? (
+          <p className="text-sm text-slate-500">Cargando reportes...</p>
+        ) : null}
         {!loading && !cargandoBusqueda && (error || errorBusqueda) ? (
           <p className="text-red-600">{mensajeError}</p>
         ) : null}
 
         {!loading && !cargandoBusqueda && !error && !errorBusqueda ? (
           <>
-            <section className={`${panelBaseClass} overflow-x-auto !bg-white !p-0`}>
+            <section
+              className={`${panelBaseClass} overflow-x-auto !bg-white !p-0`}
+            >
               <div className="min-w-[980px]">
                 <div className="grid grid-cols-[1.35fr_0.9fr_0.9fr_0.8fr_0.9fr_0.95fr_0.75fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Estudiante</span>
@@ -378,8 +426,12 @@ function ReportesAdmin() {
                         <p className="truncate font-medium text-slate-700">
                           {reporte.category?.name ?? "Sin categoria"}
                         </p>
-                        <p className="truncate">{reporte.description || "Sin descripcion"}</p>
-                        <p className="font-semibold text-slate-800">{formatHoras(reporte.hours_spent)}</p>
+                        <p className="truncate">
+                          {reporte.description || "Sin descripcion"}
+                        </p>
+                        <p className="font-semibold text-slate-800">
+                          {formatHoras(reporte.hours_spent)}
+                        </p>
                         <p>{formatFecha(reporte.created_at)}</p>
                         <BadgeEstadoReporte estado={reporte.status} />
                         <div className="flex flex-wrap gap-2">
@@ -405,7 +457,12 @@ function ReportesAdmin() {
               </div>
             </section>
 
-            <Paginacion onPageChange={setPage} page={page} page_size={pageSize} total={total} />
+            <Paginacion
+              onPageChange={setPage}
+              page={page}
+              page_size={pageSize}
+              total={total}
+            />
           </>
         ) : null}
 

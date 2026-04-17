@@ -3,6 +3,7 @@ import BadgeEstadoReporte from "../components/BadgeEstadoReporte";
 import Paginacion from "../components/Paginacion";
 import ReporteDetalleModal from "../components/ReporteDetalleModal";
 import ReporteFormModal from "../components/ReporteFormModal";
+import TarjetaEstadistica from "../components/TarjetaEstadistica";
 import {
   PageShell,
   controlClass,
@@ -12,7 +13,7 @@ import {
 import { useAuth } from "../context/AuthContext";
 import useUpload from "../hooks/useUpload";
 import useAxios from "../hooks/useAxios";
-import { estadoOptions, getFechaOrdenable } from "../utils/reportes";
+import { estadoOptions, getFechaOrdenable, formatFecha, formatHoras } from "../utils/reportes";
 import { useToast } from "../context/ToastContext";
 
 function ReportesEstudiante() {
@@ -198,10 +199,10 @@ function ReportesEstudiante() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <MiniStat label="Total" tone="text-slate-800" value={total} />
-          <MiniStat label="Pendientes" tone="text-amber-700" value={resumen.pendientes} />
-          <MiniStat label="Aprobados" tone="text-emerald-700" value={resumen.aprobados} />
-          <MiniStat label="Horas" tone="text-[#1958df]" value={resumen.totalHoras} />
+          <TarjetaEstadistica label="Total" tone="text-slate-800" value={total} />
+          <TarjetaEstadistica label="Pendientes" tone="text-amber-700" value={resumen.pendientes} />
+          <TarjetaEstadistica label="Aprobados" tone="text-emerald-700" value={resumen.aprobados} />
+          <TarjetaEstadistica label="Horas" tone="text-[#1958df]" value={resumen.totalHoras} />
         </section>
 
         <section className={`${panelBaseClass} !bg-white`}>

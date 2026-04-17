@@ -7,12 +7,42 @@ const routeMeta = [
   {
     match: (pathname) => pathname === "/",
     subtitle: "Resumen general del sistema",
-    title: "HORAS de servicio",
+    title: "Horas de servicio",
   },
   {
     match: (pathname) => pathname === "/reportes",
     subtitle: "Revision y gestion administrativa",
     title: "Reportes",
+  },
+  {
+    match: (pathname) => pathname === "/usuarios",
+    subtitle: "Gestion y control de usuarios",
+    title: "Usuarios",
+  },
+  {
+    match: (pathname) => pathname === "/usuarios/crear",
+    subtitle: "Registro de nuevos usuarios",
+    title: "Usuarios",
+  },
+  {
+    match: (pathname) => pathname === "/usuarios/import",
+    subtitle: "Importacion y exportacion masiva",
+    title: "Usuarios",
+  },
+  {
+    match: (pathname) => pathname === "/categorias",
+    subtitle: "Organizacion de categorias activas",
+    title: "Categorias",
+  },
+  {
+    match: (pathname) => pathname === "/paises",
+    subtitle: "Gestion de paises disponibles",
+    title: "Paises",
+  },
+  {
+    match: (pathname) => pathname === "/cursos",
+    subtitle: "Configuracion de cursos del sistema",
+    title: "Cursos",
   },
   {
     match: (pathname) => pathname === "/estudiantes-pendientes",
@@ -22,18 +52,33 @@ const routeMeta = [
   {
     match: (pathname) => pathname === "/estudiante/dash",
     subtitle: "Resumen de progreso y reportes",
-    title: "HORAS de servicio",
+    title: "Horas de servicio",
   },
   {
     match: (pathname) => pathname === "/estudiante/reportes",
     subtitle: "Consulta y registro de reportes",
-    title: "Mis reportes",
+    title: "Reportes",
+  },
+  {
+    match: (pathname) => pathname === "/perfil",
+    subtitle: "Informacion personal de tu cuenta",
+    title: "Perfil",
+  },
+  {
+    match: (pathname) => pathname === "/perfil/editar",
+    subtitle: "Edicion de datos personales",
+    title: "Perfil",
+  },
+  {
+    match: (pathname) => pathname === "/cambiarpassword",
+    subtitle: "Actualizacion de acceso y seguridad",
+    title: "Seguridad",
   },
 ];
 
 function getRouteMeta(pathname) {
   return routeMeta.find((item) => item.match(pathname)) ?? {
-    title: "HORAS de servicio",
+    title: "Horas de servicio",
     subtitle: "",
   };
 }

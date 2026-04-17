@@ -1,11 +1,21 @@
 export default function Footer() {
   return (
-    <footer className="mt-auto border-t border-slate-200/80 bg-white/90 px-4 py-4 text-center text-sm shadow-[0_-10px_30px_rgba(0,55,100,0.05)] backdrop-blur-sm">
-      <p className="font-montserrat font-semibold text-[var(--color-acc2)]">FUNVAL - Curso Frontend 2026 </p>
+    <footer className="border-t border-white/70 bg-[linear-gradient(180deg,_rgba(245,247,251,0.92),_rgba(248,250,252,0.98))] px-6 py-5 backdrop-blur-sm">
+      <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-3 text-sm text-slate-500 md:flex-row md:items-center md:justify-between">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
+            Funval
+          </p>
+          <p className="mt-1 font-medium text-slate-700">
+            Horas de servicio
+          </p>
+        </div>
 
-      <p className="mt-1 text-slate-500"> Grupo 1 | Proyecto acadÃ©mico desarrollado por estudiantes</p>
-
-      <p className="mt-1 text-slate-400"> Â© {new Date().getFullYear()} Todos los derechos reservados </p>
+        <div className="flex flex-col gap-1 text-left md:items-end md:text-right">
+          <p>Proyecto academico desarrollado por estudiantes.</p>
+          <p className="text-slate-400">© {new Date().getFullYear()} FUNVAL. Todos los derechos reservados.</p>
+        </div>
+      </div>
     </footer>
   );
 }
