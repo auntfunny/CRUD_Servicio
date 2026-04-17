@@ -2,10 +2,12 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import useAxios from "../hooks/useAxios";
+import { useToast } from "./ToastContext";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
+  const {setToastMensaje} = useToast();
   const [user, setUser] = useState(null);
   const [authCheck, setAuthCheck] = useState(false);
   const navigate = useNavigate();
@@ -77,6 +79,7 @@ export function AuthProvider({ children }) {
 
         setUser(data);
         setAuthCheck(true);
+        setToastMensaje(`Sesión de ${data.first_name} iniciada`)
 
         if (data.role === "ADMIN") {
           navigate("/");
@@ -103,6 +106,7 @@ export function AuthProvider({ children }) {
     removeCookie("token");
     setUser(null);
     setAuthCheck(true);
+    setToastMensaje("Sesión finalizada")
 
     navigate("/login");
   };

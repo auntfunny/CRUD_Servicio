@@ -6,8 +6,10 @@ import ReporteDetalleModal from "../components/ReporteDetalleModal";
 import ReporteRevisionModal from "../components/ReporteRevisionModal";
 import useAxios from "../hooks/useAxios";
 import { estadoOptions, getFechaOrdenable } from "../utils/reportes";
+import { useToast } from "../context/ToastContext";
 
 function ReportesAdmin() {
+  const {setToastMensaje} = useToast();
   const [page, setPage] = useState(1);
   const pageSize = 8;
   const [estadoFiltro, setEstadoFiltro] = useState("");
@@ -276,6 +278,7 @@ function ReportesAdmin() {
       method: "PATCH",
     });
 
+    setToastMensaje("Estado del reporte actualizado exitosamente");
     cerrarRevision();
     await recargarReportes({
       params: paramsConsulta,

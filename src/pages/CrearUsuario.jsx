@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
+import { useToast } from "../context/ToastContext";
 
 export default function CrearUsuario() {
   const navigate = useNavigate();
+  const { setToastMensaje } = useToast();
 
   const [form, setForm] = useState({
     email: "",
@@ -23,9 +25,19 @@ export default function CrearUsuario() {
   const [mensaje, setMensaje] = useState(null);
   const [errors, setErrors] = useState({});
 
-  const {data: paisData, loading: paisLoading, error: paisError} = useAxios("/countries/");
-  const {data: cursoData, loading: cursoLoading, error: cursoError} = useAxios("/courses/");
-  const {data, loading, error, request} = useAxios("/users/", {method: "POST"});
+  const {
+    data: paisData,
+    loading: paisLoading,
+    error: paisError,
+  } = useAxios("/countries/");
+  const {
+    data: cursoData,
+    loading: cursoLoading,
+    error: cursoError,
+  } = useAxios("/courses/");
+  const { data, loading, error, request } = useAxios("/users/", {
+    method: "POST",
+  });
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -60,19 +72,12 @@ export default function CrearUsuario() {
       course_id: form.course_id,
     };
 
-
     try {
-      await request({body: payload});
+      await request({ body: payload });
 
-      setMensaje({
-        tipo: "ok",
-        texto: "Usuario creado correctamente",
-      });
+      setToastMensaje("Usuario creado correctamente");
 
-      setTimeout(() => {
-        navigate("/usuarios");
-      }, 1200);
-
+      navigate("/usuarios");
     } catch (error) {
       console.log("ERROR API:", error.response?.data);
 
@@ -95,55 +100,129 @@ export default function CrearUsuario() {
           tipo: "error",
           texto: "Revisa los campos ❌",
         });
-
       } else {
         setMensaje({
           tipo: "error",
           texto: response?.detail || "Error del servidor ❌",
         });
       }
-    } 
+    }
   }
 
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] p-4 flex items-center justify-center px-4">
-
       <div className="w-full max-w-lg bg-white rounded-[32px] p-8 shadow-[0_35px_100px_rgba(7,19,39,0.32)]">
-
-        <h2 className="text-2xl font-semibold text-slate-800">
-          Crear Usuario
-        </h2>
+        <h2 className="text-2xl font-semibold text-slate-800">Crear Usuario</h2>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <input
+            name="first_name"
+            placeholder="Nombre"
+            value={form.first_name}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          />
+          <input
+            name="middle_name"
+            placeholder="Segundo nombre"
+            value={form.middle_name}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
+          <input
+            name="last_name"
+            placeholder="Apellido"
+            value={form.last_name}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          />
+          <input
+            name="second_lastname"
+            placeholder="Segundo apellido"
+            value={form.second_lastname}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
 
-          <input name="first_name" placeholder="Nombre" value={form.first_name} onChange={handleChange} className="w-full border-b pb-2" required />
-          <input name="middle_name" placeholder="Segundo nombre" value={form.middle_name} onChange={handleChange} className="w-full border-b pb-2" />
-          <input name="last_name" placeholder="Apellido" value={form.last_name} onChange={handleChange} className="w-full border-b pb-2" required />
-          <input name="second_lastname" placeholder="Segundo apellido" value={form.second_lastname} onChange={handleChange} className="w-full border-b pb-2" />
+          <input
+            name="email"
+            placeholder="Email (@funval.com)"
+            value={form.email}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          />
+          <input
+            name="document_number"
+            placeholder="Documento"
+            value={form.document_number}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          />
 
-          <input name="email" placeholder="Email (@funval.com)" value={form.email} onChange={handleChange} className="w-full border-b pb-2" required />
-          <input name="document_number" placeholder="Documento" value={form.document_number} onChange={handleChange} className="w-full border-b pb-2" required />
+          <input
+            name="phone_number"
+            placeholder="Teléfono"
+            value={form.phone_number}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
 
-          <input name="phone_number" placeholder="Teléfono" value={form.phone_number} onChange={handleChange} className="w-full border-b pb-2" />
+          <input
+            type="date"
+            name="birthdate"
+            value={form.birthdate}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
 
-          <input type="date" name="birthdate" value={form.birthdate} onChange={handleChange} className="w-full border-b pb-2" />
-
-          <select name="country_id" id="country_id" onChange={handleChange} className="w-full border-b pb-2" required>
+          <select
+            name="country_id"
+            id="country_id"
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          >
             <option value="">Seleccione un país</option>
             {paisData?.map((pais) => (
-              <option key={pais.id} value={pais.id}>{pais.name}</option>
+              <option key={pais.id} value={pais.id}>
+                {pais.name}
+              </option>
             ))}
           </select>
-          <select name="course_id" id="course_id" onChange={handleChange} className="w-full border-b pb-2" required>
+          <select
+            name="course_id"
+            id="course_id"
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          >
             <option value="">Seleccione un curso</option>
             {cursoData?.map((curso) => (
-              <option key={curso.id} value={curso.id}>{curso.name}</option>
+              <option key={curso.id} value={curso.id}>
+                {curso.name}
+              </option>
             ))}
           </select>
 
-          <input name="password" type="password" placeholder="Contraseña" value={form.password} onChange={handleChange} className="w-full border-b pb-2"  />
+          <input
+            name="password"
+            type="password"
+            placeholder="Contraseña"
+            value={form.password}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
 
-          <select name="role" value={form.role} onChange={handleChange} className="w-full border-b pb-2">
+          <select
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          >
             <option value="ADMIN">ADMIN</option>
             <option value="STUDENT">STUDENT</option>
           </select>
@@ -154,17 +233,17 @@ export default function CrearUsuario() {
           >
             {loading ? "Creando..." : "Crear usuario"}
           </button>
-
         </form>
 
         {mensaje && (
-          <div className={`mt-6 px-4 py-3 text-sm ${
-            mensaje.tipo === "ok" ? "text-green-600" : "text-red-600"
-          }`}>
+          <div
+            className={`mt-6 px-4 py-3 text-sm ${
+              mensaje.tipo === "ok" ? "text-green-600" : "text-red-600"
+            }`}
+          >
             {mensaje.texto}
           </div>
         )}
-
       </div>
     </main>
   );
