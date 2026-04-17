@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { instance } from "../api.js";
 
 const useAxios = (url, options = {}) => {
@@ -11,8 +11,16 @@ const useAxios = (url, options = {}) => {
   } = options;
 
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(method === "GET" && auto ? true : false);
+  const [loading, setLoading] = useState(
+    method === "GET" && auto ? true : false,
+  );
   const [error, setError] = useState(null);
+  const bodyString = JSON.stringify(body);
+  const paramsString = JSON.stringify(params);
+  const headersString = JSON.stringify(headers);
+  const memoizedBody = useMemo(() => body, [bodyString]);
+  const memoizedParams = useMemo(() => params, [paramsString]);
+  const memoizedHeaders = useMemo(() => headers, [headersString]);
 
   const request = useCallback(
     async (config = {}) => {
@@ -21,14 +29,16 @@ const useAxios = (url, options = {}) => {
 
       try {
         const finalMethod = (config.method || method).toUpperCase();
-        const finalBody = config.hasOwnProperty("body") ? config.body : body;
-        
+        const finalBody = Object.prototype.hasOwnProperty.call(config, "body")
+          ? config.body
+          : memoizedBody;
+
         const { data } = await instance({
           method: finalMethod,
           url: config.url || url,
           data: finalBody !== null ? finalBody : undefined,
-          params: config.params || params,
-          headers: { ...headers, ...config.headers },
+          params: config.params || memoizedParams,
+          headers: { ...memoizedHeaders, ...config.headers },
         });
 
         setData(data);
@@ -41,13 +51,7 @@ const useAxios = (url, options = {}) => {
         setLoading(false);
       }
     },
-    [
-      method,
-      url,
-      JSON.stringify(body),
-      JSON.stringify(params),
-      JSON.stringify(headers),
-    ],
+    [method, url, bodyString, paramsString, headersString],
   );
 
   useEffect(() => {

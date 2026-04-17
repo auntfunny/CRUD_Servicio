@@ -1,14 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { PageShell, PageHero, controlClass, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
 import { useToast } from "../context/ToastContext";
 
 export default function ImportUsers() {
-  const {setToastMensaje} = useToast(); 
+  const navigate = useNavigate();
+  const { setToastMensaje } = useToast();
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [exporting, setExporting] = useState(false);
 
-  const { loading, error, request } = useAxios("/users/bulk", {
+  const { loading, request } = useAxios("/users/bulk", {
     method: "POST",
   });
   const { request: requestUsuarios } = useAxios("/users/", {
@@ -16,13 +19,16 @@ export default function ImportUsers() {
     params: { page_size: 100 },
   });
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  const handleFileChange = (event) => {
+    setFile(event.target.files?.[0] ?? null);
   };
 
-  const importUsersCSV = async (file) => {
+  const handleUpload = async () => {
+    if (!file) return;
+
     const formData = new FormData();
     formData.append("file", file);
+
     try {
       const response = await request({
         body: formData,
@@ -30,26 +36,13 @@ export default function ImportUsers() {
           "Content-Type": "multipart/form-data",
         },
       });
-      return response.data;
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) return;
-
-    try {
-      const data = await importUsersCSV(file);
-      setToastMensaje("Usuarios importados correctemente");
-      setResult(data);
+      setResult(response.data);
+      setToastMensaje("Usuarios importados correctamente");
     } catch (error) {
       console.error(error);
-      alert("Error al importar usuarios");
     }
   };
 
-  // EXPORT FIXED (SIN fetch RELATIVO)
   const exportToCSV = async () => {
     try {
       setExporting(true);
@@ -58,134 +51,159 @@ export default function ImportUsers() {
       let hasMore = true;
 
       while (hasMore) {
-        const response = await requestUsuarios({ params: { page: page } });
+        const response = await requestUsuarios({ params: { page } });
         allUsers = [...allUsers, ...response.items];
 
         if (allUsers.length >= response.total || response.items.length === 0) {
           hasMore = false;
         } else {
-          page++;
+          page += 1;
         }
       }
 
       const headers = "email,first_name,last_name,document_number,role\n";
-
       const rows = allUsers
-        .map((u) => {
-          return [
-            `"${u.email}"`,
-            `"${u.first_name}"`,
-            `"${u.last_name}"`,
-            `"${u.document_number}"`,
-            `"${u.role || "STUDENT"}"`,
-          ].join(",");
-        })
+        .map((user) => [
+          `"${user.email}"`,
+          `"${user.first_name}"`,
+          `"${user.last_name}"`,
+          `"${user.document_number}"`,
+          `"${user.role || "STUDENT"}"`,
+        ].join(","))
         .join("\n");
 
-      const csvContent = headers + rows;
-
-      const blob = new Blob([csvContent], { type: "text/csv" });
+      const blob = new Blob([headers + rows], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "usuarios_exportados.csv";
-      a.click();
-
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "usuarios_exportados.csv";
+      link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
-      alert("Error al exportar usuarios");
     } finally {
       setExporting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          📥 Importar usuarios
-        </h2>
+    <PageShell>
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
+        <PageHero
+          eyebrow="Usuarios"
+          title="Importar usuarios"
+          description="Carga un archivo CSV para registrar usuarios en bloque o exporta la base actual siguiendo el mismo estilo del panel."
+          actions={(
+            <>
+              <button className={secondaryButtonClass} onClick={() => navigate("/usuarios")} type="button">
+                Volver a usuarios
+              </button>
+              <button className={primaryButtonClass} disabled={!file || loading} onClick={handleUpload} type="button">
+                {loading ? "Importando..." : "Subir archivo"}
+              </button>
+            </>
+          )}
+        />
 
-        <p className="text-gray-500 mb-6">
-          Carga un archivo CSV con los usuarios a registrar
-        </p>
-
-        {/* UPLOAD */}
-        <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition">
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-            className="hidden"
-            id="csvUpload"
-          />
-
-          <label
-            htmlFor="csvUpload"
-            className="cursor-pointer text-blue-600 font-medium"
-          >
-            Selecciona un archivo CSV
-          </label>
-
-          {file && <p className="mt-3 text-sm text-gray-600">📄 {file.name}</p>}
-        </div>
-
-        {/* IMPORT BUTTON */}
-        <button
-          onClick={handleUpload}
-          disabled={!file || loading}
-          className={`w-full mt-6 py-3 rounded-lg font-semibold transition
-            ${
-              !file || loading
-                ? "bg-gray-300 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-        >
-          {loading ? "Importando..." : "Subir archivo"}
-        </button>
-
-        {/* EXPORT BUTTON */}
-        <button
-          onClick={exportToCSV}
-          disabled={exporting}
-          className="w-full mt-3 py-3 rounded-lg font-semibold bg-green-600 hover:bg-green-700 text-white transition"
-        >
-          {exporting ? "Exportando..." : "📤 Exportar usuarios a CSV"}
-        </button>
-
-        {/* RESULT */}
-        {result && (
-          <div className="mt-8 bg-gray-50 border rounded-xl p-5">
-            <h3 className="text-lg font-semibold text-gray-800 mb-3">
-              Resultado de importación
-            </h3>
-
-            <div className="flex gap-4 mb-4">
-              <div className="bg-green-100 text-green-700 px-4 py-2 rounded-lg">
-                ✔ Creados: {result.created}
-              </div>
-
-              <div className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-lg">
-                ⚠ Omitidos: {result.skipped}
-              </div>
+        <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <article className={`${panelBaseClass} !bg-white`}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              Archivo CSV
+            </p>
+            <div className="mt-5">
+              <input
+                accept=".csv"
+                className="hidden"
+                id="csvUpload"
+                onChange={handleFileChange}
+                type="file"
+              />
+              <label
+                className="flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-[1.7rem] border border-dashed border-slate-300 bg-slate-50/70 px-6 py-8 text-center transition hover:border-slate-400 hover:bg-white"
+                htmlFor="csvUpload"
+              >
+                <p className="text-base font-semibold text-slate-700">
+                  Arrastra tu archivo CSV aqui o haz clic para seleccionarlo
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  Usa la estructura de usuarios esperada por el sistema.
+                </p>
+                {file ? (
+                  <div className="mt-5 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700">
+                    {file.name}
+                  </div>
+                ) : null}
+              </label>
             </div>
 
-            {result.errors?.length > 0 && (
-              <div>
-                <h4 className="font-semibold text-red-600 mb-2">Errores</h4>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button
+                className={primaryButtonClass}
+                disabled={!file || loading}
+                onClick={handleUpload}
+                type="button"
+              >
+                {loading ? "Importando..." : "Importar usuarios"}
+              </button>
+              <button
+                className={secondaryButtonClass}
+                disabled={exporting}
+                onClick={exportToCSV}
+                type="button"
+              >
+                {exporting ? "Exportando..." : "Exportar usuarios"}
+              </button>
+            </div>
+          </article>
 
-                <ul className="list-disc pl-5 text-sm text-red-500 space-y-1">
-                  {result.errors.map((err, i) => (
-                    <li key={i}>{err}</li>
-                  ))}
-                </ul>
+          <aside className="space-y-6">
+            <section className={`${panelBaseClass} !bg-white`}>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                Recomendaciones
+              </p>
+              <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+                <p>Mantén una fila por usuario y evita duplicar correos institucionales.</p>
+                <p>Si el archivo trae datos incompletos, el sistema omitirá esos registros y los mostrará en el resultado.</p>
               </div>
-            )}
-          </div>
-        )}
+            </section>
+
+            {result ? (
+              <section className={`${panelBaseClass} !bg-white`}>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  Resultado
+                </p>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-[1.3rem] bg-emerald-50/70 px-4 py-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Creados</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-800">{result.created}</p>
+                  </div>
+                  <div className="rounded-[1.3rem] bg-amber-50/70 px-4 py-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Omitidos</p>
+                    <p className="mt-2 text-3xl font-bold text-slate-800">{result.skipped}</p>
+                  </div>
+                </div>
+
+                {result.errors?.length > 0 ? (
+                  <div className="mt-5 overflow-hidden rounded-[1.4rem] border border-slate-100">
+                    <div className="grid grid-cols-[0.15fr_1fr] gap-4 bg-slate-50/90 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      <span>#</span>
+                      <span>Error</span>
+                    </div>
+                    <div className="divide-y divide-slate-100">
+                      {result.errors.map((item, index) => (
+                        <div className="grid grid-cols-[0.15fr_1fr] gap-4 px-5 py-4 text-sm text-slate-600" key={`${item}-${index}`}>
+                          <span className="font-semibold text-slate-800">{index + 1}</span>
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
+          </aside>
+        </section>
       </div>
-    </div>
+    </PageShell>
   );
 }

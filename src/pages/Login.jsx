@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import FunvalBrand from "../components/FunvalBrand";
 
 const estilosCampo =
   "peer w-full border-b border-slate-200 bg-transparent pb-3 pl-12 pr-3 pt-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#5d80c8]";
@@ -92,15 +93,8 @@ function Login() {
             <div className="absolute bottom-0 right-[-10%] h-36 w-[75%] rounded-tl-[160px] bg-[#102b4d]" />
             <div className="absolute bottom-16 right-10 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
 
-            <div className="relative z-10 flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
-                <img alt="FUNVAL" className="rounded-full h-8 w-8" src="/icons/icoFunval.jpg" />
-              </div>
-              <div>
-                <h1 className="font-montserrat text-2xl font-bold tracking-[0.2em] text-white">
-                  FUNVAL
-                </h1>
-              </div>
+            <div className="relative z-10">
+              <FunvalBrand textColor="text-white" />
             </div>
 
             <div className="relative z-10 mt-12 max-w-xs text-white sm:mt-16">

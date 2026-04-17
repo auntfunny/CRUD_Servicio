@@ -1,25 +1,33 @@
+import ModalBase from "./ModalBase";
+
 function ModalConfirmacion({ titulo, mensaje, onConfirm, onCancel }) {
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-80 shadow-xl">
-        <h2 className="text-lg font-bold mb-2">{titulo}</h2>
-        <p className="text-gray-600 mb-6">{mensaje}</p>
+    <ModalBase
+      onClose={onCancel}
+      title={titulo}
+      widthClass="max-w-md"
+      zClass="z-[60]"
+    >
+      <div className="space-y-6">
+        <p className="text-sm leading-6 text-slate-600">{mensaje}</p>
         <div className="flex justify-end gap-3">
           <button
+            className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-800"
             onClick={onCancel}
-            className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
+            type="button"
           >
             Cancelar
           </button>
           <button
+            className="rounded-full bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
             onClick={onConfirm}
-            className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+            type="button"
           >
             Confirmar
           </button>
         </div>
       </div>
-    </div>
+    </ModalBase>
   );
 }
 

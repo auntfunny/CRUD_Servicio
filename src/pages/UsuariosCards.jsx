@@ -1,12 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 import ModalConfirmacion from "../components/ModalConfirmacion";
 import Paginacion from "../components/Paginacion";
+import {
+  PageShell,
+  panelBaseClass,
+  primaryButtonClass,
+} from "../components/PageShell";
 import { useToast } from "../context/ToastContext";
 
 export default function UsuariosCards() {
-  const {setToastMensaje} = useToast();
+  const { setToastMensaje } = useToast();
   const [confirmarBorrar, setConfirmarBorrar] = useState(false);
   const [borrandoID, setBorrandoID] = useState(null);
   const [page, setPage] = useState(1);
@@ -23,14 +28,16 @@ export default function UsuariosCards() {
     request: requestBorrar,
   } = useAxios("", { method: "DELETE" });
 
-
-  const usuarios = data?.items ?? [];
-  const total = data?.total ?? 0;
-
-  function pedirConfirmar(id) {
-    setBorrandoID(id);
-    setConfirmarBorrar(true);
-  }
+  const usuarios = Array.isArray(data)
+    ? data
+    : (data?.items ?? data?.results ?? []);
+  const total = data?.total ?? usuarios.length ?? 0;
+  const adminsEnPagina = usuarios.filter(
+    (usuario) => usuario.role === "ADMIN",
+  ).length;
+  const estudiantesEnPagina = usuarios.filter(
+    (usuario) => usuario.role === "STUDENT",
+  ).length;
 
   async function borrarUsuario() {
     try {
@@ -45,105 +52,147 @@ export default function UsuariosCards() {
     }
   }
 
-  function cancelarBorrar() {
-    setBorrandoID(null);
-    setConfirmarBorrar(false);
-  }
-
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] px-4 py-10">
-      {confirmarBorrar && (
+    <PageShell>
+      {confirmarBorrar ? (
         <ModalConfirmacion
-          titulo={"Confirma Borrar"}
-          mensaje={"Estás segur@ que quieres borrar este usuario?"}
+          mensaje={"Estas segur@ que quieres borrar este usuario?"}
+          onCancel={() => {
+            setBorrandoID(null);
+            setConfirmarBorrar(false);
+          }}
           onConfirm={borrarUsuario}
-          onCancel={cancelarBorrar}
+          titulo={"Confirma Borrar"}
         />
-      )}
-      <div className="max-w-6xl mx-auto bg-white rounded-[32px] p-8 shadow-[0_35px_100px_rgba(7,19,39,0.32)]">
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-semibold text-slate-800">Usuarios</h2>
-          <div className="flex gap-2">
+      ) : null}
+
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
+        <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
+              Usuarios
+            </p>
+            <h1 className="mt-2 text-4xl font-semibold text-slate-900">
+              Gestion de usuarios
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Consulta, crea e identifica rapidamente los registros del sistema.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
             <button
+              className="inline-flex min-w-[180px] items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
               onClick={() => navigate("/usuarios/import")}
-              className="rounded-full bg-[linear-gradient(90deg,#7796db,#3b5f9f)] px-6 py-2 text-white font-semibold"
+              type="button"
             >
               Importar CSV
             </button>
             <button
+              className={primaryButtonClass}
               onClick={() => navigate("/usuarios/crear")}
-              className="rounded-full bg-[linear-gradient(90deg,#7796db,#3b5f9f)] px-6 py-2 text-white font-semibold"
+              type="button"
             >
-              + Crear Usuario
+              Crear usuario
             </button>
           </div>
+        </section>
+
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-slate-500">
+          <span>
+            <span className="font-semibold text-slate-800">Total:</span> {total}
+          </span>
+          <span>
+            <span className="font-semibold text-slate-800">En pagina:</span>{" "}
+            {usuarios.length}
+          </span>
+          <span>
+            <span className="font-semibold text-slate-800">Admins:</span>{" "}
+            {adminsEnPagina}
+          </span>
+          <span>
+            <span className="font-semibold text-slate-800">Estudiantes:</span>{" "}
+            {estudiantesEnPagina}
+          </span>
         </div>
 
-        {/* LOADING */}
-        {loading && (
-          <p className="text-center text-slate-600">Cargando usuarios...</p>
-        )}
+        <section className={`${panelBaseClass} overflow-x-auto !bg-white !p-0`}>
+          {loading ? (
+            <p className="px-6 py-8 text-sm text-slate-500">
+              Cargando usuarios...
+            </p>
+          ) : null}
+          {error ? (
+            <p className="px-6 py-8 text-sm text-red-500">{error}</p>
+          ) : null}
 
-        {/* ERROR */}
-        {error && <p className="text-center text-red-500">No se pudieron cargar los usuarios</p>}
+          {!loading && !error ? (
+            <div className="min-w-[860px]">
+              <div className="grid grid-cols-[1.25fr_1.2fr_0.95fr_0.7fr_0.8fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <span>Nombre</span>
+                <span>Email</span>
+                <span>Documento</span>
+                <span>Rol</span>
+                <span>Accion</span>
+              </div>
 
-        {/* GRID */}
-        {!loading && !error && (
-          <>
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {usuarios.length === 0 ? (
-                <p className="text-gray-500 col-span-full text-center">
-                  No hay usuarios
-                </p>
+                <div className="px-6 py-10 text-sm text-slate-500">
+                  No hay usuarios.
+                </div>
               ) : (
-                usuarios.map((u) => (
-                  <div
-                    key={u.id}
-                    className="bg-white border rounded-2xl shadow-md p-5 hover:shadow-xl transition"
-                  >
-                    <h3 className="text-lg font-semibold text-slate-800">
-                      {u.first_name} {u.last_name}
-                    </h3>
-
-                    <p className="text-sm text-slate-600 mt-1">📧 {u.email}</p>
-
-                    <p className="text-sm text-slate-600 mt-1">
-                      🪪 {u.document_number}
-                    </p>
-
-                    <span className="inline-block mt-3 px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700">
-                      {u.role}
-                    </span>
-
-                    {/* BOTONES */}
-                    <div className="flex gap-3 mt-4">
-                      {loadingBorrar && borrandoID === u.id ? (
-                        <div className="w-5 h-5 rounded-full border-2 border-gray-500 border-t-red-500 animate-spin"></div>
-                      ) : (
+                <div className="divide-y divide-slate-100">
+                  {usuarios.map((u) => (
+                    <div
+                      key={u.id}
+                      className="grid grid-cols-[1.25fr_1.2fr_0.95fr_0.7fr_0.8fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-slate-800">
+                          {u.first_name} {u.last_name}
+                        </p>
+                      </div>
+                      <p className="truncate">{u.email}</p>
+                      <p>{u.document_number || "--"}</p>
+                      <span className="w-fit rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#1958df]">
+                        {u.role}
+                      </span>
+                      <div className="flex flex-wrap gap-2">
                         <button
-                          onClick={() => pedirConfirmar(u.id)}
-                          className="text-red-500 hover:underline text-sm"
+                          className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                          onClick={() => navigate(`/usuarios/${u.id}/editar`)}
+                          type="button"
                         >
-                          Eliminar
+                          Editar
                         </button>
-                      )}
+                        <button
+                          className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
+                          onClick={() => {
+                            setBorrandoID(u.id);
+                            setConfirmarBorrar(true);
+                          }}
+                          type="button"
+                        >
+                          {loadingBorrar && borrandoID === u.id
+                            ? "..."
+                            : "Eliminar"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
             </div>
-            <div className="mt-6">
-              <Paginacion
-                onPageChange={setPage}
-                page={page}
-                page_size={pageSize}
-                total={total}
-              />
-            </div>
-          </>
-        )}
+          ) : null}
+        </section>
+
+        <Paginacion
+          onPageChange={setPage}
+          page={page}
+          page_size={pageSize}
+          total={total}
+        />
       </div>
-    </main>
+    </PageShell>
   );
 }

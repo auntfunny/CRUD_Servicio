@@ -1,15 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import BadgeEstadoReporte from "../components/BadgeEstadoReporte";
 import Paginacion from "../components/Paginacion";
-import ReporteCard from "../components/ReporteCard";
 import ReporteDetalleModal from "../components/ReporteDetalleModal";
 import ReporteRevisionModal from "../components/ReporteRevisionModal";
+import TarjetaEstadistica from "../components/TarjetaEstadistica";
+import {
+  PageShell,
+  controlClass,
+  panelBaseClass,
+  primaryButtonClass,
+} from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
-import { estadoOptions, getFechaOrdenable } from "../utils/reportes";
+import {
+  estadoOptions,
+  getFechaOrdenable,
+  formatFecha,
+  formatHoras,
+} from "../utils/reportes";
 import { useToast } from "../context/ToastContext";
 
 function ReportesAdmin() {
-  const {setToastMensaje} = useToast();
+  const { setToastMensaje } = useToast();
   const [page, setPage] = useState(1);
   const pageSize = 8;
   const [estadoFiltro, setEstadoFiltro] = useState("");
@@ -19,31 +31,22 @@ function ReportesAdmin() {
   const [ordenActual, setOrdenActual] = useState("fecha-desc");
   const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
   const [reporteRevisando, setReporteRevisando] = useState(null);
-  const [pageConsulta, setPageConsulta] = useState(1);
   const [reportesBusqueda, setReportesBusqueda] = useState([]);
   const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const [errorBusqueda, setErrorBusqueda] = useState(null);
 
   const paramsConsulta = useMemo(() => {
     const params = {
-      page: pageConsulta,
+      page: page,
       page_size: pageSize,
     };
 
-    if (estadoFiltro) {
-      params.status = estadoFiltro;
-    }
-
-    if (categoriaFiltro) {
-      params.category_id = categoriaFiltro;
-    }
-
-    if (busqueda.trim()) {
-      params.search = busqueda.trim();
-    }
+    if (estadoFiltro) params.status = estadoFiltro;
+    if (categoriaFiltro) params.category_id = categoriaFiltro;
+    if (busqueda.trim()) params.search = busqueda.trim();
 
     return params;
-  }, [busqueda, categoriaFiltro, estadoFiltro, pageConsulta, pageSize]);
+  }, [busqueda, categoriaFiltro, estadoFiltro, page, pageSize]);
 
   const {
     data,
@@ -56,15 +59,15 @@ function ReportesAdmin() {
   const { request: consultarReportes } = useAxios("/reports/", {
     auto: false,
   });
-  const {
-    loading: guardandoRevision,
-    request: actualizarReporte,
-  } = useAxios("/reports/", {
-    auto: false,
-    method: "PATCH",
-  });
-
+  const { loading: guardandoRevision, request: actualizarReporte } = useAxios(
+    "/reports/",
+    {
+      auto: false,
+      method: "PATCH",
+    },
+  );
   const { data: categoriasData } = useAxios("/categories/");
+  const { data: dashboardData } = useAxios("/dashboard/stats");
 
   const reportes = Array.isArray(data?.items)
     ? data.items
@@ -94,9 +97,7 @@ function ReportesAdmin() {
 
   const reportesFiltrados = useMemo(() => {
     return reportesFuente.filter((reporte) => {
-      if (!textoBusqueda) {
-        return true;
-      }
+      if (!textoBusqueda) return true;
 
       const valoresBusqueda = [
         reporte.id,
@@ -111,7 +112,10 @@ function ReportesAdmin() {
     });
   }, [reportesFuente, textoBusqueda]);
 
-  const total = busqueda.trim() ? reportesFiltrados.length : data?.total ?? reportes.length;
+  const total = busqueda.trim()
+    ? reportesFiltrados.length
+    : (data?.total ?? reportes.length);
+
   const reportesVisibles = useMemo(() => {
     const lista = [...reportesFiltrados];
 
@@ -125,14 +129,27 @@ function ReportesAdmin() {
       if (ordenActual === "horas-desc" || ordenActual === "horas-asc") {
         const diferenciaHoras =
           Number(reporteA.hours_spent ?? 0) - Number(reporteB.hours_spent ?? 0);
-        return ordenActual === "horas-desc" ? -diferenciaHoras : diferenciaHoras;
+        return ordenActual === "horas-desc"
+          ? -diferenciaHoras
+          : diferenciaHoras;
       }
 
       const diferenciaFecha =
-        getFechaOrdenable(reporteA.created_at) - getFechaOrdenable(reporteB.created_at);
+        getFechaOrdenable(reporteA.created_at) -
+        getFechaOrdenable(reporteB.created_at);
       return ordenActual === "fecha-desc" ? -diferenciaFecha : diferenciaFecha;
     });
   }, [ordenActual, reportesFiltrados]);
+
+  const resumen = useMemo(
+    () => ({
+      aprobados: dashboardData?.reports?.approved ?? 0,
+      pendientes: dashboardData?.reports?.pending ?? 0,
+      rechazados: dashboardData?.reports?.rejected ?? 0,
+      total: dashboardData?.reports?.total ?? total,
+    }),
+    [dashboardData, total],
+  );
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -141,21 +158,6 @@ function ReportesAdmin() {
 
     return () => clearTimeout(timeoutId);
   }, [busqueda]);
-
-  useEffect(() => {
-    if (textoBusqueda) {
-      setPageConsulta(1);
-      return;
-    }
-
-    if (ordenActual !== "fecha-asc") {
-      setPageConsulta(page);
-      return;
-    }
-
-    const totalPaginas = Math.max(1, Math.ceil(total / pageSize));
-    setPageConsulta(Math.max(1, totalPaginas - page + 1));
-  }, [ordenActual, page, pageSize, textoBusqueda, total]);
 
   useEffect(() => {
     if (!textoBusqueda) {
@@ -203,18 +205,14 @@ function ReportesAdmin() {
           paginaActual += 1;
         }
 
-        if (!cancelado) {
-          setReportesBusqueda(acumulados);
-        }
+        if (!cancelado) setReportesBusqueda(acumulados);
       } catch (err) {
         if (!cancelado) {
           setErrorBusqueda(err);
           setReportesBusqueda([]);
         }
       } finally {
-        if (!cancelado) {
-          setCargandoBusqueda(false);
-        }
+        if (!cancelado) setCargandoBusqueda(false);
       }
     };
 
@@ -223,51 +221,26 @@ function ReportesAdmin() {
     return () => {
       cancelado = true;
     };
-  }, [categoriaFiltro, consultarReportes, estadoFiltro, pageSize, textoBusqueda]);
+  }, [
+    categoriaFiltro,
+    consultarReportes,
+    estadoFiltro,
+    pageSize,
+    textoBusqueda,
+  ]);
 
   const resetearPaginacion = () => {
     setPage(1);
-    setPageConsulta(1);
   };
 
-  const cambiarBusqueda = (evento) => {
-    setBusqueda(evento.target.value);
-    resetearPaginacion();
-  };
-
-  const cambiarEstado = (evento) => {
-    setEstadoFiltro(evento.target.value);
-    resetearPaginacion();
-  };
-
-  const cambiarCategoria = (evento) => {
-    setCategoriaFiltro(evento.target.value);
-    resetearPaginacion();
-  };
-
-  const cambiarOrden = (evento) => {
-    setOrdenActual(evento.target.value);
-    resetearPaginacion();
-  };
-
-  const abrirDetalle = (reporte) => {
-    setReporteSeleccionado(reporte);
-  };
-
-  const cerrarDetalle = () => {
-    setReporteSeleccionado(null);
-  };
-
+  const abrirDetalle = (reporte) => setReporteSeleccionado(reporte);
+  const cerrarDetalle = () => setReporteSeleccionado(null);
   const abrirRevision = () => {
     if (!reporteSeleccionado) return;
-
     setReporteRevisando(reporteSeleccionado);
     cerrarDetalle();
   };
-
-  const cerrarRevision = () => {
-    setReporteRevisando(null);
-  };
+  const cerrarRevision = () => setReporteRevisando(null);
 
   const guardarRevision = async (payload) => {
     if (!reporteRevisando) return;
@@ -286,131 +259,232 @@ function ReportesAdmin() {
   };
 
   return (
-    <main className="mx-auto max-w-7xl p-6">
-      <section className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <PageShell>
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
+        <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900">Reportes del admin</h1>
-            <p className="mt-2 text-sm text-slate-500">
-              Revisa, filtra y ordena los reportes desde la vista administrativa.
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
+              Reportes
+            </p>
+            <h1 className="mt-2 text-4xl font-semibold text-slate-900">
+              Revision administrativa
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              Busca, filtra y revisa reportes desde una vista mas ordenada y
+              operativa.
             </p>
           </div>
 
-          <Link
-            className="rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
-            to="/estudiantes-pendientes"
-          >
-            Ver estudiantes pendientes
+          <Link className={primaryButtonClass} to="/estudiantes-pendientes">
+            Estudiantes en deuda
           </Link>
-        </div>
-      </section>
+        </section>
 
-      <section className="mb-6 grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-2 xl:grid-cols-4">
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          Buscar
-          <input
-            className="rounded-2xl border border-slate-300 px-4 py-3"
-            onChange={cambiarBusqueda}
-            placeholder="Estudiante o categoria"
-            type="text"
-            value={busqueda}
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <TarjetaEstadistica
+            label="Total"
+            tone="text-slate-800"
+            value={resumen.total}
           />
-        </label>
+          <TarjetaEstadistica
+            label="Pendientes"
+            tone="text-amber-700"
+            value={resumen.pendientes}
+          />
+          <TarjetaEstadistica
+            label="Aprobados"
+            tone="text-emerald-700"
+            value={resumen.aprobados}
+          />
+          <TarjetaEstadistica
+            label="Rechazados"
+            tone="text-rose-700"
+            value={resumen.rechazados}
+          />
+        </section>
 
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          Estado
-          <select
-            className="rounded-2xl border border-slate-300 px-4 py-3"
-            onChange={cambiarEstado}
-            value={estadoFiltro}
-          >
-            {estadoOptions.map((estado) => (
-              <option key={estado.value} value={estado.value}>
-                {estado.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          Categoria
-          <select
-            className="rounded-2xl border border-slate-300 px-4 py-3"
-            onChange={cambiarCategoria}
-            value={categoriaFiltro}
-          >
-            <option value="">Todas</option>
-            {categorias.map((categoria) => (
-              <option key={categoria.id} value={String(categoria.id)}>
-                {categoria.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-          Ordenar por
-          <select
-            className="rounded-2xl border border-slate-300 px-4 py-3"
-            onChange={cambiarOrden}
-            value={ordenActual}
-          >
-            <option value="fecha-desc">Mas recientes</option>
-            <option value="fecha-asc">Mas antiguos</option>
-            <option value="horas-desc">Mas horas</option>
-            <option value="horas-asc">Menos horas</option>
-            <option value="estudiante-asc">Estudiante A-Z</option>
-          </select>
-        </label>
-      </section>
-
-      {loading || cargandoBusqueda ? <p>Cargando reportes...</p> : null}
-      {!loading && !cargandoBusqueda && (error || errorBusqueda) ? (
-        <p className="text-red-600">{mensajeError}</p>
-      ) : null}
-
-      {!loading && !cargandoBusqueda && !error && !errorBusqueda ? (
-        <>
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {reportesVisibles.map((reporte) => (
-              <ReporteCard
-                key={reporte.id}
-                onClick={() => abrirDetalle(reporte)}
-                reporte={reporte}
-                showStudent
+        <section className={`${panelBaseClass} !bg-white`}>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+              Buscar
+              <input
+                className={controlClass}
+                onChange={(evento) => {
+                  setBusqueda(evento.target.value);
+                  resetearPaginacion();
+                }}
+                placeholder="Estudiante o categoria"
+                type="text"
+                value={busqueda}
               />
-            ))}
-          </section>
+            </label>
 
-          <div className="mt-6">
+            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+              Estado
+              <select
+                className={controlClass}
+                onChange={(evento) => {
+                  setEstadoFiltro(evento.target.value);
+                  resetearPaginacion();
+                }}
+                value={estadoFiltro}
+              >
+                {estadoOptions.map((estado) => (
+                  <option key={estado.value} value={estado.value}>
+                    {estado.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+              Categoria
+              <select
+                className={controlClass}
+                onChange={(evento) => {
+                  setCategoriaFiltro(evento.target.value);
+                  resetearPaginacion();
+                }}
+                value={categoriaFiltro}
+              >
+                <option value="">Todas</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria.id} value={String(categoria.id)}>
+                    {categoria.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+              Ordenar por
+              <select
+                className={controlClass}
+                onChange={(evento) => {
+                  setOrdenActual(evento.target.value);
+                  resetearPaginacion();
+                }}
+                value={ordenActual}
+              >
+                <option value="fecha-desc">Mas recientes</option>
+                <option value="fecha-asc">Mas antiguos</option>
+                <option value="horas-desc">Mas horas</option>
+                <option value="horas-asc">Menos horas</option>
+                <option value="estudiante-asc">Estudiante A-Z</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        {loading || cargandoBusqueda ? (
+          <p className="text-sm text-slate-500">Cargando reportes...</p>
+        ) : null}
+        {!loading && !cargandoBusqueda && (error || errorBusqueda) ? (
+          <p className="text-red-600">{mensajeError}</p>
+        ) : null}
+
+        {!loading && !cargandoBusqueda && !error && !errorBusqueda ? (
+          <>
+            <section
+              className={`${panelBaseClass} overflow-x-auto !bg-white !p-0`}
+            >
+              <div className="min-w-[980px]">
+                <div className="grid grid-cols-[1.35fr_0.9fr_0.9fr_0.8fr_0.9fr_0.95fr_0.75fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <span>Estudiante</span>
+                  <span>Categoria</span>
+                  <span>Descripcion</span>
+                  <span>Horas</span>
+                  <span>Fecha</span>
+                  <span>Estado</span>
+                  <span>Accion</span>
+                </div>
+
+                {reportesVisibles.length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {reportesVisibles.map((reporte) => (
+                      <div
+                        key={reporte.id}
+                        className="grid cursor-pointer grid-cols-[1.35fr_0.9fr_0.9fr_0.8fr_0.9fr_0.95fr_0.75fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60"
+                        onClick={() => abrirDetalle(reporte)}
+                        onKeyDown={(evento) => {
+                          if (evento.key === "Enter" || evento.key === " ") {
+                            evento.preventDefault();
+                            abrirDetalle(reporte);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-slate-800">
+                            {reporte.student?.full_name ?? "Sin estudiante"}
+                          </p>
+                          <p className="mt-1 truncate text-xs text-slate-400">
+                            {reporte.student?.email ?? "Sin correo"}
+                          </p>
+                        </div>
+                        <p className="truncate font-medium text-slate-700">
+                          {reporte.category?.name ?? "Sin categoria"}
+                        </p>
+                        <p className="truncate">
+                          {reporte.description || "Sin descripcion"}
+                        </p>
+                        <p className="font-semibold text-slate-800">
+                          {formatHoras(reporte.hours_spent)}
+                        </p>
+                        <p>{formatFecha(reporte.created_at)}</p>
+                        <BadgeEstadoReporte estado={reporte.status} />
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                            onClick={(evento) => {
+                              evento.stopPropagation();
+                              abrirDetalle(reporte);
+                            }}
+                            type="button"
+                          >
+                            Ver
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="px-6 py-10 text-sm text-slate-500">
+                    No se encontraron reportes para este filtro.
+                  </div>
+                )}
+              </div>
+            </section>
+
             <Paginacion
               onPageChange={setPage}
               page={page}
               page_size={pageSize}
               total={total}
             />
-          </div>
-        </>
-      ) : null}
+          </>
+        ) : null}
 
-      {reporteSeleccionado ? (
-        <ReporteDetalleModal
-          canReview
-          onClose={cerrarDetalle}
-          onReview={abrirRevision}
-          reporte={reporteSeleccionado}
-        />
-      ) : null}
+        {reporteSeleccionado ? (
+          <ReporteDetalleModal
+            canReview
+            onClose={cerrarDetalle}
+            onReview={abrirRevision}
+            reporte={reporteSeleccionado}
+          />
+        ) : null}
 
-      {reporteRevisando ? (
-        <ReporteRevisionModal
-          loading={guardandoRevision}
-          onClose={cerrarRevision}
-          onSubmit={guardarRevision}
-          reporte={reporteRevisando}
-        />
-      ) : null}
-    </main>
+        {reporteRevisando ? (
+          <ReporteRevisionModal
+            loading={guardandoRevision}
+            onClose={cerrarRevision}
+            onSubmit={guardarRevision}
+            reporte={reporteRevisando}
+          />
+        ) : null}
+      </div>
+    </PageShell>
   );
 }
 

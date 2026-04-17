@@ -70,33 +70,43 @@ function ArchivoPdfField({
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          <p className="text-sm font-semibold text-slate-700">
-            Arrastra tu PDF aqui o haz clic para seleccionarlo
-          </p>
-          <p className="mt-2 text-xs text-slate-500">
-            Solo se permiten archivos .pdf
-          </p>
+          {nombreVisible ? (
+            <div className="flex w-full max-w-md flex-col items-center gap-3 text-center">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Archivo seleccionado
+              </p>
+              <p className="break-words text-sm font-semibold text-slate-700">
+                {nombreVisible}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <span className="text-xs text-slate-500">
+                  Haz clic o arrastra otro PDF para reemplazarlo
+                </span>
+                <button
+                  className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400"
+                  onClick={(evento) => {
+                    evento.preventDefault();
+                    evento.stopPropagation();
+                    onRemove();
+                  }}
+                  type="button"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <p className="text-sm font-semibold text-slate-700">
+                Arrastra tu PDF aqui o haz clic para seleccionarlo
+              </p>
+              <p className="mt-2 text-xs text-slate-500">
+                Solo se permiten archivos .pdf
+              </p>
+            </>
+          )}
         </label>
       </div>
-
-      {nombreVisible ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              Archivo seleccionado
-            </p>
-            <p className="mt-1 text-sm text-slate-700">{nombreVisible}</p>
-          </div>
-
-          <button
-            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-white"
-            onClick={onRemove}
-            type="button"
-          >
-            Eliminar
-          </button>
-        </div>
-      ) : null}
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
     </div>

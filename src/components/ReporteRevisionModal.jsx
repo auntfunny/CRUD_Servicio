@@ -27,19 +27,19 @@ function ReporteRevisionModal({ loading = false, onClose, onSubmit, reporte }) {
 
   return (
     <ModalBase onClose={onClose} title="Revisar reporte">
-      <form className="space-y-4" onSubmit={handleSubmit}>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        <div className="rounded-[1.4rem] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           <p className="font-semibold text-slate-900">
             Horas reportadas por el estudiante {reporte?.student?.full_name ?? "Sin dato"}
           </p>
           <p className="mt-1">{formatHoras(reporte?.hours_spent ?? 0)}</p>
         </div>
 
-        <label className="flex flex-col gap-2 text-sm">
+        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
           <span>Horas aprobadas</span>
           <span className="relative block">
             <input
-              className="w-full rounded border px-3 py-2 pr-24"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3 pr-24 outline-none transition focus:border-[var(--color-acc1)] focus:ring-2 focus:ring-[rgba(42,125,225,0.14)]"
               min="0"
               onChange={(evento) => setApprovedHours(evento.target.value)}
               step="0.5"
@@ -47,7 +47,7 @@ function ReporteRevisionModal({ loading = false, onClose, onSubmit, reporte }) {
               value={approvedHours}
             />
             <button
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-white hover:text-slate-900"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
               onClick={() => setApprovedHours(horasReportadas)}
               type="button"
             >
@@ -56,10 +56,10 @@ function ReporteRevisionModal({ loading = false, onClose, onSubmit, reporte }) {
           </span>
         </label>
 
-        <label className="flex flex-col gap-2 text-sm">
+        <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
           Comentario para el estudiante
           <textarea
-            className="min-h-28 rounded border px-3 py-2"
+            className="min-h-32 rounded-[1.4rem] border border-slate-200 bg-slate-50/70 px-4 py-4 outline-none transition focus:border-[var(--color-acc1)] focus:ring-2 focus:ring-[rgba(42,125,225,0.14)]"
             onChange={(evento) => setReviewerNotes(evento.target.value)}
             placeholder="Explica que estuvo bien o que debe corregir."
             value={reviewerNotes}
@@ -69,11 +69,15 @@ function ReporteRevisionModal({ loading = false, onClose, onSubmit, reporte }) {
         {errorLocal ? <p className="text-sm text-red-600">{errorLocal}</p> : null}
 
         <div className="flex justify-end gap-3">
-          <button className="rounded border px-4 py-2" onClick={onClose} type="button">
+          <button
+            className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-800"
+            onClick={onClose}
+            type="button"
+          >
             Cancelar
           </button>
           <button
-            className="rounded border bg-slate-900 px-4 py-2 text-white"
+            className="rounded-full bg-[linear-gradient(180deg,_#2f80ed,_#195ec9)] px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(42,125,225,0.28)] transition hover:brightness-95"
             disabled={loading}
             type="submit"
           >
