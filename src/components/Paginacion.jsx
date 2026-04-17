@@ -24,32 +24,32 @@ function Paginacion({
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-medium text-slate-500">
-          Pagina {page} de {totalPages}
-        </p>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm font-medium text-slate-500">
+        {total > 0 ? `Mostrando pagina ${page} de ${totalPages}` : `Pagina ${page} de ${totalPages}`}
+      </p>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          className="rounded-full border border-transparent bg-white/72 px-4 py-2 text-sm font-semibold text-slate-600 shadow-[0_8px_18px_rgba(15,23,42,0.04)] transition hover:border-[rgba(42,125,225,0.2)] hover:text-[var(--color-acc2)] disabled:cursor-not-allowed disabled:opacity-35"
+          disabled={!puedeRetroceder}
+          onClick={() => onPageChange(page - 1)}
+          type="button"
+        >
+          Anterior
+        </button>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            disabled={!puedeRetroceder}
-            onClick={() => onPageChange(page - 1)}
-            type="button"
-          >
-            Anterior
-          </button>
-
           {paginasVisibles.map((numeroPagina) => {
             const activa = numeroPagina === page;
 
             return (
               <button
                 key={numeroPagina}
-                className={`h-10 min-w-10 rounded-full border px-3 text-sm font-semibold transition ${
+                className={`h-10 min-w-10 rounded-full px-3 text-sm font-semibold shadow-[0_8px_18px_rgba(15,23,42,0.04)] transition ${
                   activa
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
+                    ? "bg-[var(--color-acc1)] text-white"
+                    : "bg-white/72 text-slate-600 hover:text-[var(--color-acc2)]"
                 }`}
                 onClick={() => onPageChange(numeroPagina)}
                 type="button"
@@ -58,16 +58,16 @@ function Paginacion({
               </button>
             );
           })}
-
-          <button
-            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            disabled={!puedeAvanzar}
-            onClick={() => onPageChange(page + 1)}
-            type="button"
-          >
-            Siguiente
-          </button>
         </div>
+
+        <button
+          className="rounded-full border border-transparent bg-white/72 px-4 py-2 text-sm font-semibold text-slate-600 shadow-[0_8px_18px_rgba(15,23,42,0.04)] transition hover:border-[rgba(42,125,225,0.2)] hover:text-[var(--color-acc2)] disabled:cursor-not-allowed disabled:opacity-35"
+          disabled={!puedeAvanzar}
+          onClick={() => onPageChange(page + 1)}
+          type="button"
+        >
+          Siguiente
+        </button>
       </div>
     </div>
   );

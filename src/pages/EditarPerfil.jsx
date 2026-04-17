@@ -1,6 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
+import { PageShell } from "../components/PageShell";
+
+function CampoEditable({ error, ...props }) {
+  return (
+    <div>
+      <input
+        {...props}
+        className={`w-full rounded-[1.1rem] bg-slate-50 px-4 py-4 text-sm text-slate-700 outline-none transition focus:bg-white focus:ring-2 focus:ring-[var(--color-acc1)]/20 ${props.className || ""}`}
+      />
+      {error ? <p className="mt-2 text-sm text-rose-600">{error}</p> : null}
+    </div>
+  );
+}
 
 export default function EditarPerfil() {
   const navigate = useNavigate();
@@ -18,7 +31,6 @@ export default function EditarPerfil() {
 
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
-
   const [countries, setCountries] = useState([]);
 
   const { request: getProfile } = useAxios("/profile/me", { auto: false });
@@ -26,10 +38,7 @@ export default function EditarPerfil() {
     method: "PATCH",
     auto: false,
   });
-
-  const { request: getCountries } = useAxios("/countries/", {
-    auto: false,
-  });
+  const { request: getCountries } = useAxios("/countries/", { auto: false });
 
   useEffect(() => {
     const load = async () => {
@@ -38,7 +47,6 @@ export default function EditarPerfil() {
         const countriesData = await getCountries();
 
         setCountries(countriesData);
-
         setForm({
           first_name: profile.first_name || "",
           last_name: profile.last_name || "",
@@ -46,12 +54,8 @@ export default function EditarPerfil() {
           second_lastname: profile.second_lastname || "",
           email: profile.email || "",
           phone_number: profile.phone_number || "",
-          birthdate: profile.birthdate
-            ? profile.birthdate.split("T")[0]
-            : "",
-          country_id: profile.country_id
-            ? String(profile.country_id)
-            : "",
+          birthdate: profile.birthdate ? profile.birthdate.split("T")[0] : "",
+          country_id: profile.country_id ? String(profile.country_id) : "",
         });
       } catch (err) {
         console.error("Error cargando perfil:", err);
@@ -61,7 +65,7 @@ export default function EditarPerfil() {
     };
 
     load();
-  }, []);
+  }, [getCountries, getProfile]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -69,7 +73,6 @@ export default function EditarPerfil() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setErrors({});
 
     const payload = {
@@ -83,21 +86,17 @@ export default function EditarPerfil() {
     };
 
     try {
-      await updateProfile({
-        body: payload,
-      });
-
+      await updateProfile({ body: payload });
       alert("Perfil actualizado");
       navigate("/perfil");
     } catch (err) {
       console.error("ERROR BACKEND:", err.response?.data);
 
-      //MANEJO DE ERRORES 422
       if (err.response?.data?.detail) {
         const apiErrors = {};
-        err.response.data.detail.forEach((e) => {
-          const field = e.loc[e.loc.length - 1];
-          apiErrors[field] = e.msg;
+        err.response.data.detail.forEach((item) => {
+          const field = item.loc[item.loc.length - 1];
+          apiErrors[field] = item.msg;
         });
         setErrors(apiErrors);
       } else {
@@ -105,6 +104,16 @@ export default function EditarPerfil() {
       }
     }
   };
+
+  const nombreCompleto = useMemo(
+    () => [form.first_name, form.last_name].filter(Boolean).join(" ") || "Editar perfil",
+    [form.first_name, form.last_name],
+  );
+
+  const iniciales = useMemo(() => {
+    const partes = [form.first_name, form.last_name].filter(Boolean);
+    return partes.map((parte) => parte[0]?.toUpperCase()).join("").slice(0, 2) || "EP";
+  }, [form.first_name, form.last_name]);
 
   if (loading) {
     return (
@@ -115,63 +124,82 @@ export default function EditarPerfil() {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] px-4 py-8">
-      <div className="mx-auto max-w-5xl">
-        <section className="grid overflow-hidden rounded-[32px] bg-white shadow-[0_35px_100px_rgba(7,19,39,0.32)] lg:grid-cols-[0.9fr_1.2fr]">
+    <PageShell>
+      <section className="rounded-[2rem] bg-white/60 p-3 shadow-[0_12px_28px_rgba(15,23,42,0.04)] backdrop-blur-sm md:p-4">
+        <div className="overflow-hidden rounded-[1.7rem] bg-white shadow-[0_24px_60px_rgba(15,23,42,0.06)]">
+          <div className="h-28 bg-[linear-gradient(90deg,_rgba(160,198,243,0.95),_rgba(230,236,247,0.92)_55%,_rgba(251,241,204,0.92))] md:h-32" />
 
-          {/* LADO IZQUIERDO */}
-          <aside className="relative flex flex-col justify-between bg-[#143963] px-8 py-10 text-white">
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(106,144,216,0.9)_0%,rgba(129,117,216,0.82)_40%,rgba(236,157,211,0.92)_78%,rgba(16,44,80,0.98)_100%)]" />
+          <div className="px-5 pb-6 pt-0 md:px-8 md:pb-8">
+            <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center">
+                <div className="-mt-12 flex h-24 w-24 items-center justify-center rounded-full border-[6px] border-white bg-[linear-gradient(135deg,_#1f6ed4,_#7aa8eb)] font-montserrat text-2xl font-bold text-white shadow-[0_16px_30px_rgba(31,110,212,0.22)] md:-mt-14 md:h-28 md:w-28 md:text-3xl">
+                  {iniciales}
+                </div>
 
-            <div className="relative z-10">
-              <h1 className="text-2xl font-bold tracking-[0.2em]">FUNVAL</h1>
-              <h2 className="mt-6 text-3xl font-semibold">Editar Perfil</h2>
-              <p className="mt-4 text-sm text-white/80">
-                Modifica tu información personal.
-              </p>
+                <div className="pt-1 md:pt-10">
+                  <p className="font-montserrat text-2xl font-bold text-slate-800 md:text-3xl">
+                    {nombreCompleto}
+                  </p>
+                  <p className="mt-2 text-base text-slate-500">{form.email || "--"}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 md:pt-8">
+                <button
+                  onClick={() => navigate("/perfil")}
+                  className="inline-flex min-w-[150px] items-center justify-center rounded-xl bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                  type="button"
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
 
-            <div className="relative z-10 text-sm text-white/70">
-              2026
-            </div>
-          </aside>
+            <form onSubmit={handleSubmit} className="mt-8">
+              <div className="grid gap-4 md:grid-cols-2">
+                <CampoEditable error={errors.first_name} name="first_name" onChange={handleChange} placeholder="Primer nombre" value={form.first_name} />
+                <CampoEditable name="middle_name" onChange={handleChange} placeholder="Segundo nombre" value={form.middle_name} />
+                <CampoEditable error={errors.last_name} name="last_name" onChange={handleChange} placeholder="Apellido" value={form.last_name} />
+                <CampoEditable name="second_lastname" onChange={handleChange} placeholder="Segundo apellido" value={form.second_lastname} />
+                <CampoEditable className="bg-slate-100 text-slate-400" disabled name="email" placeholder="Correo" value={form.email} />
+                <CampoEditable error={errors.phone_number} name="phone_number" onChange={handleChange} placeholder="Telefono" value={form.phone_number} />
+                <CampoEditable name="birthdate" onChange={handleChange} type="date" value={form.birthdate} />
+                <div>
+                  <select
+                    className="w-full rounded-[1.1rem] bg-slate-50 px-4 py-4 text-sm text-slate-700 outline-none transition focus:bg-white focus:ring-2 focus:ring-[var(--color-acc1)]/20"
+                    name="country_id"
+                    onChange={handleChange}
+                    value={form.country_id}
+                  >
+                    <option value="">Seleccionar pais</option>
+                    {countries.map((country) => (
+                      <option key={country.id} value={country.id}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-          {/* FORM */}
-          <div className="px-8 py-10">
-            <form onSubmit={handleSubmit} className="mt-4 space-y-6">
-
-              <input name="first_name" value={form.first_name} onChange={handleChange} placeholder="Nombre" className="w-full border-b pb-2 outline-none" />
-              {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name}</p>}
-
-              <input name="middle_name" value={form.middle_name} onChange={handleChange} placeholder="Segundo nombre" className="w-full border-b pb-2 outline-none" />
-
-              <input name="last_name" value={form.last_name} onChange={handleChange} placeholder="Apellido" className="w-full border-b pb-2 outline-none" />
-              {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name}</p>}
-
-              <input name="second_lastname" value={form.second_lastname} onChange={handleChange} placeholder="Segundo apellido" className="w-full border-b pb-2 outline-none" />
-
-              <input name="email" value={form.email} disabled className="w-full border-b pb-2 outline-none bg-gray-100" />
-
-              <input name="phone_number" value={form.phone_number} onChange={handleChange} placeholder="Teléfono" className="w-full border-b pb-2 outline-none" />
-              {errors.phone_number && <p className="text-red-500 text-sm">{errors.phone_number}</p>}
-
-              <input type="date" name="birthdate" value={form.birthdate} onChange={handleChange} className="w-full border-b pb-2 outline-none" />
-
-              <select name="country_id" value={form.country_id} onChange={handleChange} className="w-full border-b pb-2 outline-none">
-                <option value="">Seleccionar país</option>
-                {countries.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-
-              <button className="w-full rounded-full bg-[linear-gradient(90deg,#f4a024,#f7b347,#f4a024)] py-3 text-white font-semibold">
-                {updateLoading? "Guardando..." : "Guardar Cambios"}
-              </button>
-
+              <div className="mt-8 flex flex-wrap gap-3">
+                <button
+                  className="inline-flex min-w-[180px] items-center justify-center rounded-xl bg-[var(--color-acc1)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_24px_rgba(42,125,225,0.24)] transition hover:brightness-95"
+                  type="submit"
+                >
+                  {updateLoading ? "Guardando..." : "Guardar cambios"}
+                </button>
+                <button
+                  className="inline-flex min-w-[170px] items-center justify-center rounded-xl bg-slate-100 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-200"
+                  onClick={() => navigate("/perfil")}
+                  type="button"
+                >
+                  Volver al perfil
+                </button>
+              </div>
             </form>
           </div>
-        </section>
-      </div>
-    </main>
+        </div>
+      </section>
+    </PageShell>
   );
 }
