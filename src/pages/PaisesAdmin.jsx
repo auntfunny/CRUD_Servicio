@@ -10,8 +10,10 @@ import {
   secondaryButtonClass,
 } from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
+import { useToast } from "../context/ToastContext";
 
 function PaisesAdmin() {
+  const {setToastMensaje} = useToast();
   const [modalAgregar, setModalAgregar] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [confirmarBorrar, setConfirmarBorrar] = useState(false);
@@ -45,7 +47,11 @@ function PaisesAdmin() {
 
   const handleCerrarAgregar = (actualizar) => {
     setModalAgregar(false);
-    if (actualizar) request();
+    if (actualizar){
+      setToastMensaje("País creado exitosamente");
+      request();
+    } 
+      
   };
 
   const handleAbrirEditar = (pais) => {
@@ -58,7 +64,10 @@ function PaisesAdmin() {
     setModalEditar(false);
     setEditarCampos(null);
     setEditarId(null);
-    if (actualizar) request();
+    if (actualizar) {
+      setToastMensaje("País editado exitosamente");
+      request();
+    }
   };
 
   const handleAbrirBorrar = (id) => {
@@ -76,6 +85,7 @@ function PaisesAdmin() {
       await requestBorrar({ url: `/countries/${idBorrar}` });
       setConfirmarBorrar(false);
       setIdBorrar(null);
+      setToastMensaje("País eliminado exitosamente");
       request();
     } catch (err) {
       console.error("Error al borrar el pais");
