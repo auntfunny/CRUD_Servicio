@@ -1,7 +1,14 @@
 import { useMemo, useState } from "react";
 import ModalAgregarEditar from "../components/ModalAgregarEditar";
 import ModalConfirmacion from "../components/ModalConfirmacion";
-import { PageShell, PageHero, controlClass, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
+import {
+  PageShell,
+  PageHero,
+  controlClass,
+  panelBaseClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+} from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
 
 function PaisesAdmin() {
@@ -14,15 +21,25 @@ function PaisesAdmin() {
   const [busqueda, setBusqueda] = useState("");
 
   const { data: countries, loading, error, request } = useAxios("/countries/");
-  const { request: requestBorrar, loading: loadingBorrar } = useAxios("", { method: "DELETE", auto: false });
+  const { request: requestBorrar, loading: loadingBorrar } = useAxios("", {
+    method: "DELETE",
+    auto: false,
+  });
 
-  const items = Array.isArray(countries) ? countries : [];
+  const items = useMemo(
+    () => (Array.isArray(countries) ? countries : []),
+    [countries],
+  );
 
   const filtrados = useMemo(() => {
     const query = busqueda.trim().toLowerCase();
     if (!query) return items;
     return items.filter((pais) =>
-      [pais.name, pais.code].some((valor) => String(valor ?? "").toLowerCase().includes(query)),
+      [pais.name, pais.code].some((valor) =>
+        String(valor ?? "")
+          .toLowerCase()
+          .includes(query),
+      ),
     );
   }, [busqueda, items]);
 
@@ -98,21 +115,29 @@ function PaisesAdmin() {
           eyebrow="Paises"
           title="Gestion de paises"
           description="Administra los paises disponibles con el mismo formato limpio y operativo del resto del panel."
-          actions={(
+          actions={
             <>
-              <button className={secondaryButtonClass} onClick={request} type="button">
+              <button
+                className={secondaryButtonClass}
+                onClick={request}
+                type="button"
+              >
                 Actualizar lista
               </button>
-              <button className={primaryButtonClass} onClick={() => setModalAgregar(true)} type="button">
+              <button
+                className={primaryButtonClass}
+                onClick={() => setModalAgregar(true)}
+                type="button"
+              >
                 Agregar pais
               </button>
             </>
-          )}
-          meta={(
+          }
+          meta={
             <div className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-500 shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
               Total: {filtrados.length}
             </div>
-          )}
+          }
         />
 
         <section className={`${panelBaseClass} !bg-white`}>
@@ -147,18 +172,31 @@ function PaisesAdmin() {
               </div>
 
               {error ? (
-                <div className="px-6 py-10 text-sm text-rose-600">Error al cargar los paises.</div>
+                <div className="px-6 py-10 text-sm text-rose-600">
+                  Error al cargar los paises.
+                </div>
               ) : loading ? (
-                <div className="px-6 py-10 text-sm text-slate-500">Cargando paises...</div>
+                <div className="px-6 py-10 text-sm text-slate-500">
+                  Cargando paises...
+                </div>
               ) : filtrados.length > 0 ? (
                 <div className="divide-y divide-slate-100">
                   {filtrados.map((item) => (
-                    <div key={item.id} className="grid grid-cols-[0.5fr_1.4fr_0.8fr_0.9fr_0.95fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60">
-                      <span className="font-semibold text-slate-800">{item.id}</span>
+                    <div
+                      key={item.id}
+                      className="grid grid-cols-[0.5fr_1.4fr_0.8fr_0.9fr_0.95fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60"
+                    >
+                      <span className="font-semibold text-slate-800">
+                        {item.id}
+                      </span>
                       <div className="min-w-0">
-                        <p className="truncate font-semibold text-slate-800">{item.name}</p>
+                        <p className="truncate font-semibold text-slate-800">
+                          {item.name}
+                        </p>
                       </div>
-                      <span className="font-medium uppercase text-slate-700">{item.code}</span>
+                      <span className="font-medium uppercase text-slate-700">
+                        {item.code}
+                      </span>
                       <span>{item.created_at?.split("T")[0] ?? "--"}</span>
                       <div className="flex items-center gap-2">
                         <button
@@ -181,7 +219,9 @@ function PaisesAdmin() {
                   ))}
                 </div>
               ) : (
-                <div className="px-6 py-10 text-sm text-slate-500">No hay paises para mostrar.</div>
+                <div className="px-6 py-10 text-sm text-slate-500">
+                  No hay paises para mostrar.
+                </div>
               )}
             </div>
           </div>

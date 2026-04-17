@@ -2,7 +2,12 @@ import ModalBase from "./ModalBase";
 
 function ModalConfirmacion({ titulo, mensaje, onConfirm, onCancel }) {
   return (
-    <ModalBase onClose={onCancel} title={titulo} widthClass="max-w-md">
+    <ModalBase
+      onClose={onCancel}
+      title={titulo}
+      widthClass="max-w-md"
+      zClass="z-[60]"
+    >
       <div className="space-y-6">
         <p className="text-sm leading-6 text-slate-600">{mensaje}</p>
         <div className="flex justify-end gap-3">
