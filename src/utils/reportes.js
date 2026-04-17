@@ -25,7 +25,7 @@ export function formatHoras(valor) {
 export function formatFecha(valor) {
   if (!valor) return "Sin fecha";
 
-  const fecha = new Date(valor);
+  const fecha = new Date(getFechaOrdenable(valor));
 
   if (Number.isNaN(fecha.getTime())) {
     return valor;
@@ -36,6 +36,42 @@ export function formatFecha(valor) {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+export function getFechaOrdenable(valor) {
+  if (!valor) return 0;
+
+  if (typeof valor === "number") {
+    return valor;
+  }
+
+  if (typeof valor === "string") {
+    const texto = valor.trim();
+
+    const fechaIso = Date.parse(texto);
+    if (!Number.isNaN(fechaIso)) {
+      return fechaIso;
+    }
+
+    const coincidenciaFecha = texto.match(
+      /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/,
+    );
+
+    if (coincidenciaFecha) {
+      const [, dia, mes, anio, hora = "0", minuto = "0", segundo = "0"] = coincidenciaFecha;
+      return new Date(
+        Number(anio),
+        Number(mes) - 1,
+        Number(dia),
+        Number(hora),
+        Number(minuto),
+        Number(segundo),
+      ).getTime();
+    }
+  }
+
+  const fecha = new Date(valor);
+  return Number.isNaN(fecha.getTime()) ? 0 : fecha.getTime();
 }
 
 export function buildReporteFormData(formulario) {
@@ -65,6 +101,7 @@ export function createReporteFormState(reporte = null) {
     categoryId: reporte?.category_id ? String(reporte.category_id) : "",
     description: reporte?.description ?? "",
     evidence: null,
+    evidenceName: reporte?.evidence_name ?? "",
     hoursSpent: reporte?.hours_spent ?? "",
   };
 }
