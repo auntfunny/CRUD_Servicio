@@ -92,7 +92,6 @@ export function AuthProvider({ children }) {
       }
     } catch (error) {
       console.error("Error en login:", error);
-      alert("Error al conectar con el servidor");
     }
   };
 
