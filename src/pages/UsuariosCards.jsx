@@ -86,7 +86,7 @@ export default function UsuariosCards() {
         )}
 
         {/* ERROR */}
-        {error && <p className="text-center text-red-500">{error}</p>}
+        {error && <p className="text-center text-red-500">No se pudieron cargar los usuarios</p>}
 
         {/* GRID */}
         {!loading && !error && (
