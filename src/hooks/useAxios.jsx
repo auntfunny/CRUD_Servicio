@@ -11,7 +11,7 @@ const useAxios = (url, options = {}) => {
   } = options;
 
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(method === "GET" ? true : false);
+  const [loading, setLoading] = useState(method === "GET" && auto ? true : false);
   const [error, setError] = useState(null);
 
   const request = useCallback(
