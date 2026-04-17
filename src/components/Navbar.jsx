@@ -1,9 +1,16 @@
+import { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import useAxios from "../hooks/useAxios";
 
 export default function Navbar({ abierto, setAbierto }) {
   const { user, logout } = useAuth();
-  const { data: curso, loading } = useAxios(`/courses/${user.course_id}`);
+  const { data: curso, loading , request } = useAxios(`/courses/${user.course_id}`, {auto: false});
+
+  useEffect(() => {
+    if(user.course_id){
+      request();
+    }
+  }, [user]);
 
   
   if (!user) return null;
