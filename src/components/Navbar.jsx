@@ -3,9 +3,9 @@ import useAxios from "../hooks/useAxios";
 
 export default function Navbar({ abierto, setAbierto }) {
   const { user, logout } = useAuth();
-  const { data: curso, loading } = useAxios("/courses/32");
+  const { data: curso, loading } = useAxios(`/courses/${user.course_id}`);
 
-  // console.log(user);
+  
   if (!user) return null;
 
   return (
@@ -39,4 +39,3 @@ export default function Navbar({ abierto, setAbierto }) {
   );
 }
 
-//https://hs-api.devfunval.cloud/api/v1/courses/32
