@@ -7,8 +7,10 @@ import { useAuth } from "../context/AuthContext";
 import useUpload from "../hooks/useUpload";
 import useAxios from "../hooks/useAxios";
 import { estadoOptions, getFechaOrdenable } from "../utils/reportes";
+import { useToast } from "../context/ToastContext";
 
 function ReportesEstudiante() {
+  const {setToastMensaje} = useToast();
   const { user } = useAuth();
   const [page, setPage] = useState(1);
   const pageSize = 8;
@@ -138,6 +140,7 @@ function ReportesEstudiante() {
 
   const guardarNuevoReporte = async (formData) => {
     await guardarReporte(formData);
+    setToastMensaje("Reporte creado exitosamente");
     cerrarCrear();
     await recargarReportes({
       params: paramsConsulta,
@@ -148,6 +151,7 @@ function ReportesEstudiante() {
     if (!reporteEditando) return;
 
     await actualizarReporte(reporteEditando.id, formData);
+    setToastMensaje("Reporte actualizado exitosamente");
     cerrarEditar();
     await recargarReportes({
       params: paramsConsulta,

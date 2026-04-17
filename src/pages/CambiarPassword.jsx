@@ -1,8 +1,10 @@
 import { useState } from "react";
 import useAxios from "../hooks/useAxios";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 
 export default function CambiarPassword() {
+  const { setToastMensaje } = useToast();
   const navigate = useNavigate();
   const [form, setForm] = useState({
     current_password: "",
@@ -35,11 +37,9 @@ export default function CambiarPassword() {
         },
       });
 
-      setMensaje({ tipo: "ok", texto: "Contraseña actualizada correctamente" });
-      
-      setTimeout(() => {
-        navigate("/perfil");
-      }, 1200)
+      setToastMensaje("Contraseña actualizada correctamente");
+
+      navigate("/perfil");
     } catch (error) {
       console.log("ERROR:", error.response?.data);
 
