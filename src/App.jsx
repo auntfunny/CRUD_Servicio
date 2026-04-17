@@ -19,6 +19,7 @@ import ReportesEstudiante from "./pages/ReportesEstudiante";
 import EstudiantesDeuda from "./pages/EstudiantesDeuda";
 import Categorias from "./pages/Categorias";
 import PaisesAdmin from "./pages/PaisesAdmin";
+import Cursos from "./pages/Cursos";
 
 function App() {
   return (
@@ -33,7 +34,7 @@ function App() {
             <Route path="/usuarios/import" element={<ImportUsers />} />
             <Route path="/categorias" element={<Categorias />} />
             <Route path="/paises" element={<PaisesAdmin/>} />
-            <Route path="/cursos" element={<h2>Admin Cursos</h2>} />
+            <Route path="/cursos" element={<Cursos />} />
             <Route path="/reportes" element={<ReportesAdmin />} />
             <Route path="/estudiantes-pendientes" element={<EstudiantesDeuda />} />
           </Route>
