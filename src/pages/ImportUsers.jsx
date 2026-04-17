@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, controlClass, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
+import { useToast } from "../context/ToastContext";
 
 export default function ImportUsers() {
-  const navigate = useNavigate();
+  const {setToastMensaje} = useToast(); 
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [exporting, setExporting] = useState(false);
@@ -34,7 +35,19 @@ export default function ImportUsers() {
           "Content-Type": "multipart/form-data",
         },
       });
-      setResult(response.data);
+      return response.data;
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) return;
+
+    try {
+      const data = await importUsersCSV(file);
+      setToastMensaje("Usuarios importados correctemente");
+      setResult(data);
     } catch (error) {
       console.error(error);
     }

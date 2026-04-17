@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, controlClass, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
+import { useToast } from "../context/ToastContext";
 
 function Field({ error, label, children }) {
   return (
@@ -15,6 +16,8 @@ function Field({ error, label, children }) {
 
 export default function CrearUsuario() {
   const navigate = useNavigate();
+  const { setToastMensaje } = useToast();
+
   const [form, setForm] = useState({
     email: "",
     first_name: "",
@@ -32,9 +35,19 @@ export default function CrearUsuario() {
   const [mensaje, setMensaje] = useState(null);
   const [errors, setErrors] = useState({});
 
-  const { data: paisData } = useAxios("/countries/");
-  const { data: cursoData } = useAxios("/courses/");
-  const { loading, request } = useAxios("/users/", { method: "POST" });
+  const {
+    data: paisData,
+    loading: paisLoading,
+    error: paisError,
+  } = useAxios("/countries/");
+  const {
+    data: cursoData,
+    loading: cursoLoading,
+    error: cursoError,
+  } = useAxios("/courses/");
+  const { data, loading, error, request } = useAxios("/users/", {
+    method: "POST",
+  });
 
   function handleChange(evento) {
     setForm({ ...form, [evento.target.name]: evento.target.value });
@@ -70,10 +83,10 @@ export default function CrearUsuario() {
 
     try {
       await request({ body: payload });
-      setMensaje({ tipo: "ok", texto: "Usuario creado correctamente." });
-      setTimeout(() => {
-        navigate("/usuarios");
-      }, 1200);
+
+      setToastMensaje("Usuario creado correctamente");
+
+      navigate("/usuarios");
     } catch (error) {
       const response = error.response?.data;
 
@@ -84,130 +97,155 @@ export default function CrearUsuario() {
           apiErrors[field] = item.msg || "Error en el campo";
         });
         setErrors(apiErrors);
-        setMensaje({ tipo: "error", texto: "Revisa los campos obligatorios." });
-        return;
-      }
 
-      setMensaje({
-        tipo: "error",
-        texto: response?.detail || "No se pudo crear el usuario.",
-      });
+        setMensaje({
+          tipo: "error",
+          texto: "Revisa los campos ❌",
+        });
+      } else {
+        setMensaje({
+          tipo: "error",
+          texto: response?.detail || "Error del servidor ❌",
+        });
+      }
     }
   }
 
   return (
-    <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
-        <PageHero
-          eyebrow="Usuarios"
-          title="Crear usuario"
-          description="Registra un nuevo administrador o estudiante usando la misma estructura visual del panel."
-          actions={(
-            <>
-              <button className={secondaryButtonClass} onClick={() => navigate("/usuarios")} type="button">
-                Volver a usuarios
-              </button>
-              <button className={primaryButtonClass} disabled={loading} form="crear-usuario-form" type="submit">
-                {loading ? "Creando..." : "Guardar usuario"}
-              </button>
-            </>
-          )}
-        />
+    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_#2c5b98_0%,_#183b68_45%,_#0b1f3a_100%)] p-4 flex items-center justify-center px-4">
+      <div className="w-full max-w-lg bg-white rounded-[32px] p-8 shadow-[0_35px_100px_rgba(7,19,39,0.32)]">
+        <h2 className="text-2xl font-semibold text-slate-800">Crear Usuario</h2>
 
-        <form className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]" id="crear-usuario-form" onSubmit={handleSubmit}>
-          <section className={`${panelBaseClass} !bg-white space-y-6`}>
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Datos personales
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Informacion principal</h2>
-            </div>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <input
+            name="first_name"
+            placeholder="Nombre"
+            value={form.first_name}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          />
+          <input
+            name="middle_name"
+            placeholder="Segundo nombre"
+            value={form.middle_name}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
+          <input
+            name="last_name"
+            placeholder="Apellido"
+            value={form.last_name}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          />
+          <input
+            name="second_lastname"
+            placeholder="Segundo apellido"
+            value={form.second_lastname}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field error={errors.first_name} label="Primer nombre">
-                <input className={controlClass} name="first_name" onChange={handleChange} required value={form.first_name} />
-              </Field>
-              <Field label="Segundo nombre">
-                <input className={controlClass} name="middle_name" onChange={handleChange} value={form.middle_name} />
-              </Field>
-              <Field error={errors.last_name} label="Apellido">
-                <input className={controlClass} name="last_name" onChange={handleChange} required value={form.last_name} />
-              </Field>
-              <Field label="Segundo apellido">
-                <input className={controlClass} name="second_lastname" onChange={handleChange} value={form.second_lastname} />
-              </Field>
-              <Field error={errors.email} label="Correo institucional">
-                <input className={controlClass} name="email" onChange={handleChange} placeholder="usuario@funval.com" required value={form.email} />
-              </Field>
-              <Field error={errors.document_number} label="Documento">
-                <input className={controlClass} name="document_number" onChange={handleChange} required value={form.document_number} />
-              </Field>
-              <Field error={errors.phone_number} label="Telefono">
-                <input className={controlClass} name="phone_number" onChange={handleChange} value={form.phone_number} />
-              </Field>
-              <Field label="Fecha de nacimiento">
-                <input className={controlClass} name="birthdate" onChange={handleChange} type="date" value={form.birthdate} />
-              </Field>
-            </div>
-          </section>
+          <input
+            name="email"
+            placeholder="Email (@funval.com)"
+            value={form.email}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          />
+          <input
+            name="document_number"
+            placeholder="Documento"
+            value={form.document_number}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          />
 
-          <aside className="space-y-6">
-            <section className={`${panelBaseClass} !bg-white space-y-5`}>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Asignacion
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-900">Rol y contexto</h2>
-              </div>
+          <input
+            name="phone_number"
+            placeholder="Teléfono"
+            value={form.phone_number}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
 
-              <Field error={errors.country_id} label="Pais">
-                <select className={controlClass} name="country_id" onChange={handleChange} required value={form.country_id}>
-                  <option value="">Selecciona un pais</option>
-                  {paisData?.map((pais) => (
-                    <option key={pais.id} value={pais.id}>{pais.name}</option>
-                  ))}
-                </select>
-              </Field>
+          <input
+            type="date"
+            name="birthdate"
+            value={form.birthdate}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
 
-              <Field error={errors.course_id} label="Curso">
-                <select className={controlClass} name="course_id" onChange={handleChange} required value={form.course_id}>
-                  <option value="">Selecciona un curso</option>
-                  {cursoData?.map((curso) => (
-                    <option key={curso.id} value={curso.id}>{curso.name}</option>
-                  ))}
-                </select>
-              </Field>
+          <select
+            name="country_id"
+            id="country_id"
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          >
+            <option value="">Seleccione un país</option>
+            {paisData?.map((pais) => (
+              <option key={pais.id} value={pais.id}>
+                {pais.name}
+              </option>
+            ))}
+          </select>
+          <select
+            name="course_id"
+            id="course_id"
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+            required
+          >
+            <option value="">Seleccione un curso</option>
+            {cursoData?.map((curso) => (
+              <option key={curso.id} value={curso.id}>
+                {curso.name}
+              </option>
+            ))}
+          </select>
 
-              <Field error={errors.role} label="Rol">
-                <select className={controlClass} name="role" onChange={handleChange} value={form.role}>
-                  <option value="ADMIN">Administrador</option>
-                  <option value="STUDENT">Estudiante</option>
-                </select>
-              </Field>
+          <input
+            name="password"
+            type="password"
+            placeholder="Contraseña"
+            value={form.password}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          />
 
-              <Field error={errors.password} label="Contrasena inicial">
-                <input className={controlClass} name="password" onChange={handleChange} placeholder="Opcional" type="password" value={form.password} />
-              </Field>
-            </section>
+          <select
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            className="w-full border-b pb-2"
+          >
+            <option value="ADMIN">ADMIN</option>
+            <option value="STUDENT">STUDENT</option>
+          </select>
 
-            <section className={`${panelBaseClass} !bg-white`}>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                Resumen
-              </p>
-              <div className="mt-4 space-y-3 text-sm text-slate-600">
-                <p><span className="font-semibold text-slate-800">Nombre:</span> {[form.first_name, form.middle_name, form.last_name, form.second_lastname].filter(Boolean).join(" ") || "--"}</p>
-                <p><span className="font-semibold text-slate-800">Rol:</span> {form.role === "ADMIN" ? "Administrador" : "Estudiante"}</p>
-                <p><span className="font-semibold text-slate-800">Acceso:</span> {form.password ? "Contrasena definida" : "Usara el documento como contrasena inicial"}</p>
-              </div>
-            </section>
-          </aside>
+          <button
+            disabled={loading}
+            className="w-full rounded-full bg-[linear-gradient(90deg,#7796db,#3b5f9f)] px-6 py-3 text-white font-semibold"
+          >
+            {loading ? "Creando..." : "Crear usuario"}
+          </button>
         </form>
 
-        {mensaje ? (
-          <section className={`${panelBaseClass} !bg-white ${mensaje.tipo === "ok" ? "text-emerald-700" : "text-rose-700"}`}>
+        {mensaje && (
+          <div
+            className={`mt-6 px-4 py-3 text-sm ${
+              mensaje.tipo === "ok" ? "text-green-600" : "text-red-600"
+            }`}
+          >
             {mensaje.texto}
-          </section>
-        ) : null}
+          </div>
+        )}
       </div>
     </PageShell>
   );

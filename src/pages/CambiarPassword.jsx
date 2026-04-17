@@ -13,6 +13,7 @@ function CampoPassword(props) {
 }
 
 export default function CambiarPassword() {
+
   const navigate = useNavigate();
   const [form, setForm] = useState({
     current_password: "",
@@ -33,7 +34,7 @@ export default function CambiarPassword() {
     event.preventDefault();
 
     if (form.new_password !== form.confirm_password) {
-      setMensaje({ tipo: "error", texto: "Las contrasenas no coinciden." });
+      setMensaje({ tipo: "error", texto: "Las contraseñas no coinciden." });
       return;
     }
 
@@ -45,15 +46,15 @@ export default function CambiarPassword() {
         },
       });
 
-      setMensaje({ tipo: "ok", texto: "Contrasena actualizada correctamente." });
+      setMensaje({ tipo: "ok", texto: "Contraseña actualizada correctamente." });
       setTimeout(() => {
         navigate("/perfil");
       }, 1200);
     } catch (error) {
       if (error.response?.status === 401) {
-        setMensaje({ tipo: "error", texto: "La contrasena actual es incorrecta." });
+        setMensaje({ tipo: "error", texto: "La contraseña actual es incorrecta." });
       } else {
-        setMensaje({ tipo: "error", texto: "No se pudo actualizar la contrasena." });
+        setMensaje({ tipo: "error", texto: "No se pudo actualizar la contraseña." });
       }
     }
   }
@@ -63,7 +64,7 @@ export default function CambiarPassword() {
       <div className="mx-auto max-w-7xl space-y-6 p-6">
         <PageHero
           eyebrow="Seguridad"
-          title="Cambiar contrasena"
+          title="Cambiar contraseña"
           description="Actualiza tu clave de acceso manteniendo el mismo lenguaje visual del resto del sistema."
           actions={(
             <>
@@ -71,7 +72,7 @@ export default function CambiarPassword() {
                 Volver
               </button>
               <button className={primaryButtonClass} disabled={loading} form="password-form" type="submit">
-                {loading ? "Procesando..." : "Actualizar contrasena"}
+                {loading ? "Procesando..." : "Actualizar contraseña"}
               </button>
             </>
           )}
@@ -86,7 +87,7 @@ export default function CambiarPassword() {
               </button>
               {mostrarAyuda ? (
                 <div className="absolute right-0 top-14 z-10 w-72 rounded-[1rem] border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600 shadow-[0_18px_35px_rgba(15,23,42,0.12)]">
-                  Usa una contrasena segura, verifica que ambos campos coincidan y procura usar al menos 8 caracteres.
+                  Usa una contraseña segura, verifica que ambos campos coincidan y procura usar al menos 8 caracteres.
                 </div>
               ) : null}
             </div>
@@ -98,7 +99,7 @@ export default function CambiarPassword() {
             <CampoPassword
               name="current_password"
               onChange={handleChange}
-              placeholder="Contrasena actual"
+              placeholder="Contraseña actual"
               required
               type="password"
               value={form.current_password}
@@ -106,7 +107,7 @@ export default function CambiarPassword() {
             <CampoPassword
               name="new_password"
               onChange={handleChange}
-              placeholder="Nueva contrasena"
+              placeholder="Nueva contraseña"
               required
               type="password"
               value={form.new_password}
@@ -114,7 +115,7 @@ export default function CambiarPassword() {
             <CampoPassword
               name="confirm_password"
               onChange={handleChange}
-              placeholder="Confirmar nueva contrasena"
+              placeholder="Confirmar nueva contraseña"
               required
               type="password"
               value={form.confirm_password}

@@ -11,20 +11,11 @@ import {
   primaryButtonClass,
 } from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
-import { estadoOptions, formatFecha, formatHoras, getFechaOrdenable } from "../utils/reportes";
-
-function MiniStat({ label, tone, value }) {
-  return (
-    <article className="rounded-[1.4rem] border border-slate-100 bg-white p-4 shadow-[0_12px_24px_rgba(15,23,42,0.04)]">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-        {label}
-      </p>
-      <p className={`mt-3 font-montserrat text-3xl font-bold ${tone}`}>{value}</p>
-    </article>
-  );
-}
+import { estadoOptions, getFechaOrdenable } from "../utils/reportes";
+import { useToast } from "../context/ToastContext";
 
 function ReportesAdmin() {
+  const {setToastMensaje} = useToast();
   const [page, setPage] = useState(1);
   const pageSize = 8;
   const [estadoFiltro, setEstadoFiltro] = useState("");
@@ -245,6 +236,7 @@ function ReportesAdmin() {
       method: "PATCH",
     });
 
+    setToastMensaje("Estado del reporte actualizado exitosamente");
     cerrarRevision();
     await recargarReportes({
       params: paramsConsulta,

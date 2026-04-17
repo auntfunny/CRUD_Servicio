@@ -5,6 +5,7 @@ import ModalConfirmacion from "../components/ModalConfirmacion";
 import { PageShell, panelBaseClass, primaryButtonClass } from "../components/PageShell";
 
 const Categorias = () => {
+  const {setToastMensaje} = useToast();
   const [modalAgregar, setModalAgregar] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [editarCampos, setEditarCampos] = useState(null);
@@ -23,6 +24,7 @@ const Categorias = () => {
     try {
       setConfirmarBorrar(false);
       await requestBorrar({ url: `/categories/${idBorrar}` });
+      setToastMensaje("Categoría eliminado exitosamente");
       request();
     } catch (err) {
       console.error(err);

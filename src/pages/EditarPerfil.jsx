@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, controlClass, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
 import useAxios from "../hooks/useAxios";
+import { useToast } from "../context/ToastContext";
 
 function CampoEditable({ error, ...props }) {
   return (
@@ -17,6 +18,8 @@ function CampoEditable({ error, ...props }) {
 
 export default function EditarPerfil() {
   const navigate = useNavigate();
+  const {setToastMensaje} = useToast();
+
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
@@ -84,7 +87,11 @@ export default function EditarPerfil() {
     };
 
     try {
-      await updateProfile({ body: payload });
+      await updateProfile({
+        body: payload,
+      });
+
+      setToastMensaje("Perfil actualizado");
       navigate("/perfil");
     } catch (error) {
       if (error.response?.data?.detail) {
