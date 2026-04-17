@@ -2,8 +2,10 @@ import { useState } from "react";
 import useAxios from "../hooks/useAxios";
 import ModalAgregarEditar from "../components/ModalAgregarEditar";
 import ModalConfirmacion from "../components/ModalConfirmacion";
+import { useToast } from "../context/ToastContext";
 
 const Categorias = () => {
+  const {setToastMensaje} = useToast();
   const [modalAgregar, setModalAgregar] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [editarCampos, setEditarCampos] = useState(null);
@@ -20,6 +22,7 @@ const Categorias = () => {
   const handleCerrarAgregar = (actualizar) => {
     setModalAgregar(false);
     if (actualizar) {
+      setToastMensaje("Categoría creado exitosamente");
       request();
     }
   };
@@ -35,6 +38,7 @@ const Categorias = () => {
     setEditarCampos(null);
     setEditarId(null);
     if (actualizar) {
+      setToastMensaje("Categoría actualizado exitosamente");
       request();
     }
   };
@@ -48,6 +52,7 @@ const Categorias = () => {
     try {
       setConfirmarBorrar(false);
       await requestBorrar({ url: `/categories/${idBorrar}` });
+      setToastMensaje("Categoría eliminado exitosamente");
       request();
     } catch (err) {
       console.error(err);

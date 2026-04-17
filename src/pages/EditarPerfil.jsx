@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
+import { useToast } from "../context/ToastContext";
 
 export default function EditarPerfil() {
   const navigate = useNavigate();
+  const {setToastMensaje} = useToast();
 
   const [form, setForm] = useState({
     first_name: "",
@@ -87,7 +89,7 @@ export default function EditarPerfil() {
         body: payload,
       });
 
-      alert("Perfil actualizado");
+      setToastMensaje("Perfil actualizado");
       navigate("/perfil");
     } catch (err) {
       console.error("ERROR BACKEND:", err.response?.data);

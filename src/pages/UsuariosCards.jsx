@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import useAxios from "../hooks/useAxios";
 import ModalConfirmacion from "../components/ModalConfirmacion";
 import Paginacion from "../components/Paginacion";
+import { useToast } from "../context/ToastContext";
 
 export default function UsuariosCards() {
+  const {setToastMensaje} = useToast();
   const [confirmarBorrar, setConfirmarBorrar] = useState(false);
   const [borrandoID, setBorrandoID] = useState(null);
   const [page, setPage] = useState(1);
@@ -21,7 +23,6 @@ export default function UsuariosCards() {
     request: requestBorrar,
   } = useAxios("", { method: "DELETE" });
 
-  console.log(data);
 
   const usuarios = data?.items ?? [];
   const total = data?.total ?? 0;
@@ -35,6 +36,7 @@ export default function UsuariosCards() {
     try {
       setConfirmarBorrar(false);
       await requestBorrar({ url: `/users/${borrandoID}` });
+      setToastMensaje("Usuario eliminado exitosamente");
       request();
     } catch (err) {
       console.error(err);
