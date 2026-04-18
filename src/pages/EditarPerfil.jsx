@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, controlClass, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
+import { ProfileSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 import { useToast } from "../context/ToastContext";
 
@@ -116,7 +117,11 @@ export default function EditarPerfil() {
   }, [form.first_name, form.last_name]);
 
   if (loading) {
-    return <div className="flex min-h-[60vh] items-center justify-center text-acc1">Cargando...</div>;
+    return (
+      <PageShell>
+        <ProfileSkeleton editable />
+      </PageShell>
+    );
   }
 
   return (

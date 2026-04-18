@@ -16,13 +16,36 @@ const traducciones = {
   price: "Precio",
 };
 
-const ModalAgregarEditar = ({ url, campos, cerrar }) => {
+function getErrorMessage(err) {
+  if (Array.isArray(err.response?.data?.detail)) {
+    return err.response.data.detail
+      .map((item) => item?.msg)
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  return (
+    err.response?.data?.detail ||
+    err.response?.data?.message ||
+    err.userMessage ||
+    err.message
+  );
+}
+
+const ModalAgregarEditar = ({
+  url,
+  campos,
+  cerrar,
+  existingNames = [],
+  currentItemId = null,
+}) => {
   const [formBody, setFormBody] = useState(campos);
   const [confirmar, setConfirmar] = useState(false);
   const { setToastMensaje } = useToast();
   const urlInfo = url.split("/").filter(Boolean);
   const numbers = ["duration", "required_service_hours", "price"];
   const metodo = urlInfo.length === 1 ? "POST" : "PATCH";
+  const requiredFields = Object.keys(campos).filter((key) => key !== "description");
 
   const { loading, request } = useAxios(url, { method: metodo });
 
@@ -36,23 +59,57 @@ const ModalAgregarEditar = ({ url, campos, cerrar }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (!formBody.name?.trim() || !formBody.code?.trim()) {
+    const normalizedName = String(formBody.name ?? "").trim().toLowerCase();
+
+    const hasMissingRequiredField = requiredFields.some((key) => {
+      const value = formBody[key];
+
+      if (numbers.includes(key)) {
+        return value === "" || value === null || value === undefined;
+      }
+
+      return !String(value ?? "").trim();
+    });
+
+    if (hasMissingRequiredField) {
       setToastMensaje("Por favor, completa todos los campos obligatorios.");
       return;
     }
+
+    const duplicateName = existingNames.some((item) => {
+      if (currentItemId !== null && item.id === currentItemId) {
+        return false;
+      }
+
+      return String(item.name ?? "").trim().toLowerCase() === normalizedName;
+    });
+
+    if (normalizedName && duplicateName) {
+      setToastMensaje("Ya existe una categoria con ese nombre.");
+      return;
+    }
+
     setConfirmar(true);
   };
 
   const handleConfirm = async () => {
-    console.log("Confirmando creación/edición", { url, metodo, formBody });
+    const payload = Object.fromEntries(
+      Object.entries(formBody).map(([key, value]) => {
+        if (typeof value === "string") {
+          return [key, key === "code" ? value.trim().toUpperCase() : value.trim()];
+        }
+
+        return [key, value];
+      }),
+    );
+
     try {
-      await request({ body: formBody });
+      await request({ body: payload });
       setConfirmar(false);
       cerrar(true);
     } catch (err) {
-      console.error("Error en request:", err);
       setToastMensaje(
-        `Error al ${metodo === "POST" ? "crear" : "editar"}: ${err.response?.data?.message || err.message}`,
+        `Error al ${metodo === "POST" ? "crear" : "editar"}: ${getErrorMessage(err)}`,
       );
     }
   };

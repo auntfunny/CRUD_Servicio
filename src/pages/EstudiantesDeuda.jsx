@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useMemo, useState } from "react";
 import Paginacion from "../components/Paginacion";
 import { PageShell, controlClass, panelBaseClass, primaryButtonClass } from "../components/PageShell";
+import { ListPageSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 
 function getNombreEstudiante(item) {
@@ -81,7 +82,9 @@ function EstudiantesDeuda() {
 
   return (
     <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      {loading && !data ? <ListPageSkeleton columns={5} filters={2} rows={6} /> : null}
+
+      <div className={`mx-auto max-w-7xl space-y-6 p-6 ${loading && !data ? "hidden" : ""}`}>
         <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">Seguimiento</p>
