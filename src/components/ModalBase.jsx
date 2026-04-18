@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
+
 function ModalBase({
   children,
   onClose,
@@ -5,12 +8,21 @@ function ModalBase({
   widthClass = "max-w-4xl",
   zClass = "z-50",
 }) {
-  return (
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  const modalContent = (
     <div
-      className={`fixed inset-0 ${zClass} flex items-center justify-center bg-[rgba(15,23,42,0.42)] p-4 backdrop-blur-[2px]`}
+      className={`fixed inset-0 ${zClass} flex min-h-dvh items-center justify-center overflow-y-auto bg-[rgba(15,23,42,0.42)] p-4 backdrop-blur-[2px]`}
     >
       <div
-        className={`w-full ${widthClass} overflow-hidden rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(247,250,255,0.98))] shadow-[0_32px_80px_rgba(15,23,42,0.18)]`}
+        className={`my-auto w-full ${widthClass} overflow-hidden rounded-[2rem] border border-white/70 bg-[linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(247,250,255,0.98))] shadow-[0_32px_80px_rgba(15,23,42,0.18)]`}
       >
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
           <div>
@@ -29,12 +41,14 @@ function ModalBase({
             Cerrar
           </button>
         </div>
-        <div className="max-h-[calc(100vh-10rem)] overflow-y-auto p-6">
+        <div className="max-h-[calc(100dvh-10rem)] overflow-y-auto p-6">
           {children}
         </div>
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
 
 export default ModalBase;

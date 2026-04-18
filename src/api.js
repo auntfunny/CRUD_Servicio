@@ -11,22 +11,26 @@ export const instance = axios.create({
 
 instance.interceptors.response.use(
   function onFulfilled(response) {
-    console.log("Respuesta exitosa");
     return response;
   },
   function onRejected(error) {
     const status = error.response?.status;
+    const detail = error.response?.data?.detail;
+    const detailMessage = Array.isArray(detail)
+      ? detail.map((item) => item?.msg).filter(Boolean).join(", ")
+      : typeof detail === "string"
+        ? detail
+        : error.response?.data?.message;
 
     if (status === 401) {
-      alert("Credentials Incorrectas o sessión expirada");
+      alert("Credenciales Incorrectas o sesión expirada");
       window.location.href = "/#/login";
     } else if (status === 403) {
       alert("No estás autorizado para eso");
       window.location.href = "/#/unauthorized";
-    } else if (status === 409) {
-      alert(error.message);
     }
 
+    error.userMessage = detailMessage || error.message;
     return Promise.reject(error);
   },
 );

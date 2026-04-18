@@ -1,5 +1,6 @@
 export default function FunvalBrand({
   compact = false,
+  compactOnMobile = false,
   textColor = "text-white",
   iconClassName = "bg-white/20",
   imageClassName = "h-8 w-8 rounded-full",
@@ -10,7 +11,7 @@ export default function FunvalBrand({
         <img alt="FUNVAL" className={imageClassName} src="/icons/icoFunval.jpg" />
       </div>
       {!compact ? (
-        <div>
+        <div className={compactOnMobile ? "hidden sm:block" : ""}>
           <h1 className={`font-montserrat text-2xl font-bold tracking-[0.2em] ${textColor}`}>
             FUNVAL
           </h1>

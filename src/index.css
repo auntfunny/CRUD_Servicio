@@ -33,6 +33,7 @@ body {
     #ffffff;
   color: var(--color-acc2);
   font-family: var(--font-avenir);
+  overflow-x: hidden;
 }
 
 * {
@@ -67,6 +68,23 @@ textarea {
     "wght" 500,
     "GRAD" 0,
     "opsz" 24;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 767px) {
+  html {
+    font-size: 15px;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at top left, rgba(42, 125, 225, 0.12), transparent 30%),
+      radial-gradient(circle at bottom right, rgba(255, 158, 24, 0.1), transparent 28%),
+      #ffffff;
+  }
 }
 
 @keyframes toast-progress {

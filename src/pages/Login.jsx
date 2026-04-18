@@ -14,6 +14,9 @@ function CampoEntrada({
   tipo,
   valor,
   alCambiar,
+  mostrarToggle = false,
+  visible = false,
+  onToggleVisible,
 }) {
   return (
     <label className="block">
@@ -32,14 +35,26 @@ function CampoEntrada({
         <input
           onChange={alCambiar}
           data-campo={campo}
-          className={estilosCampo}
+          className={`${estilosCampo} ${mostrarToggle ? "pr-12" : ""}`}
           id={id}
           name={nombre}
           placeholder={`Ingresa tu ${etiqueta.toLowerCase()}`}
           required
-          type={tipo}
+          type={mostrarToggle ? (visible ? "text" : tipo) : tipo}
           value={valor}
         />
+        {mostrarToggle ? (
+          <button
+            aria-label={visible ? "Ocultar contrasena" : "Mostrar contrasena"}
+            className="absolute right-0 top-1/2 inline-flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 transition hover:text-[#5d80c8]"
+            onClick={onToggleVisible}
+            type="button"
+          >
+            <span className="material-symbols-rounded text-[20px] leading-none">
+              {visible ? "visibility_off" : "visibility"}
+            </span>
+          </button>
+        ) : null}
       </span>
     </label>
   );
@@ -47,6 +62,7 @@ function CampoEntrada({
 
 function Login() {
   const { login, loading } = useAuth();
+  const [mostrarContrasena, setMostrarContrasena] = useState(false);
   const [credenciales, setCredenciales] = useState({
     contrasena: "",
     email: "",
@@ -156,8 +172,11 @@ function Login() {
                   icono="/icons/icoPassword.png"
                   id="password"
                   nombre="password"
+                  mostrarToggle
+                  onToggleVisible={() => setMostrarContrasena((actual) => !actual)}
                   tipo="password"
                   valor={credenciales.contrasena}
+                  visible={mostrarContrasena}
                 />
 
                 <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-center sm:justify-end">
@@ -173,7 +192,7 @@ function Login() {
 
               <div className="mt-10 flex flex-col gap-3 border-t border-slate-100 pt-6 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
                 <p className="font-avenir">
-                  Esta pagina usa cookies para mejorar tu experiencia.
+                  Tus cookies mantienen la sesion activa.
                 </p>
                 <a
                   className="cursor-pointer w-fit font-medium text-[#5d80c8] underline decoration-[#c5d3f2] underline-offset-4"

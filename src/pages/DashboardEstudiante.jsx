@@ -3,21 +3,27 @@ import { useMemo, useState } from "react";
 import BadgeEstadoReporte from "../components/BadgeEstadoReporte";
 import ReporteDetalleModal from "../components/ReporteDetalleModal";
 import { PageShell, panelBaseClass } from "../components/PageShell";
+import { DashboardSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 import { formatFecha, formatHoras } from "../utils/reportes";
 
-function KpiCard({ helper, label, tone, value }) {
+function KpiCard({ helper, label, percentage, tone, value }) {
   return (
     <article className="rounded-[1.55rem] border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-        {label}
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+          {label}
+        </p>
+        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500">
+          {percentage}%
+        </span>
+      </div>
       <p className="mt-4 font-montserrat text-4xl font-bold leading-none text-slate-800">
         {value}
       </p>
       <p className="mt-3 text-sm leading-6 text-slate-500">{helper}</p>
       <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-slate-100">
-        <div className={`h-full w-24 rounded-full ${tone}`} />
+        <div className={`h-full rounded-full ${tone}`} style={{ width: `${percentage}%` }} />
       </div>
     </article>
   );
@@ -75,11 +81,7 @@ function DashboardEstudiante() {
   const cerrarDetalle = () => setReporteSeleccionado(null);
 
   if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center rounded-[2rem] border border-slate-200 bg-white text-slate-500 shadow-[0_20px_50px_rgba(15,23,42,0.06)]">
-        Cargando dashboard...
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error || !reportes || !progresoCurso) {
@@ -95,24 +97,28 @@ function DashboardEstudiante() {
       label: "Horas completadas",
       value: progresoCurso.horasAprobadas,
       helper: `${progresoCurso.horasRestantes} horas pendientes para cerrar el requisito`,
+      percentage: progresoCurso.porcentaje,
       tone: "bg-[linear-gradient(90deg,_#f4b740,_#e59b14)]",
     },
     {
       label: "Horas pendientes",
       value: progresoCurso.horasRestantes,
       helper: `${progresoCurso.horasRequeridas} horas requeridas en total`,
+      percentage: Math.max(0, 100 - progresoCurso.porcentaje),
       tone: "bg-[linear-gradient(90deg,_#5fc4a6,_#3fa382)]",
-    },
-    {
-      label: "Reportes enviados",
-      value: reportes.total,
-      helper: `${reportes.pendientes} siguen en revision`,
-      tone: "bg-[linear-gradient(90deg,_#6da8ff,_#3d7dde)]",
     },
     {
       label: "Reportes aprobados",
       value: reportes.aprobados,
+      helper: `${reportes.total} envios registrados en total`,
+      percentage: reportes.total > 0 ? Math.round((reportes.aprobados / reportes.total) * 100) : 0,
+      tone: "bg-[linear-gradient(90deg,_#6da8ff,_#3d7dde)]",
+    },
+    {
+      label: "En revision",
+      value: reportes.pendientes,
       helper: `${reportes.horasAprobadas} horas ya validadas`,
+      percentage: reportes.total > 0 ? Math.round((reportes.pendientes / reportes.total) * 100) : 0,
       tone: "bg-[linear-gradient(90deg,_#63c4a3,_#37a57f)]",
     },
   ];
