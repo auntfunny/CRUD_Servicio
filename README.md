@@ -1,19 +1,47 @@
-# Empty React
+# Plataforma de Servicio Funval
 
-## 📌 Description
+## 📌 Descripción
 
-Empty
+Plataforma para manejar la gestión de reportes de horas de servicio para la fundación de Funval. Los estudiantes pueden generar reportes de sus horas de servicio con la evidencia de PDF, y los admin pueden revisar los reportes y aprobar en completo, en parte, o rechazar los reportes. También pueden gestionar los usuarios, los cursos, las categorias de servicio, y los paises. 
 
-## 🚀 Deployment
+## 🚀 Página en Vivo
 
-[https://vercel.com/anthony-blacks-projects-a65df513](https://vercel.com/anthony-blacks-projects-a65df513)
+[https://funval-servicio.vercel.app/](https://funval-servicio.vercel.app/)
 
-## 📁 Repository
+## 📁 Repositorio
 
-[https://github.com/auntfunny](https://github.com/auntfunny)
+[https://github.com/auntfunny/CRUD_Servicio](https://github.com/auntfunny/CRUD_Servicio)
 
-## ⚙️ Charactaristics
+## ⚙️ Cáractaristics
 
-- To be added
+- SPA con ReactJS y TailwindCSS
+- Conexión con backend para autenticación y gestión de datos
+- Protección de rutas y vistas separadas de estudiante y admin
+- CRUD de usuarios, reportes, cursos, paises, y categorias
+- Sistema de notificaciones toast, y centro de notificaciones
+- Diseño Profesional y Responsivo
 
-## Instructions to Run
+## Instrucciones de Instalación
+
+### Requisitos
+
+Asegúrese que tiene lo siguente:
+*   [Node.js](https://nodejs.org/) (v18.x o más recomendado)
+*   [npm](https://npmjs.com) o [Yarn](https://yarnpkg.com)
+
+### Instalación
+1.  **Clona el repositorio**
+    ```bash
+    git clone https://github.com
+    cd nombre-de-proyecto
+    ```
+2.  **Instalar dependencias**
+    ```bash
+    npm install
+    # o
+    yarn install
+    ```
+3.  **Correr proyecto**
+    ```bash
+    npm run dev
+    ```

@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Encendido from "../assets/Encendido.png";
 import FunvalBrand from "./FunvalBrand";
+import { useEffect } from "react";
 
 const routeMeta = [
   {

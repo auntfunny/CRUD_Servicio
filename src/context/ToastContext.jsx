@@ -31,7 +31,7 @@ export const ToastProvider = ({ children }) => {
   }, [toastMensaje]);
 
   return (
-    <ToastContext.Provider value={{ setToastMensaje }}>
+    <ToastContext.Provider value={{ toastMensaje, setToastMensaje }}>
       <ToastCaja
         onClose={cerrarToast}
         toastMensaje={toastMensaje}

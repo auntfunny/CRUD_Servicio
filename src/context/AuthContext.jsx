@@ -7,7 +7,7 @@ import { useToast } from "./ToastContext";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const {setToastMensaje} = useToast();
+  const {toastMensaje, setToastMensaje} = useToast();
   const [user, setUser] = useState(null);
   const [authCheck, setAuthCheck] = useState(false);
   const navigate = useNavigate();
@@ -50,6 +50,12 @@ export function AuthProvider({ children }) {
       setAuthCheck(true);
     }
   }, [cookies.token]);
+
+  useEffect(() => {
+    if(toastMensaje === "Perfil actualizado"){
+      reload();
+    }
+  }, [toastMensaje]);
 
   const reload = async () => {
     try {
