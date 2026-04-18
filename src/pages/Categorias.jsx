@@ -3,6 +3,7 @@ import useAxios from "../hooks/useAxios";
 import ModalAgregarEditar from "../components/ModalAgregarEditar";
 import ModalConfirmacion from "../components/ModalConfirmacion";
 import { PageShell, panelBaseClass, primaryButtonClass } from "../components/PageShell";
+import { ListPageSkeleton } from "../components/SkeletonBlocks";
 import { useToast } from "../context/ToastContext";
 
 const Categorias = () => {
@@ -36,13 +37,19 @@ const Categorias = () => {
 
   return (
     <PageShell>
+      {loading && !data ? <ListPageSkeleton columns={5} filters={1} rows={6} /> : null}
+
       {modalAgregar ? (
         <ModalAgregarEditar
           campos={{ name: "", description: "" }}
           cerrar={(actualizar) => {
             setModalAgregar(false);
-            if (actualizar) request();
+            if (actualizar) {
+              setToastMensaje("Categoria creada exitosamente");
+              request();
+            }
           }}
+          existingNames={categorias.map((item) => ({ id: item.id, name: item.name }))}
           url={"/categories/"}
         />
       ) : null}
@@ -53,8 +60,13 @@ const Categorias = () => {
             setModalEditar(false);
             setEditarCampos(null);
             setEditarId(null);
-            if (actualizar) request();
+            if (actualizar) {
+              setToastMensaje("Categoria actualizada exitosamente");
+              request();
+            }
           }}
+          currentItemId={editarId}
+          existingNames={categorias.map((item) => ({ id: item.id, name: item.name }))}
           url={`/categories/${editarId}`}
         />
       ) : null}
@@ -70,11 +82,11 @@ const Categorias = () => {
         />
       ) : null}
 
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className={`mx-auto max-w-7xl space-y-6 p-4 sm:p-6 ${loading && !data ? "hidden" : ""}`}>
         <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">Categorias</p>
-            <h1 className="mt-2 text-4xl font-semibold text-slate-900">Gestion de categorias</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Gestion de categorias</h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Organiza y administra las categorias del sistema desde una lista mas clara.
             </p>

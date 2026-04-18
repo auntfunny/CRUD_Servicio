@@ -11,23 +11,23 @@ export function PageShell({ children }) {
 }
 
 export const panelBaseClass =
-  "rounded-[2rem] border border-white/70 bg-white/60 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm";
+  "rounded-[2rem] border border-white/70 bg-white/60 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-5";
 
 export const cardBaseClass =
-  "group flex h-full flex-col rounded-[1.8rem] border border-white/70 bg-white/58 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:bg-white/74";
+  "group flex h-full flex-col rounded-[1.8rem] border border-white/70 bg-white/58 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:bg-white/74 sm:p-5";
 
 export const controlClass =
   "w-full rounded-2xl border border-slate-200 bg-white/72 px-4 py-3 text-sm text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] outline-none transition placeholder:text-slate-400 focus:border-[var(--color-acc1)] focus:ring-2 focus:ring-[rgba(42,125,225,0.14)]";
 
 export const primaryButtonClass =
-  "inline-flex min-w-[180px] items-center justify-center rounded-full bg-[var(--color-acc1)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_24px_rgba(42,125,225,0.22)] transition hover:brightness-95";
+  "inline-flex w-full items-center justify-center rounded-full bg-[var(--color-acc1)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_24px_rgba(42,125,225,0.22)] transition hover:brightness-95 sm:min-w-[180px] sm:w-auto";
 
 export const secondaryButtonClass =
-  "inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/72 px-5 py-3 text-sm font-semibold text-[var(--color-acc2)] shadow-[0_10px_22px_rgba(15,23,42,0.04)] transition hover:border-[rgba(42,125,225,0.28)] hover:bg-white";
+  "inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white/72 px-5 py-3 text-sm font-semibold text-[var(--color-acc2)] shadow-[0_10px_22px_rgba(15,23,42,0.04)] transition hover:border-[rgba(42,125,225,0.28)] hover:bg-white sm:w-auto";
 
 export function PageHero({ eyebrow, title, description, actions, meta }) {
   return (
-    <section className="rounded-[2rem] border border-white/70 bg-white/58 p-6 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm lg:p-7">
+    <section className="rounded-[2rem] border border-white/70 bg-white/58 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-6 lg:p-7">
       <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
         <div>
           {eyebrow ? (
@@ -35,7 +35,7 @@ export function PageHero({ eyebrow, title, description, actions, meta }) {
               {eyebrow}
             </p>
           ) : null}
-          <h1 className="mt-3 font-montserrat text-4xl font-bold leading-tight text-[var(--color-acc2)] lg:text-5xl">
+          <h1 className="mt-3 font-montserrat text-3xl font-bold leading-tight text-[var(--color-acc2)] sm:text-4xl lg:text-5xl">
             {title}
           </h1>
           {description ? (
@@ -44,7 +44,7 @@ export function PageHero({ eyebrow, title, description, actions, meta }) {
             </p>
           ) : null}
           {actions ? (
-            <div className="mt-6 flex flex-wrap items-center gap-4">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
               {actions}
             </div>
           ) : null}

@@ -9,6 +9,7 @@ import {
   primaryButtonClass,
   secondaryButtonClass,
 } from "../components/PageShell";
+import { ListPageSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 import { useToast } from "../context/ToastContext";
 
@@ -94,7 +95,9 @@ function PaisesAdmin() {
 
   return (
     <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      {loading && !countries ? <ListPageSkeleton columns={5} filters={2} rows={6} withStats={false} /> : null}
+
+      <div className={`mx-auto max-w-7xl space-y-6 p-4 sm:p-6 ${loading && !countries ? "hidden" : ""}`}>
         {modalAgregar ? (
           <ModalAgregarEditar
             campos={{ name: "", code: "" }}

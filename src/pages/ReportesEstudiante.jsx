@@ -10,6 +10,7 @@ import {
   panelBaseClass,
   primaryButtonClass,
 } from "../components/PageShell";
+import { FiltersSkeleton, StatsGridSkeleton, TableSkeleton } from "../components/SkeletonBlocks";
 import { useAuth } from "../context/AuthContext";
 import useUpload from "../hooks/useUpload";
 import useAxios from "../hooks/useAxios";
@@ -27,6 +28,8 @@ function ReportesEstudiante() {
   const [estadoFiltro, setEstadoFiltro] = useState("");
   const [ordenActual, setOrdenActual] = useState("fecha-desc");
   const [pageConsulta, setPageConsulta] = useState(1);
+  const [reportesResumen, setReportesResumen] = useState([]);
+  const [cargandoResumen, setCargandoResumen] = useState(false);
 
   const paramsConsulta = useMemo(() => {
     const params = {
@@ -48,6 +51,9 @@ function ReportesEstudiante() {
     request: recargarReportes,
   } = useAxios("/reports/", {
     params: paramsConsulta,
+  });
+  const { request: consultarResumenReportes } = useAxios("/reports/", {
+    auto: false,
   });
   const { data: dashboardData } = useAxios("/dashboard/stats");
 
@@ -85,7 +91,8 @@ function ReportesEstudiante() {
     "No se pudieron cargar los reportes.";
 
   const total = data?.total ?? reportes.length;
-  const reportesVisibles = useMemo(() => {
+  const usarColeccionCompleta = Boolean(estadoFiltro);
+  const reportesOrdenados = useMemo(() => {
     const lista = [...reportes];
 
     const listaOrdenada = lista.sort((reporteA, reporteB) => {
@@ -103,12 +110,49 @@ function ReportesEstudiante() {
     return listaOrdenada;
   }, [ordenActual, reportes]);
 
-  const resumen = useMemo(() => ({
-    aprobados: dashboardData?.reports?.approved ?? 0,
-    pendientes: dashboardData?.reports?.pending ?? 0,
-    rechazados: dashboardData?.reports?.rejected ?? 0,
-    totalHoras: dashboardData?.reports?.total_hours_submitted ?? 0,
-  }), [dashboardData]);
+  const reportesVisibles = useMemo(() => {
+    if (!usarColeccionCompleta) return reportesOrdenados;
+
+    const listaOrdenada = [...reportesResumen].sort((reporteA, reporteB) => {
+      if (ordenActual === "horas-desc" || ordenActual === "horas-asc") {
+        return Number(reporteA.hours_spent ?? 0) - Number(reporteB.hours_spent ?? 0);
+      }
+
+      return getFechaOrdenable(reporteA.created_at) - getFechaOrdenable(reporteB.created_at);
+    });
+
+    if (ordenActual === "fecha-desc" || ordenActual === "horas-desc") {
+      listaOrdenada.reverse();
+    }
+
+    const inicio = (page - 1) * pageSize;
+    return listaOrdenada.slice(inicio, inicio + pageSize);
+  }, [ordenActual, page, pageSize, reportesOrdenados, reportesResumen, usarColeccionCompleta]);
+
+  const totalVisible = usarColeccionCompleta ? reportesResumen.length : total;
+  const resumen = useMemo(() => {
+    if (usarColeccionCompleta) {
+      return reportesResumen.reduce(
+        (acc, reporte) => {
+          acc.total += 1;
+          acc.totalHoras += Number(reporte.hours_spent ?? 0);
+          if (reporte.status === "APPROVED") acc.aprobados += 1;
+          if (reporte.status === "PENDING") acc.pendientes += 1;
+          if (reporte.status === "REJECTED") acc.rechazados += 1;
+          return acc;
+        },
+        { aprobados: 0, pendientes: 0, rechazados: 0, total: 0, totalHoras: 0 },
+      );
+    }
+
+    return {
+      aprobados: dashboardData?.reports?.approved ?? 0,
+      pendientes: dashboardData?.reports?.pending ?? 0,
+      rechazados: dashboardData?.reports?.rejected ?? 0,
+      total: total,
+      totalHoras: dashboardData?.reports?.total_hours_submitted ?? 0,
+    };
+  }, [dashboardData, reportesResumen, total, usarColeccionCompleta]);
 
   useEffect(() => {
     setPage(1);
@@ -123,6 +167,66 @@ function ReportesEstudiante() {
     const totalPaginas = Math.max(1, Math.ceil(total / pageSize));
     setPageConsulta(Math.max(1, totalPaginas - page + 1));
   }, [ordenActual, page, pageSize, total]);
+
+  useEffect(() => {
+    if (!usarColeccionCompleta) {
+      setReportesResumen([]);
+      setCargandoResumen(false);
+      return;
+    }
+
+    let cancelado = false;
+
+    const cargarResumen = async () => {
+      setCargandoResumen(true);
+
+      try {
+        let paginaActual = 1;
+        let totalPaginas = 1;
+        const acumulados = [];
+
+        while (paginaActual <= totalPaginas) {
+          const respuesta = await consultarResumenReportes({
+            params: {
+              page: paginaActual,
+              page_size: pageSize,
+              ...(estadoFiltro ? { status: estadoFiltro } : {}),
+            },
+            preferCache: false,
+          });
+
+          const itemsPagina = Array.isArray(respuesta?.items)
+            ? respuesta.items
+            : Array.isArray(respuesta?.data)
+              ? respuesta.data
+              : Array.isArray(respuesta?.results)
+                ? respuesta.results
+                : Array.isArray(respuesta)
+                  ? respuesta
+                  : [];
+
+          acumulados.push(...itemsPagina);
+          const totalItems = Number(respuesta?.total ?? acumulados.length);
+          totalPaginas = Math.max(1, Math.ceil(totalItems / pageSize));
+          paginaActual += 1;
+        }
+
+        if (!cancelado) {
+          setReportesResumen(acumulados);
+        }
+      } finally {
+        if (!cancelado) {
+          setCargandoResumen(false);
+        }
+      }
+    };
+
+    cargarResumen();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [consultarResumenReportes, estadoFiltro, pageSize, usarColeccionCompleta]);
 
   const abrirDetalle = (reporte) => {
     setReporteSeleccionado(reporte);
@@ -198,47 +302,58 @@ function ReportesEstudiante() {
           </button>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <TarjetaEstadistica label="Total" tone="text-slate-800" value={total} />
-          <TarjetaEstadistica label="Pendientes" tone="text-amber-700" value={resumen.pendientes} />
-          <TarjetaEstadistica label="Aprobados" tone="text-emerald-700" value={resumen.aprobados} />
-          <TarjetaEstadistica label="Horas" tone="text-[#1958df]" value={resumen.totalHoras} />
-        </section>
+        {!(loading && !data) ? (
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <TarjetaEstadistica label="Total" tone="text-slate-800" value={totalVisible} />
+            <TarjetaEstadistica label="Pendientes" tone="text-amber-700" value={resumen.pendientes} />
+            <TarjetaEstadistica label="Aprobados" tone="text-emerald-700" value={resumen.aprobados} />
+            <TarjetaEstadistica label="Horas" tone="text-[#1958df]" value={resumen.totalHoras} />
+          </section>
+        ) : null}
 
-        <section className={`${panelBaseClass} !bg-white`}>
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-              Filtrar por estado
-              <select
-                className={controlClass}
-                onChange={(evento) => setEstadoFiltro(evento.target.value)}
-                value={estadoFiltro}
-              >
-                {estadoOptions.map((estado) => (
-                  <option key={estado.value} value={estado.value}>
-                    {estado.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+        {loading && !data ? (
+          <>
+            <StatsGridSkeleton cards={4} />
+            <FiltersSkeleton controls={2} />
+            <TableSkeleton columns={6} rows={6} />
+          </>
+        ) : null}
 
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-              Ordenar por
-              <select
-                className={controlClass}
-                onChange={(evento) => setOrdenActual(evento.target.value)}
-                value={ordenActual}
-              >
-                <option value="fecha-desc">Mas recientes</option>
-                <option value="fecha-asc">Mas antiguos</option>
-                <option value="horas-desc">Mas horas</option>
-                <option value="horas-asc">Menos horas</option>
-              </select>
-            </label>
-          </div>
-        </section>
+        {!(loading && !data) ? (
+          <section className={`${panelBaseClass} !bg-white`}>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                Filtrar por estado
+                <select
+                  className={controlClass}
+                  onChange={(evento) => setEstadoFiltro(evento.target.value)}
+                  value={estadoFiltro}
+                >
+                  {estadoOptions.map((estado) => (
+                    <option key={estado.value} value={estado.value}>
+                      {estado.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-        {loading ? <p className="text-sm text-slate-500">Cargando reportes...</p> : null}
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                Ordenar por
+                <select
+                  className={controlClass}
+                  onChange={(evento) => setOrdenActual(evento.target.value)}
+                  value={ordenActual}
+                >
+                  <option value="fecha-desc">Mas recientes</option>
+                  <option value="fecha-asc">Mas antiguos</option>
+                  <option value="horas-desc">Mas horas</option>
+                  <option value="horas-asc">Menos horas</option>
+                </select>
+              </label>
+            </div>
+          </section>
+        ) : null}
+
         {!loading && error ? <p className="text-red-600">{mensajeError}</p> : null}
 
         {!loading && !error ? (
@@ -254,7 +369,11 @@ function ReportesEstudiante() {
                   <span>Accion</span>
                 </div>
 
-                {reportesVisibles.length > 0 ? (
+                {cargandoResumen ? (
+                  <div className="px-6 py-6">
+                    <TableSkeleton columns={6} rows={4} />
+                  </div>
+                ) : reportesVisibles.length > 0 ? (
                   <div className="divide-y divide-slate-100">
                     {reportesVisibles.map((reporte) => (
                       <div
@@ -325,7 +444,7 @@ function ReportesEstudiante() {
               onPageChange={setPage}
               page={page}
               page_size={pageSize}
-              total={total}
+              total={totalVisible}
             />
           </>
         ) : null}

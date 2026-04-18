@@ -8,6 +8,7 @@ import {
   panelBaseClass,
   primaryButtonClass,
 } from "../components/PageShell";
+import { ListPageSkeleton } from "../components/SkeletonBlocks";
 import { useToast } from "../context/ToastContext";
 
 export default function UsuariosCards() {
@@ -54,6 +55,8 @@ export default function UsuariosCards() {
 
   return (
     <PageShell>
+      {loading && !data ? <ListPageSkeleton columns={5} filters={2} rows={6} /> : null}
+
       {confirmarBorrar ? (
         <ModalConfirmacion
           mensaje={"Estas segur@ que quieres borrar este usuario?"}
@@ -66,13 +69,13 @@ export default function UsuariosCards() {
         />
       ) : null}
 
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className={`mx-auto max-w-7xl space-y-6 p-4 sm:p-6 ${loading && !data ? "hidden" : ""}`}>
         <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
               Usuarios
             </p>
-            <h1 className="mt-2 text-4xl font-semibold text-slate-900">
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">
               Gestion de usuarios
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -80,9 +83,9 @@ export default function UsuariosCards() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
             <button
-              className="inline-flex min-w-[180px] items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+              className="inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:min-w-[180px] sm:w-auto"
               onClick={() => navigate("/usuarios/import")}
               type="button"
             >

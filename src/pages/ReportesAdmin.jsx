@@ -11,6 +11,7 @@ import {
   panelBaseClass,
   primaryButtonClass,
 } from "../components/PageShell";
+import { FiltersSkeleton, StatsGridSkeleton, TableSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 import {
   estadoOptions,
@@ -93,7 +94,8 @@ function ReportesAdmin() {
     "No se pudieron cargar los reportes.";
 
   const textoBusqueda = busquedaAplicada.trim().toLowerCase();
-  const reportesFuente = textoBusqueda ? reportesBusqueda : reportes;
+  const usarColeccionCompleta = Boolean(estadoFiltro || categoriaFiltro || textoBusqueda);
+  const reportesFuente = usarColeccionCompleta ? reportesBusqueda : reportes;
 
   const reportesFiltrados = useMemo(() => {
     return reportesFuente.filter((reporte) => {
@@ -114,9 +116,11 @@ function ReportesAdmin() {
 
   const total = busqueda.trim()
     ? reportesFiltrados.length
+    : usarColeccionCompleta
+      ? reportesFiltrados.length
     : (data?.total ?? reportes.length);
 
-  const reportesVisibles = useMemo(() => {
+  const reportesOrdenados = useMemo(() => {
     const lista = [...reportesFiltrados];
 
     return lista.sort((reporteA, reporteB) => {
@@ -141,14 +145,36 @@ function ReportesAdmin() {
     });
   }, [ordenActual, reportesFiltrados]);
 
+  const reportesVisibles = useMemo(() => {
+    if (!usarColeccionCompleta) return reportesOrdenados;
+
+    const inicio = (page - 1) * pageSize;
+    return reportesOrdenados.slice(inicio, inicio + pageSize);
+  }, [page, pageSize, reportesOrdenados, usarColeccionCompleta]);
+
   const resumen = useMemo(
-    () => ({
-      aprobados: dashboardData?.reports?.approved ?? 0,
-      pendientes: dashboardData?.reports?.pending ?? 0,
-      rechazados: dashboardData?.reports?.rejected ?? 0,
-      total: dashboardData?.reports?.total ?? total,
-    }),
-    [dashboardData, total],
+    () => {
+      if (usarColeccionCompleta) {
+        return reportesFiltrados.reduce(
+          (acc, reporte) => {
+            acc.total += 1;
+            if (reporte.status === "APPROVED") acc.aprobados += 1;
+            if (reporte.status === "PENDING") acc.pendientes += 1;
+            if (reporte.status === "REJECTED") acc.rechazados += 1;
+            return acc;
+          },
+          { aprobados: 0, pendientes: 0, rechazados: 0, total: 0 },
+        );
+      }
+
+      return {
+        aprobados: dashboardData?.reports?.approved ?? 0,
+        pendientes: dashboardData?.reports?.pending ?? 0,
+        rechazados: dashboardData?.reports?.rejected ?? 0,
+        total: dashboardData?.reports?.total ?? total,
+      };
+    },
+    [dashboardData, reportesFiltrados, total, usarColeccionCompleta],
   );
 
   useEffect(() => {
@@ -160,7 +186,7 @@ function ReportesAdmin() {
   }, [busqueda]);
 
   useEffect(() => {
-    if (!textoBusqueda) {
+    if (!usarColeccionCompleta) {
       setReportesBusqueda([]);
       setCargandoBusqueda(false);
       setErrorBusqueda(null);
@@ -227,6 +253,7 @@ function ReportesAdmin() {
     estadoFiltro,
     pageSize,
     textoBusqueda,
+    usarColeccionCompleta,
   ]);
 
   const resetearPaginacion = () => {
@@ -260,13 +287,13 @@ function ReportesAdmin() {
 
   return (
     <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
         <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
               Reportes
             </p>
-            <h1 className="mt-2 text-4xl font-semibold text-slate-900">
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">
               Revision administrativa
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -280,110 +307,116 @@ function ReportesAdmin() {
           </Link>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <TarjetaEstadistica
-            label="Total"
-            tone="text-slate-800"
-            value={resumen.total}
-          />
-          <TarjetaEstadistica
-            label="Pendientes"
-            tone="text-amber-700"
-            value={resumen.pendientes}
-          />
-          <TarjetaEstadistica
-            label="Aprobados"
-            tone="text-emerald-700"
-            value={resumen.aprobados}
-          />
-          <TarjetaEstadistica
-            label="Rechazados"
-            tone="text-rose-700"
-            value={resumen.rechazados}
-          />
-        </section>
-
-        <section className={`${panelBaseClass} !bg-white`}>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-              Buscar
-              <input
-                className={controlClass}
-                onChange={(evento) => {
-                  setBusqueda(evento.target.value);
-                  resetearPaginacion();
-                }}
-                placeholder="Estudiante o categoria"
-                type="text"
-                value={busqueda}
-              />
-            </label>
-
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-              Estado
-              <select
-                className={controlClass}
-                onChange={(evento) => {
-                  setEstadoFiltro(evento.target.value);
-                  resetearPaginacion();
-                }}
-                value={estadoFiltro}
-              >
-                {estadoOptions.map((estado) => (
-                  <option key={estado.value} value={estado.value}>
-                    {estado.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-              Categoria
-              <select
-                className={controlClass}
-                onChange={(evento) => {
-                  setCategoriaFiltro(evento.target.value);
-                  resetearPaginacion();
-                }}
-                value={categoriaFiltro}
-              >
-                <option value="">Todas</option>
-                {categorias.map((categoria) => (
-                  <option key={categoria.id} value={String(categoria.id)}>
-                    {categoria.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
-              Ordenar por
-              <select
-                className={controlClass}
-                onChange={(evento) => {
-                  setOrdenActual(evento.target.value);
-                  resetearPaginacion();
-                }}
-                value={ordenActual}
-              >
-                <option value="fecha-desc">Mas recientes</option>
-                <option value="fecha-asc">Mas antiguos</option>
-                <option value="horas-desc">Mas horas</option>
-                <option value="horas-asc">Menos horas</option>
-                <option value="estudiante-asc">Estudiante A-Z</option>
-              </select>
-            </label>
-          </div>
-        </section>
-
-        {loading || cargandoBusqueda ? (
-          <p className="text-sm text-slate-500">Cargando reportes...</p>
+        {!(loading && !data) ? (
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <TarjetaEstadistica
+              label="Total"
+              tone="text-slate-800"
+              value={resumen.total}
+            />
+            <TarjetaEstadistica
+              label="Pendientes"
+              tone="text-amber-700"
+              value={resumen.pendientes}
+            />
+            <TarjetaEstadistica
+              label="Aprobados"
+              tone="text-emerald-700"
+              value={resumen.aprobados}
+            />
+            <TarjetaEstadistica
+              label="Rechazados"
+              tone="text-rose-700"
+              value={resumen.rechazados}
+            />
+          </section>
         ) : null}
-        {!loading && !cargandoBusqueda && (error || errorBusqueda) ? (
+
+        {loading && !data ? <StatsGridSkeleton cards={4} /> : null}
+
+        {loading && !data ? (
+          <FiltersSkeleton controls={4} />
+        ) : (
+          <section className={`${panelBaseClass} !bg-white`}>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                Buscar
+                <input
+                  className={controlClass}
+                  onChange={(evento) => {
+                    setBusqueda(evento.target.value);
+                    resetearPaginacion();
+                  }}
+                  placeholder="Estudiante o categoria"
+                  type="text"
+                  value={busqueda}
+                />
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                Estado
+                <select
+                  className={controlClass}
+                  onChange={(evento) => {
+                    setEstadoFiltro(evento.target.value);
+                    resetearPaginacion();
+                  }}
+                  value={estadoFiltro}
+                >
+                  {estadoOptions.map((estado) => (
+                    <option key={estado.value} value={estado.value}>
+                      {estado.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                Categoria
+                <select
+                  className={controlClass}
+                  onChange={(evento) => {
+                    setCategoriaFiltro(evento.target.value);
+                    resetearPaginacion();
+                  }}
+                  value={categoriaFiltro}
+                >
+                  <option value="">Todas</option>
+                  {categorias.map((categoria) => (
+                    <option key={categoria.id} value={String(categoria.id)}>
+                      {categoria.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
+                Ordenar por
+                <select
+                  className={controlClass}
+                  onChange={(evento) => {
+                    setOrdenActual(evento.target.value);
+                    resetearPaginacion();
+                  }}
+                  value={ordenActual}
+                >
+                  <option value="fecha-desc">Mas recientes</option>
+                  <option value="fecha-asc">Mas antiguos</option>
+                  <option value="horas-desc">Mas horas</option>
+                  <option value="horas-asc">Menos horas</option>
+                  <option value="estudiante-asc">Estudiante A-Z</option>
+                </select>
+              </label>
+            </div>
+          </section>
+        )}
+
+        {loading && !data ? <TableSkeleton columns={7} rows={6} /> : null}
+        {(error || errorBusqueda) && !loading && !cargandoBusqueda ? (
           <p className="text-red-600">{mensajeError}</p>
         ) : null}
 
-        {!loading && !cargandoBusqueda && !error && !errorBusqueda ? (
+        {!(loading && !data) && !error && !errorBusqueda ? (
           <>
             <section
               className={`${panelBaseClass} overflow-x-auto !bg-white !p-0`}
@@ -399,7 +432,11 @@ function ReportesAdmin() {
                   <span>Accion</span>
                 </div>
 
-                {reportesVisibles.length > 0 ? (
+                {cargandoBusqueda ? (
+                  <div className="px-6 py-6">
+                    <TableSkeleton columns={7} rows={4} />
+                  </div>
+                ) : reportesVisibles.length > 0 ? (
                   <div className="divide-y divide-slate-100">
                     {reportesVisibles.map((reporte) => (
                       <div

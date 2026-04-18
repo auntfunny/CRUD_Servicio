@@ -2,21 +2,27 @@ import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import BadgeEstadoReporte from "../components/BadgeEstadoReporte";
 import { PageShell, panelBaseClass, primaryButtonClass } from "../components/PageShell";
+import { DashboardSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 import { formatFecha, formatHoras } from "../utils/reportes";
 
-function KpiCard({ helper, label, tone, value }) {
+function KpiCard({ helper, label, percentage, tone, value }) {
   return (
     <article className="rounded-[1.55rem] border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-        {label}
-      </p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+          {label}
+        </p>
+        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500">
+          {percentage}%
+        </span>
+      </div>
       <p className="mt-4 font-montserrat text-4xl font-bold leading-none text-slate-800">
         {value}
       </p>
       <p className="mt-3 text-sm leading-6 text-slate-500">{helper}</p>
       <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-slate-100">
-        <div className={`h-full w-24 rounded-full ${tone}`} />
+        <div className={`h-full rounded-full ${tone}`} style={{ width: `${percentage}%` }} />
       </div>
     </article>
   );
@@ -51,10 +57,16 @@ function DashboardAdmin() {
     const totalAprobados = data.reports?.approved ?? 0;
     const totalRechazados = data.reports?.rejected ?? 0;
     const totalRevisados = totalAprobados + totalRechazados;
+    const porcentajeEstudiantes = totalUsuarios > 0
+      ? Math.round(((data.users?.total_students ?? 0) / totalUsuarios) * 100)
+      : 0;
 
     return {
       categoriasTop: data.top_categories ?? [],
       cursosTop: data.top_courses ?? [],
+      porcentajeAprobados: totalReportes > 0 ? Math.round((totalAprobados / totalReportes) * 100) : 0,
+      porcentajeEstudiantes,
+      porcentajePendientes: totalReportes > 0 ? Math.round((totalPendientes / totalReportes) * 100) : 0,
       porcentajeRevision: totalReportes > 0 ? Math.round((totalRevisados / totalReportes) * 100) : 0,
       totalAprobados,
       totalCategorias: data.top_categories?.length ?? 0,
@@ -67,11 +79,7 @@ function DashboardAdmin() {
   }, [data]);
 
   if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center rounded-[2rem] border border-slate-200 bg-white text-slate-500 shadow-[0_20px_50px_rgba(15,23,42,0.06)]">
-        Cargando dashboard...
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error || !resumen) {
@@ -87,37 +95,41 @@ function DashboardAdmin() {
       label: "Usuarios",
       value: resumen.totalUsuarios,
       helper: `${data?.users?.total_students ?? 0} estudiantes y ${data?.users?.total_admins ?? 0} admins`,
+      percentage: resumen.porcentajeEstudiantes,
       tone: "bg-[linear-gradient(90deg,_#4f8df7,_#2a6ddd)]",
     },
     {
-      label: "Reportes",
-      value: resumen.totalReportes,
-      helper: `${resumen.totalPendientes} pendientes de revision`,
+      label: "Revision completa",
+      value: `${resumen.porcentajeRevision}%`,
+      helper: `${resumen.totalAprobados + resumen.totalRechazados} reportes ya revisados`,
+      percentage: resumen.porcentajeRevision,
       tone: "bg-[linear-gradient(90deg,_#63c4a3,_#37a57f)]",
     },
     {
-      label: "Categorias",
-      value: resumen.totalCategorias,
-      helper: "Categorias activas en el sistema",
+      label: "Pendientes",
+      value: resumen.totalPendientes,
+      helper: `${resumen.totalReportes} reportes registrados en total`,
+      percentage: resumen.porcentajePendientes,
       tone: "bg-[linear-gradient(90deg,_#6da8ff,_#3d7dde)]",
     },
     {
-      label: "Cursos",
-      value: resumen.totalCursos,
-      helper: "Cursos visibles con actividad",
+      label: "Aprobados",
+      value: resumen.totalAprobados,
+      helper: `${resumen.totalCursos} cursos con actividad visible`,
+      percentage: resumen.porcentajeAprobados,
       tone: "bg-[linear-gradient(90deg,_#f4b740,_#e59b14)]",
     },
   ];
 
   return (
     <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
         <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
               Dashboard
             </p>
-            <h1 className="mt-2 text-4xl font-semibold text-slate-900">
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">
               Resumen administrativo
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -136,8 +148,8 @@ function DashboardAdmin() {
           ))}
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1.45fr_0.75fr]">
-          <article className={`${panelBaseClass} !bg-white`}>
+        <section className="grid gap-6 xl:grid-cols-4">
+          <article className={`xl:col-span-3 ${panelBaseClass} !bg-white`}>
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-semibold text-slate-900">Reportes por revisar</h2>
@@ -201,7 +213,7 @@ function DashboardAdmin() {
             </div>
           </article>
 
-          <aside className={`${panelBaseClass} !bg-white`}>
+          <aside className={`xl:col-span-1 ${panelBaseClass} !bg-white`}>
             <div>
               <h2 className="text-2xl font-semibold text-slate-900">Resumen del flujo</h2>
               <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -228,7 +240,7 @@ function DashboardAdmin() {
             </div>
 
             <div className="mt-6 rounded-[1.4rem] bg-slate-50/90 p-5">
-              <div className="flex items-end justify-between gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
                     Progreso general

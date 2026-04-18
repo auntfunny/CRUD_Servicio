@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
+import { ProfileSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 
 function CampoPerfil({ etiqueta, valor }) {
@@ -68,7 +69,11 @@ export default function Perfil() {
   }, [form.first_name, form.last_name]);
 
   if (loading) {
-    return <div className="flex min-h-[60vh] items-center justify-center text-acc1">Cargando perfil...</div>;
+    return (
+      <PageShell>
+        <ProfileSkeleton />
+      </PageShell>
+    );
   }
 
   return (
@@ -81,7 +86,7 @@ export default function Perfil() {
           actions={(
             <>
               <button className={secondaryButtonClass} onClick={() => navigate("/cambiarpassword")} type="button">
-                Cambiar contrasena
+                Cambiar contraseña
               </button>
               <button className={primaryButtonClass} onClick={() => navigate("/perfil/editar")} type="button">
                 Editar perfil
@@ -98,7 +103,7 @@ export default function Perfil() {
         <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
           <article className={`${panelBaseClass} !bg-white`}>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-              Informacion personal
+              Información personal
             </p>
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <CampoPerfil etiqueta="Primer nombre" valor={form.first_name} />

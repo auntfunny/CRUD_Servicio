@@ -1,4 +1,4 @@
-function ToastCaja({ onClose, toastMensaje, visible }) {
+function ToastCaja({ onClose, toast, visible }) {
   return (
     <aside
       aria-live="polite"
@@ -12,14 +12,21 @@ function ToastCaja({ onClose, toastMensaje, visible }) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
-            Notificacion
-          </p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
+              {toast?.title ?? "Notificacion"}
+            </p>
+            {toast?.context ? (
+              <span className="rounded-full bg-white px-2 py-1 text-[11px] font-medium text-slate-400">
+                {toast.context}
+              </span>
+            ) : null}
+          </div>
           <p className="mt-1 text-sm font-medium leading-6 text-slate-700">
-            {toastMensaje}
+            {toast?.message}
           </p>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100">
-            <div className={`h-full rounded-full bg-[linear-gradient(90deg,_#66a3ff,_#2f80ed)] ${visible ? "animate-[toast-progress_3s_linear_forwards]" : "w-0"}`} />
+            <div className={`h-full rounded-full bg-[linear-gradient(90deg,_#66a3ff,_#2f80ed)] ${visible ? "animate-[toast-progress_3.2s_linear_forwards]" : "w-0"}`} />
           </div>
         </div>
 
