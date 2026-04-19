@@ -154,7 +154,7 @@ function PaisesAdmin() {
         />
 
         <section className={`${panelBaseClass} !bg-white`}>
-          <div className="grid gap-4 lg:grid-cols-[1fr_220px]">
+          <div className="grid gap-4 xl:grid-cols-[1fr_220px]">
             <label className="flex flex-col gap-2 text-sm font-medium text-slate-700">
               Buscar
               <input
@@ -175,7 +175,57 @@ function PaisesAdmin() {
 
         <section className={`${panelBaseClass} !bg-white overflow-hidden p-0`}>
           <div className="overflow-x-auto">
-            <div className="min-w-[760px]">
+            <div className="space-y-4 p-4 2xl:hidden">
+              {error ? (
+                <div className="px-2 py-6 text-sm text-rose-600">Error al cargar los paises.</div>
+              ) : loading ? (
+                <div className="px-2 py-6 text-sm text-slate-500">Cargando paises...</div>
+              ) : filtrados.length > 0 ? (
+                filtrados.map((item) => (
+                  <article
+                    className="rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4"
+                    key={item.id}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-800">#{item.id}</p>
+                        <p className="mt-1 font-semibold text-slate-900">{item.name}</p>
+                      </div>
+                      <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold uppercase text-[#1958df]">
+                        {item.code}
+                      </span>
+                    </div>
+
+                    <div className="mt-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Creado</p>
+                      <p className="mt-1 text-sm text-slate-600">{item.created_at?.split("T")[0] ?? "--"}</p>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button
+                        className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                        onClick={() => handleAbrirEditar(item)}
+                        type="button"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="inline-flex items-center justify-center rounded-full border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                        disabled={loadingBorrar && idBorrar === item.id}
+                        onClick={() => handleAbrirBorrar(item.id)}
+                        type="button"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </article>
+                ))
+              ) : (
+                <div className="px-2 py-6 text-sm text-slate-500">No hay paises para mostrar.</div>
+              )}
+            </div>
+
+            <div className="hidden min-w-[760px] 2xl:block">
               <div className="grid grid-cols-[0.5fr_1.4fr_0.8fr_0.9fr_0.95fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 <span>ID</span>
                 <span>Pais</span>

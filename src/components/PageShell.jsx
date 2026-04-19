@@ -27,15 +27,15 @@ export const secondaryButtonClass =
 
 export function PageHero({ eyebrow, title, description, actions, meta }) {
   return (
-    <section className="rounded-[2rem] border border-white/70 bg-white/58 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-6 lg:p-7">
-      <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+    <section className="rounded-[2rem] border border-white/70 bg-white/58 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-6 xl:p-7">
+      <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr] xl:items-start">
         <div>
           {eyebrow ? (
             <p className="text-[15px] font-semibold uppercase tracking-[0.16em] text-[var(--color-acc1)]">
               {eyebrow}
             </p>
           ) : null}
-          <h1 className="mt-3 font-montserrat text-3xl font-bold leading-tight text-[var(--color-acc2)] sm:text-4xl lg:text-5xl">
+          <h1 className="mt-3 font-montserrat text-3xl font-bold leading-tight text-[var(--color-acc2)] sm:text-4xl xl:text-5xl">
             {title}
           </h1>
           {description ? (
@@ -51,7 +51,7 @@ export function PageHero({ eyebrow, title, description, actions, meta }) {
         </div>
 
         {meta ? (
-          <div className="flex justify-start lg:justify-end">
+          <div className="flex justify-start xl:justify-end">
             {meta}
           </div>
         ) : null}

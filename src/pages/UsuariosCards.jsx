@@ -70,7 +70,7 @@ export default function UsuariosCards() {
       ) : null}
 
       <div className={`mx-auto max-w-7xl space-y-6 p-4 sm:p-6 ${loading && !data ? "hidden" : ""}`}>
-        <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
               Usuarios
@@ -130,37 +130,34 @@ export default function UsuariosCards() {
           ) : null}
 
           {!loading && !error ? (
-            <div className="min-w-[860px]">
-              <div className="grid grid-cols-[1.25fr_1.2fr_0.95fr_0.7fr_0.8fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                <span>Nombre</span>
-                <span>Email</span>
-                <span>Documento</span>
-                <span>Rol</span>
-                <span>Accion</span>
-              </div>
-
-              {usuarios.length === 0 ? (
-                <div className="px-6 py-10 text-sm text-slate-500">
-                  No hay usuarios.
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {usuarios.map((u) => (
-                    <div
+            <>
+              <div className="space-y-4 p-4 2xl:hidden">
+                {usuarios.length === 0 ? (
+                  <div className="px-2 py-6 text-sm text-slate-500">No hay usuarios.</div>
+                ) : (
+                  usuarios.map((u) => (
+                    <article
+                      className="rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4"
                       key={u.id}
-                      className="grid grid-cols-[1.25fr_1.2fr_0.95fr_0.7fr_0.8fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60"
                     >
-                      <div className="min-w-0">
-                        <p className="truncate font-semibold text-slate-800">
-                          {u.first_name} {u.last_name}
-                        </p>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-900">
+                            {u.first_name} {u.last_name}
+                          </p>
+                          <p className="mt-1 text-sm text-slate-500">{u.email}</p>
+                        </div>
+                        <span className="w-fit rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#1958df]">
+                          {u.role}
+                        </span>
                       </div>
-                      <p className="truncate">{u.email}</p>
-                      <p>{u.document_number || "--"}</p>
-                      <span className="w-fit rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#1958df]">
-                        {u.role}
-                      </span>
-                      <div className="flex flex-wrap gap-2">
+
+                      <div className="mt-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Documento</p>
+                        <p className="mt-1 text-sm text-slate-600">{u.document_number || "--"}</p>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
                         <button
                           className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
                           onClick={() => navigate(`/usuarios/${u.id}/editar`)}
@@ -176,16 +173,71 @@ export default function UsuariosCards() {
                           }}
                           type="button"
                         >
-                          {loadingBorrar && borrandoID === u.id
-                            ? "..."
-                            : "Eliminar"}
+                          {loadingBorrar && borrandoID === u.id ? "..." : "Eliminar"}
                         </button>
                       </div>
-                    </div>
-                  ))}
+                    </article>
+                  ))
+                )}
+              </div>
+
+              <div className="hidden min-w-[860px] 2xl:block">
+                <div className="grid grid-cols-[1.25fr_1.2fr_0.95fr_0.7fr_0.8fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <span>Nombre</span>
+                  <span>Email</span>
+                  <span>Documento</span>
+                  <span>Rol</span>
+                  <span>Accion</span>
                 </div>
-              )}
-            </div>
+
+                {usuarios.length === 0 ? (
+                  <div className="px-6 py-10 text-sm text-slate-500">
+                    No hay usuarios.
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {usuarios.map((u) => (
+                      <div
+                        key={u.id}
+                        className="grid grid-cols-[1.25fr_1.2fr_0.95fr_0.7fr_0.8fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-slate-800">
+                            {u.first_name} {u.last_name}
+                          </p>
+                        </div>
+                        <p className="truncate">{u.email}</p>
+                        <p>{u.document_number || "--"}</p>
+                        <span className="w-fit rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#1958df]">
+                          {u.role}
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                            onClick={() => navigate(`/usuarios/${u.id}/editar`)}
+                            type="button"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
+                            onClick={() => {
+                              setBorrandoID(u.id);
+                              setConfirmarBorrar(true);
+                            }}
+                            type="button"
+                          >
+                            {loadingBorrar && borrandoID === u.id
+                              ? "..."
+                              : "Eliminar"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
           ) : null}
         </section>
 

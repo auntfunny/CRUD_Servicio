@@ -83,7 +83,7 @@ const Categorias = () => {
       ) : null}
 
       <div className={`mx-auto max-w-7xl space-y-6 p-4 sm:p-6 ${loading && !data ? "hidden" : ""}`}>
-        <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">Categorias</p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Gestion de categorias</h1>
@@ -109,26 +109,30 @@ const Categorias = () => {
           {loading ? <p className="px-6 py-8 text-sm text-slate-500">Cargando categorias...</p> : null}
 
           {!loading && !error ? (
-            <div className="min-w-[820px]">
-              <div className="grid grid-cols-[0.65fr_1fr_1.8fr_0.8fr_0.9fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                <span>ID</span>
-                <span>Nombre</span>
-                <span>Descripcion</span>
-                <span>Creado</span>
-                <span>Accion</span>
-              </div>
+            <>
+              <div className="space-y-4 p-4 2xl:hidden">
+                {categorias.length === 0 ? (
+                  <div className="px-2 py-6 text-sm text-slate-500">No hay categorias.</div>
+                ) : (
+                  categorias.map((category) => (
+                    <article
+                      className="rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4"
+                      key={category.id}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-slate-800">#{category.id}</p>
+                          <p className="mt-1 font-semibold text-slate-900">{category.name}</p>
+                        </div>
+                        <p className="text-xs text-slate-400">{category.created_at?.split("T")[0] ?? "--"}</p>
+                      </div>
 
-              {categorias.length === 0 ? (
-                <div className="px-6 py-10 text-sm text-slate-500">No hay categorias.</div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {categorias.map((category) => (
-                    <div key={category.id} className="grid grid-cols-[0.65fr_1fr_1.8fr_0.8fr_0.9fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60">
-                      <p className="font-semibold text-slate-800">#{category.id}</p>
-                      <p className="truncate font-medium text-slate-800">{category.name}</p>
-                      <p className="truncate">{category.description || "Sin descripcion registrada."}</p>
-                      <p>{category.created_at?.split("T")[0] ?? "--"}</p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="mt-4">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Descripcion</p>
+                        <p className="mt-1 text-sm text-slate-600">{category.description || "Sin descripcion registrada."}</p>
+                      </div>
+
+                      <div className="mt-4 flex flex-wrap gap-2">
                         <button
                           className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
                           onClick={() => {
@@ -151,11 +155,59 @@ const Categorias = () => {
                           {loadingBorrar && idBorrar === category.id ? "..." : "Borrar"}
                         </button>
                       </div>
-                    </div>
-                  ))}
+                    </article>
+                  ))
+                )}
+              </div>
+
+              <div className="hidden min-w-[820px] 2xl:block">
+                <div className="grid grid-cols-[0.65fr_1fr_1.8fr_0.8fr_0.9fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <span>ID</span>
+                  <span>Nombre</span>
+                  <span>Descripcion</span>
+                  <span>Creado</span>
+                  <span>Accion</span>
                 </div>
-              )}
-            </div>
+
+                {categorias.length === 0 ? (
+                  <div className="px-6 py-10 text-sm text-slate-500">No hay categorias.</div>
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {categorias.map((category) => (
+                      <div key={category.id} className="grid grid-cols-[0.65fr_1fr_1.8fr_0.8fr_0.9fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60">
+                        <p className="font-semibold text-slate-800">#{category.id}</p>
+                        <p className="truncate font-medium text-slate-800">{category.name}</p>
+                        <p className="truncate">{category.description || "Sin descripcion registrada."}</p>
+                        <p>{category.created_at?.split("T")[0] ?? "--"}</p>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                            onClick={() => {
+                              setEditarCampos({ name: category.name, description: category.description });
+                              setEditarId(category.id);
+                              setModalEditar(true);
+                            }}
+                            type="button"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
+                            onClick={() => {
+                              setIdBorrar(category.id);
+                              setConfirmarBorrar(true);
+                            }}
+                            type="button"
+                          >
+                            {loadingBorrar && idBorrar === category.id ? "..." : "Borrar"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
           ) : null}
         </section>
       </div>

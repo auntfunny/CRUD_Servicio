@@ -126,7 +126,7 @@ export default function EditarPerfil() {
 
   return (
     <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
         <PageHero
           eyebrow="Perfil"
           title={nombreCompleto}

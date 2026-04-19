@@ -8,7 +8,7 @@ function SkeletonBlock({ className = "" }) {
 
 function PageIntroSkeleton({ withButton = true }) {
   return (
-    <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
       <div className="min-w-0 flex-1 space-y-3">
         <SkeletonBlock className="h-3 w-28 rounded-full" />
         <SkeletonBlock className="h-10 w-full max-w-[22rem]" />
@@ -25,7 +25,7 @@ function PageIntroSkeleton({ withButton = true }) {
 
 export function StatsGridSkeleton({ cards = 4 }) {
   return (
-    <section className={`grid gap-4 ${cards > 2 ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-2"}`}>
+    <section className={`grid gap-4 ${cards > 2 ? "md:grid-cols-2 2xl:grid-cols-4" : "md:grid-cols-2"}`}>
       {Array.from({ length: cards }).map((_, index) => (
         <article
           className="rounded-[1.55rem] border border-slate-100 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.05)]"
@@ -45,7 +45,7 @@ export function StatsGridSkeleton({ cards = 4 }) {
 export function FiltersSkeleton({ controls = 4 }) {
   return (
     <section className="rounded-[2rem] border border-white/70 bg-white/60 p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-5">
-      <div className={`grid gap-4 ${controls >= 4 ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-2"}`}>
+      <div className={`grid gap-4 ${controls >= 4 ? "md:grid-cols-2 2xl:grid-cols-4" : "md:grid-cols-2"}`}>
         {Array.from({ length: controls }).map((_, index) => (
           <div className="space-y-2" key={`filter-skeleton-${index}`}>
             <SkeletonBlock className="h-4 w-24 rounded-full" />
@@ -98,7 +98,7 @@ export function DashboardSkeleton({ showSidePanel = true }) {
     <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
       <PageIntroSkeleton />
       <StatsGridSkeleton cards={4} />
-      <section className={`grid gap-6 ${showSidePanel ? "xl:grid-cols-[1.45fr_0.75fr]" : ""}`}>
+      <section className={`grid gap-6 ${showSidePanel ? "2xl:grid-cols-[1.45fr_0.75fr]" : ""}`}>
         <div className="space-y-6">
           <div className="rounded-[2rem] border border-white/70 bg-white/60 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm">
             <SkeletonBlock className="h-7 w-56" />
@@ -144,8 +144,8 @@ export function ListPageSkeleton({ filters = 2, columns = 5, rows = 6, withStats
 export function ProfileSkeleton({ editable = false }) {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
-      <section className="rounded-[2rem] border border-white/70 bg-white/58 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-6 lg:p-7">
-        <div className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+      <section className="rounded-[2rem] border border-white/70 bg-white/58 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm sm:p-6 xl:p-7">
+        <div className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr] xl:items-start">
           <div>
             <SkeletonBlock className="h-3 w-20 rounded-full" />
             <SkeletonBlock className="mt-3 h-10 w-full max-w-[20rem]" />
@@ -155,13 +155,13 @@ export function ProfileSkeleton({ editable = false }) {
               <SkeletonBlock className="h-12 w-full rounded-full sm:w-44" />
             </div>
           </div>
-          <div className="flex justify-start lg:justify-end">
+          <div className="flex justify-start xl:justify-end">
             <SkeletonBlock className="h-24 w-24 rounded-full" />
           </div>
         </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid gap-6 2xl:grid-cols-[1.2fr_0.8fr]">
         <article className="rounded-[2rem] border border-white/70 bg-white/60 p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)] backdrop-blur-sm">
           <SkeletonBlock className="h-3 w-28 rounded-full" />
           <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -186,4 +186,3 @@ export function ProfileSkeleton({ editable = false }) {
     </div>
   );
 }
-

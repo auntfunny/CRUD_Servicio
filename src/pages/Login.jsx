@@ -100,7 +100,7 @@ function Login() {
         `}
       </style>
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl items-center justify-center">
-        <section className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_35px_100px_rgba(7,19,39,0.32)] lg:grid-cols-[0.95fr_1.2fr]">
+        <section className="grid w-full overflow-hidden rounded-[32px] bg-white shadow-[0_35px_100px_rgba(7,19,39,0.32)] xl:grid-cols-[0.95fr_1.2fr]">
           <aside className="relative flex min-h-[320px] flex-col justify-between overflow-hidden bg-[#143963] px-7 py-8 sm:px-10 sm:py-9">
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(106,144,216,0.9)_0%,rgba(129,117,216,0.82)_40%,rgba(236,157,211,0.92)_78%,rgba(16,44,80,0.98)_100%)]" />
             <div className="absolute -left-14 top-10 h-36 w-36 rounded-full bg-white/18 blur-3xl" />
@@ -137,7 +137,7 @@ function Login() {
             </div>
           </aside>
 
-          <div className="flex items-center px-6 py-8 sm:px-10 md:px-14 lg:px-16 lg:py-12">
+          <div className="flex items-center px-6 py-8 sm:px-10 md:px-14 xl:px-16 xl:py-12">
             <div className="w-full max-w-lg">
               <span className="inline-flex rounded-full bg-[#eaf1ff] px-4 py-1 text-xs font-semibold uppercase tracking-[0.28em] text-[#476fb5]">
                 Login

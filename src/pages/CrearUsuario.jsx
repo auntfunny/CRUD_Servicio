@@ -100,7 +100,7 @@ export default function CrearUsuario() {
 
   return (
     <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
         <PageHero
           eyebrow="Usuarios"
           title="Crear usuario"
@@ -117,7 +117,7 @@ export default function CrearUsuario() {
           )}
         />
 
-        <form className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]" id="crear-usuario-form" onSubmit={handleSubmit}>
+        <form className="grid gap-6 2xl:grid-cols-[1.2fr_0.8fr]" id="crear-usuario-form" onSubmit={handleSubmit}>
           <section className={`${panelBaseClass} !bg-white space-y-6`}>
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">

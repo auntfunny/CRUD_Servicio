@@ -84,11 +84,11 @@ function EstudiantesDeuda() {
     <PageShell>
       {loading && !data ? <ListPageSkeleton columns={5} filters={2} rows={6} /> : null}
 
-      <div className={`mx-auto max-w-7xl space-y-6 p-6 ${loading && !data ? "hidden" : ""}`}>
-        <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className={`mx-auto max-w-7xl space-y-6 p-4 sm:p-6 ${loading && !data ? "hidden" : ""}`}>
+        <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">Seguimiento</p>
-            <h1 className="mt-2 text-4xl font-semibold text-slate-900">Estudiantes con horas pendientes</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">Estudiantes con horas pendientes</h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Consulta rapidamente quienes aun no completan sus horas de servicio.
             </p>
@@ -134,7 +134,41 @@ function EstudiantesDeuda() {
         {!loading && !error ? (
           <>
             <section className={`${panelBaseClass} overflow-x-auto !bg-white !p-0`}>
-              <div className="min-w-[900px]">
+              <div className="space-y-4 p-4 2xl:hidden">
+                {estudiantesVisibles.length === 0 ? (
+                  <div className="px-2 py-6 text-sm text-slate-500">No hay estudiantes pendientes.</div>
+                ) : (
+                  estudiantesVisibles.map((estudiante) => (
+                    <article
+                      className="rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4"
+                      key={estudiante.id ?? `${estudiante.email}-${getNombreEstudiante(estudiante)}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-900">{getNombreEstudiante(estudiante)}</p>
+                          <p className="mt-1 text-sm text-slate-500">{estudiante.email ?? "Sin correo"}</p>
+                        </div>
+                        <span className="w-fit rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600">
+                          {getHorasFaltantes(estudiante)} horas
+                        </span>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Requeridas</p>
+                          <p className="mt-1 text-sm text-slate-600">{getHorasRequeridas(estudiante)}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Aprobadas</p>
+                          <p className="mt-1 text-sm text-slate-600">{getHorasAprobadas(estudiante)}</p>
+                        </div>
+                      </div>
+                    </article>
+                  ))
+                )}
+              </div>
+
+              <div className="hidden min-w-[900px] 2xl:block">
                 <div className="grid grid-cols-[1.35fr_1.2fr_0.75fr_0.75fr_0.75fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Estudiante</span>
                   <span>Email</span>

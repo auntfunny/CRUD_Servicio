@@ -125,13 +125,13 @@ function DashboardEstudiante() {
 
   return (
     <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
-        <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
+        <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
               Dashboard
             </p>
-            <h1 className="mt-2 text-4xl font-semibold text-slate-900">
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900 sm:text-4xl">
               Seguimiento de servicio
             </h1>
           </div>
@@ -143,13 +143,13 @@ function DashboardEstudiante() {
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
           {kpis.map((kpi) => (
             <KpiCard key={kpi.label} {...kpi} />
           ))}
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1.45fr_0.75fr]">
+        <section className="grid gap-6 2xl:grid-cols-[1.45fr_0.75fr]">
           <article className={`${panelBaseClass} !bg-white`}>
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -158,13 +158,63 @@ function DashboardEstudiante() {
                   Consulta rapidamente tus ultimos envios y abre el detalle cuando lo necesites.
                 </p>
               </div>
-              <Link className="text-sm font-semibold text-[#1958df]" to="/estudiante/reportes">
+              <Link className="whitespace-nowrap text-[1.05rem] font-semibold text-[#1958df] sm:text-[1.12rem]" to="/estudiante/reportes">
                 Ver todo
               </Link>
             </div>
 
             <div className="mt-6 overflow-x-auto">
-              <div className="min-w-[720px] overflow-hidden rounded-[1.6rem] border border-slate-100">
+              <div className="space-y-4 2xl:hidden">
+                {loadingReportes ? (
+                  <div className="px-2 py-6 text-sm text-slate-500">Cargando reportes...</div>
+                ) : reportesRecientes.length > 0 ? (
+                  reportesRecientes.map((reporte) => (
+                    <article
+                      className="rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4"
+                      key={reporte.id}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-900">
+                            {reporte.description || "Actividad sin descripcion"}
+                          </p>
+                          <p className="mt-1 text-sm text-slate-500">
+                            {reporte.category?.name ?? "Sin categoria"}
+                          </p>
+                        </div>
+                        <BadgeEstadoReporte estado={reporte.status} />
+                      </div>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Horas</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-800">{formatHoras(reporte.hours_spent)}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Fecha</p>
+                          <p className="mt-1 text-sm text-slate-600">{formatFecha(reporte.created_at)}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <button
+                          className="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-[#eef5ff] px-5 py-2.5 text-[0.95rem] font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                          onClick={() => abrirDetalle(reporte)}
+                          type="button"
+                        >
+                          Ver
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="px-2 py-6 text-sm text-slate-500">
+                    Aun no tienes reportes registrados.
+                  </div>
+                )}
+              </div>
+
+              <div className="hidden min-w-[720px] overflow-hidden rounded-[1.6rem] border border-slate-100 2xl:block">
                 <div className="grid grid-cols-[1.5fr_1fr_0.9fr_0.8fr_0.7fr] gap-4 bg-slate-50/90 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Actividad</span>
                   <span>Categoria</span>
@@ -194,7 +244,7 @@ function DashboardEstudiante() {
                         <p>{formatFecha(reporte.created_at)}</p>
                         <div>
                           <button
-                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                            className="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-[#eef5ff] px-5 py-2.5 text-[0.95rem] font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
                             onClick={() => abrirDetalle(reporte)}
                             type="button"
                           >
@@ -221,25 +271,42 @@ function DashboardEstudiante() {
               </p>
             </div>
 
-            <div className="mt-8 flex justify-center">
+            <div className="mt-6 rounded-[1.4rem] bg-slate-50/90 p-4 sm:hidden">
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                    Avance actual
+                  </p>
+                  <p className="mt-3 font-montserrat text-4xl font-bold text-slate-800">
+                    {progresoCurso.horasAprobadas}
+                    <span className="text-2xl text-slate-400">/{progresoCurso.horasRequeridas}</span>
+                  </p>
+                </div>
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-500 shadow-[0_8px_18px_rgba(15,23,42,0.05)]">
+                  {progresoCurso.porcentaje}%
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-8 hidden justify-center px-2 sm:flex">
               <div
-                className="relative flex h-64 w-64 items-center justify-center rounded-full"
+                className="relative flex aspect-square w-full max-w-[15rem] items-center justify-center rounded-full sm:max-w-[16rem]"
                 style={{
                   background: `conic-gradient(#63c4a3 0% ${progresoCurso.porcentaje}%, #f4b740 ${progresoCurso.porcentaje}% ${Math.min(progresoCurso.porcentaje + 8, 100)}%, rgba(226,232,240,0.72) ${Math.min(progresoCurso.porcentaje + 8, 100)}% 100%)`,
                 }}
               >
-                <div className="absolute h-48 w-48 rounded-full bg-white shadow-inner" />
+                <div className="absolute inset-[16%] rounded-full bg-white shadow-inner sm:inset-[18%]" />
                 <div className="relative z-10 text-center">
-                  <p className="font-montserrat text-5xl font-bold text-slate-800">
+                  <p className="font-montserrat text-4xl font-bold text-slate-800 sm:text-5xl">
                     {progresoCurso.horasAprobadas}
-                    <span className="text-3xl text-slate-400">/{progresoCurso.horasRequeridas}</span>
+                    <span className="text-2xl text-slate-400 sm:text-3xl">/{progresoCurso.horasRequeridas}</span>
                   </p>
-                  <p className="mt-2 text-xl font-semibold text-slate-600">horas</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-600 sm:text-xl">horas</p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 rounded-[1.4rem] bg-slate-50/90 p-4">
+            <div className="mt-4 rounded-[1.4rem] bg-slate-50/90 p-4 sm:mt-6">
               <p className="text-sm leading-6 text-slate-500">
                 Te faltan <span className="font-semibold text-slate-800">{progresoCurso.horasRestantes} horas</span> para completar el requisito.
               </p>
@@ -252,14 +319,14 @@ function DashboardEstudiante() {
             </div>
 
             <div className="mt-5 grid gap-3">
-              <Link className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50" to="/estudiante/reportes">
+              <Link className="inline-flex w-full items-center justify-center rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 sm:w-auto" to="/estudiante/reportes">
                 Ver mis reportes
               </Link>
             </div>
           </aside>
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+        <section className="grid gap-6 2xl:grid-cols-[1fr_1fr]">
           <article className={`${panelBaseClass} !bg-white`}>
             <div className="flex items-center justify-between gap-4">
               <div>
