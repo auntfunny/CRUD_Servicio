@@ -11,7 +11,11 @@ import {
   panelBaseClass,
   primaryButtonClass,
 } from "../components/PageShell";
-import { FiltersSkeleton, StatsGridSkeleton, TableSkeleton } from "../components/SkeletonBlocks";
+import {
+  FiltersSkeleton,
+  StatsGridSkeleton,
+  TableSkeleton,
+} from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 import {
   estadoOptions,
@@ -20,6 +24,7 @@ import {
   formatHoras,
 } from "../utils/reportes";
 import { useToast } from "../context/ToastContext";
+import useRevisarReportes from "../hooks/useRevisarReportes";
 
 function ReportesAdmin() {
   const { setToastMensaje } = useToast();
@@ -30,8 +35,6 @@ function ReportesAdmin() {
   const [busqueda, setBusqueda] = useState("");
   const [busquedaAplicada, setBusquedaAplicada] = useState("");
   const [ordenActual, setOrdenActual] = useState("fecha-desc");
-  const [reporteSeleccionado, setReporteSeleccionado] = useState(null);
-  const [reporteRevisando, setReporteRevisando] = useState(null);
   const [reportesBusqueda, setReportesBusqueda] = useState([]);
   const [cargandoBusqueda, setCargandoBusqueda] = useState(false);
   const [errorBusqueda, setErrorBusqueda] = useState(null);
@@ -94,7 +97,9 @@ function ReportesAdmin() {
     "No se pudieron cargar los reportes.";
 
   const textoBusqueda = busquedaAplicada.trim().toLowerCase();
-  const usarColeccionCompleta = Boolean(estadoFiltro || categoriaFiltro || textoBusqueda);
+  const usarColeccionCompleta = Boolean(
+    estadoFiltro || categoriaFiltro || textoBusqueda,
+  );
   const reportesFuente = usarColeccionCompleta ? reportesBusqueda : reportes;
 
   const reportesFiltrados = useMemo(() => {
@@ -118,7 +123,7 @@ function ReportesAdmin() {
     ? reportesFiltrados.length
     : usarColeccionCompleta
       ? reportesFiltrados.length
-    : (data?.total ?? reportes.length);
+      : (data?.total ?? reportes.length);
 
   const reportesOrdenados = useMemo(() => {
     const lista = [...reportesFiltrados];
@@ -152,30 +157,27 @@ function ReportesAdmin() {
     return reportesOrdenados.slice(inicio, inicio + pageSize);
   }, [page, pageSize, reportesOrdenados, usarColeccionCompleta]);
 
-  const resumen = useMemo(
-    () => {
-      if (usarColeccionCompleta) {
-        return reportesFiltrados.reduce(
-          (acc, reporte) => {
-            acc.total += 1;
-            if (reporte.status === "APPROVED") acc.aprobados += 1;
-            if (reporte.status === "PENDING") acc.pendientes += 1;
-            if (reporte.status === "REJECTED") acc.rechazados += 1;
-            return acc;
-          },
-          { aprobados: 0, pendientes: 0, rechazados: 0, total: 0 },
-        );
-      }
+  const resumen = useMemo(() => {
+    if (usarColeccionCompleta) {
+      return reportesFiltrados.reduce(
+        (acc, reporte) => {
+          acc.total += 1;
+          if (reporte.status === "APPROVED") acc.aprobados += 1;
+          if (reporte.status === "PENDING") acc.pendientes += 1;
+          if (reporte.status === "REJECTED") acc.rechazados += 1;
+          return acc;
+        },
+        { aprobados: 0, pendientes: 0, rechazados: 0, total: 0 },
+      );
+    }
 
-      return {
-        aprobados: dashboardData?.reports?.approved ?? 0,
-        pendientes: dashboardData?.reports?.pending ?? 0,
-        rechazados: dashboardData?.reports?.rejected ?? 0,
-        total: dashboardData?.reports?.total ?? total,
-      };
-    },
-    [dashboardData, reportesFiltrados, total, usarColeccionCompleta],
-  );
+    return {
+      aprobados: dashboardData?.reports?.approved ?? 0,
+      pendientes: dashboardData?.reports?.pending ?? 0,
+      rechazados: dashboardData?.reports?.rejected ?? 0,
+      total: dashboardData?.reports?.total ?? total,
+    };
+  }, [dashboardData, reportesFiltrados, total, usarColeccionCompleta]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -260,30 +262,20 @@ function ReportesAdmin() {
     setPage(1);
   };
 
-  const abrirDetalle = (reporte) => setReporteSeleccionado(reporte);
-  const cerrarDetalle = () => setReporteSeleccionado(null);
-  const abrirRevision = () => {
-    if (!reporteSeleccionado) return;
-    setReporteRevisando(reporteSeleccionado);
-    cerrarDetalle();
-  };
-  const cerrarRevision = () => setReporteRevisando(null);
-
-  const guardarRevision = async (payload) => {
-    if (!reporteRevisando) return;
-
-    await actualizarReporte({
-      url: `/reports/${reporteRevisando.id}/review`,
-      body: payload,
-      method: "PATCH",
-    });
-
-    setToastMensaje("Estado del reporte actualizado exitosamente");
-    cerrarRevision();
-    await recargarReportes({
-      params: paramsConsulta,
-    });
-  };
+  const {
+    reporteSeleccionado,
+    reporteRevisando,
+    abrirDetalle,
+    cerrarDetalle,
+    abrirRevision,
+    cerrarRevision,
+    guardarRevision,
+  } = useRevisarReportes(
+    actualizarReporte,
+    setToastMensaje,
+    recargarReportes,
+    paramsConsulta,
+  );
 
   return (
     <PageShell>
@@ -496,9 +488,7 @@ function ReportesAdmin() {
             </section>
 
             {/* Vista Tarjetas */}
-            <section
-              className={`md:hidden ${panelBaseClass} !bg-white`}
-            >
+            <section className={`md:hidden ${panelBaseClass} !bg-white`}>
               {cargandoBusqueda ? (
                 <div className="px-4 py-6">
                   <TableSkeleton columns={1} rows={4} />
@@ -532,7 +522,9 @@ function ReportesAdmin() {
                       </div>
 
                       <div className="mt-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Actividad</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                          Actividad
+                        </p>
                         <p className="mt-1 text-sm text-slate-600">
                           {reporte.description || "Sin descripcion"}
                         </p>
@@ -540,13 +532,17 @@ function ReportesAdmin() {
 
                       <div className="mt-3 grid grid-cols-2 gap-3">
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Categoria</p>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Categoria
+                          </p>
                           <p className="mt-1 text-sm font-medium text-slate-700">
                             {reporte.category?.name ?? "Sin categoria"}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Horas</p>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Horas
+                          </p>
                           <p className="mt-1 text-sm font-semibold text-slate-800">
                             {formatHoras(reporte.hours_spent)}
                           </p>

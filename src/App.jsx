@@ -20,6 +20,7 @@ import EstudiantesDeuda from "./pages/EstudiantesDeuda";
 import Categorias from "./pages/Categorias";
 import PaisesAdmin from "./pages/PaisesAdmin";
 import Cursos from "./pages/Cursos";
+import NoExiste from "./pages/NoExiste";
 
 function App() {
   return (
@@ -53,7 +54,7 @@ function App() {
           </Route>
         </Route>
         <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route path="*" element={<h2>Error 404</h2>} />
+        <Route path="*" element={<NoExiste/>} />
       </Routes>
     </>
   );

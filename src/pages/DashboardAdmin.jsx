@@ -1,10 +1,18 @@
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import BadgeEstadoReporte from "../components/BadgeEstadoReporte";
-import { PageShell, panelBaseClass, primaryButtonClass } from "../components/PageShell";
+import {
+  PageShell,
+  panelBaseClass,
+  primaryButtonClass,
+} from "../components/PageShell";
 import { DashboardSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
 import { formatFecha, formatHoras } from "../utils/reportes";
+import { useToast } from "../context/ToastContext";
+import useRevisarReportes from "../hooks/useRevisarReportes";
+import ReporteDetalleModal from "../components/ReporteDetalleModal";
+import ReporteRevisionModal from "../components/ReporteRevisionModal";
 
 function KpiCard({ helper, label, percentage, tone, value }) {
   return (
@@ -22,21 +30,50 @@ function KpiCard({ helper, label, percentage, tone, value }) {
       </p>
       <p className="mt-3 text-sm leading-6 text-slate-500">{helper}</p>
       <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-slate-100">
-        <div className={`h-full rounded-full ${tone}`} style={{ width: `${percentage}%` }} />
+        <div
+          className={`h-full rounded-full ${tone}`}
+          style={{ width: `${percentage}%` }}
+        />
       </div>
     </article>
   );
 }
 
 function DashboardAdmin() {
+  const {setToastMensaje} = useToast();
+  const paramsConsulta = { page: 1, page_size: 5, status: "PENDING" };
+
   const { data, loading, error } = useAxios("/dashboard/stats");
-  const { data: pendingData, loading: loadingPendientes } = useAxios("/reports/", {
-    params: {
-      page: 1,
-      page_size: 5,
-      status: "PENDING",
-    },
+  const {
+    data: pendingData,
+    loading: loadingPendientes,
+    request: recargarReportes,
+  } = useAxios("/reports/", {
+    params: paramsConsulta,
   });
+
+  const { loading: guardandoRevision, request: actualizarReporte } = useAxios(
+    "/reports/",
+    {
+      auto: false,
+      method: "PATCH",
+    },
+  );
+
+  const {
+    reporteSeleccionado,
+    reporteRevisando,
+    abrirDetalle,
+    cerrarDetalle,
+    abrirRevision,
+    cerrarRevision,
+    guardarRevision,
+  } = useRevisarReportes(
+    actualizarReporte,
+    setToastMensaje,
+    recargarReportes,
+    paramsConsulta,
+  );
 
   const pendientes = Array.isArray(pendingData?.items)
     ? pendingData.items
@@ -51,23 +88,34 @@ function DashboardAdmin() {
   const resumen = useMemo(() => {
     if (!data) return null;
 
-    const totalUsuarios = (data.users?.total_students ?? 0) + (data.users?.total_admins ?? 0);
+    const totalUsuarios =
+      (data.users?.total_students ?? 0) + (data.users?.total_admins ?? 0);
     const totalReportes = data.reports?.total ?? 0;
     const totalPendientes = data.reports?.pending ?? 0;
     const totalAprobados = data.reports?.approved ?? 0;
     const totalRechazados = data.reports?.rejected ?? 0;
     const totalRevisados = totalAprobados + totalRechazados;
-    const porcentajeEstudiantes = totalUsuarios > 0
-      ? Math.round(((data.users?.total_students ?? 0) / totalUsuarios) * 100)
-      : 0;
+    const porcentajeEstudiantes =
+      totalUsuarios > 0
+        ? Math.round(((data.users?.total_students ?? 0) / totalUsuarios) * 100)
+        : 0;
 
     return {
       categoriasTop: data.top_categories ?? [],
       cursosTop: data.top_courses ?? [],
-      porcentajeAprobados: totalReportes > 0 ? Math.round((totalAprobados / totalReportes) * 100) : 0,
+      porcentajeAprobados:
+        totalReportes > 0
+          ? Math.round((totalAprobados / totalReportes) * 100)
+          : 0,
       porcentajeEstudiantes,
-      porcentajePendientes: totalReportes > 0 ? Math.round((totalPendientes / totalReportes) * 100) : 0,
-      porcentajeRevision: totalReportes > 0 ? Math.round((totalRevisados / totalReportes) * 100) : 0,
+      porcentajePendientes:
+        totalReportes > 0
+          ? Math.round((totalPendientes / totalReportes) * 100)
+          : 0,
+      porcentajeRevision:
+        totalReportes > 0
+          ? Math.round((totalRevisados / totalReportes) * 100)
+          : 0,
       totalAprobados,
       totalCategorias: data.top_categories?.length ?? 0,
       totalCursos: data.top_courses?.length ?? 0,
@@ -133,7 +181,8 @@ function DashboardAdmin() {
               Resumen administrativo
             </h1>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Supervisa el estado general del sistema y actua rapido sobre los reportes pendientes.
+              Supervisa el estado general del sistema y actua rapido sobre los
+              reportes pendientes.
             </p>
           </div>
 
@@ -152,18 +201,25 @@ function DashboardAdmin() {
           <article className={`xl:col-span-3 ${panelBaseClass} !bg-white`}>
             <div className="flex items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold text-slate-900">Reportes por revisar</h2>
+                <h2 className="text-2xl font-semibold text-slate-900">
+                  Reportes por revisar
+                </h2>
                 <p className="mt-2 text-sm leading-6 text-slate-500">
                   Cola prioritaria de revision para el equipo administrativo.
                 </p>
               </div>
-              <Link className="text-sm font-semibold text-[#1958df]" to="/reportes">
+              <Link
+                className="text-sm font-semibold text-[#1958df]"
+                to="/reportes"
+              >
                 Ver todo
               </Link>
             </div>
 
             {loadingPendientes ? (
-              <div className="mt-6 px-5 py-8 text-sm text-slate-500">Cargando reportes...</div>
+              <div className="mt-6 px-5 py-8 text-sm text-slate-500">
+                Cargando reportes...
+              </div>
             ) : pendientes.length > 0 ? (
               <>
                 {/* Vista Tabla */}
@@ -179,7 +235,10 @@ function DashboardAdmin() {
                     </div>
                     <div className="divide-y divide-slate-100">
                       {pendientes.map((reporte) => (
-                        <div key={reporte.id} className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr_0.7fr] items-center gap-4 px-5 py-4 text-sm text-slate-600">
+                        <div
+                          key={reporte.id}
+                          className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr_0.7fr] items-center gap-4 px-5 py-4 text-sm text-slate-600"
+                        >
                           <div className="min-w-0">
                             <p className="truncate font-semibold text-slate-800">
                               {reporte.student?.full_name ?? "Sin estudiante"}
@@ -191,16 +250,22 @@ function DashboardAdmin() {
                           <p className="truncate font-medium text-slate-700">
                             {reporte.category?.name ?? "Sin categoria"}
                           </p>
-                          <p className="font-semibold text-slate-800">{formatHoras(reporte.hours_spent)}</p>
+                          <p className="font-semibold text-slate-800">
+                            {formatHoras(reporte.hours_spent)}
+                          </p>
                           <p>{formatFecha(reporte.created_at)}</p>
                           <BadgeEstadoReporte estado={reporte.status} />
                           <div>
-                            <Link
+                            <button
                               className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
-                              to="/reportes"
+                              type="button"
+                              onClick={(evento) => {
+                                evento.stopPropagation();
+                                abrirDetalle(reporte);
+                              }}
                             >
                               Revisar
-                            </Link>
+                            </button>
                           </div>
                         </div>
                       ))}
@@ -211,7 +276,10 @@ function DashboardAdmin() {
                 {/* Vista Tarjetas */}
                 <div className="mt-6 space-y-3 md:hidden">
                   {pendientes.map((reporte) => (
-                    <div key={reporte.id} className="rounded-[1.4rem] border border-slate-100 bg-slate-50/50 p-4">
+                    <div
+                      key={reporte.id}
+                      className="rounded-[1.4rem] border border-slate-100 bg-slate-50/50 p-4"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           <p className="font-semibold text-slate-800">
@@ -226,13 +294,17 @@ function DashboardAdmin() {
 
                       <div className="mt-3 grid grid-cols-2 gap-3">
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Categoria</p>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Categoria
+                          </p>
                           <p className="mt-1 text-sm font-medium text-slate-700">
                             {reporte.category?.name ?? "Sin categoria"}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Horas</p>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                            Horas
+                          </p>
                           <p className="mt-1 text-sm font-semibold text-slate-800">
                             {formatHoras(reporte.hours_spent)}
                           </p>
@@ -240,16 +312,24 @@ function DashboardAdmin() {
                       </div>
 
                       <div className="mt-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Fecha</p>
-                        <p className="mt-1 text-sm text-slate-600">{formatFecha(reporte.created_at)}</p>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                          Fecha
+                        </p>
+                        <p className="mt-1 text-sm text-slate-600">
+                          {formatFecha(reporte.created_at)}
+                        </p>
                       </div>
 
-                      <Link
+                      <button
                         className="mt-4 flex w-full items-center justify-center rounded-full bg-[#eef5ff] px-4 py-3 text-sm font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
-                        to="/reportes"
+                        type="button"
+                        onClick={(evento) => {
+                          evento.stopPropagation();
+                          abrirDetalle(reporte);
+                        }}
                       >
                         Revisar
-                      </Link>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -263,7 +343,9 @@ function DashboardAdmin() {
 
           <aside className={`xl:col-span-1 ${panelBaseClass} !bg-white`}>
             <div>
-              <h2 className="text-2xl font-semibold text-slate-900">Resumen del flujo</h2>
+              <h2 className="text-2xl font-semibold text-slate-900">
+                Resumen del flujo
+              </h2>
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 Estado actual de aprobaciones, rechazos y avance general.
               </p>
@@ -271,18 +353,32 @@ function DashboardAdmin() {
 
             <div className="mt-6 space-y-3">
               <div className="rounded-[1.4rem] bg-amber-50/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">Pendientes</p>
-                <p className="mt-3 font-montserrat text-4xl font-bold text-slate-800">{resumen.totalPendientes}</p>
-                <p className="mt-2 text-sm text-slate-500">Esperando revision</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-700">
+                  Pendientes
+                </p>
+                <p className="mt-3 font-montserrat text-4xl font-bold text-slate-800">
+                  {resumen.totalPendientes}
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  Esperando revision
+                </p>
               </div>
               <div className="rounded-[1.4rem] bg-emerald-50/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Aprobados</p>
-                <p className="mt-3 font-montserrat text-4xl font-bold text-slate-800">{resumen.totalAprobados}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                  Aprobados
+                </p>
+                <p className="mt-3 font-montserrat text-4xl font-bold text-slate-800">
+                  {resumen.totalAprobados}
+                </p>
                 <p className="mt-2 text-sm text-slate-500">Horas validadas</p>
               </div>
               <div className="rounded-[1.4rem] bg-rose-50/70 p-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-rose-700">Rechazados</p>
-                <p className="mt-3 font-montserrat text-4xl font-bold text-slate-800">{resumen.totalRechazados}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-rose-700">
+                  Rechazados
+                </p>
+                <p className="mt-3 font-montserrat text-4xl font-bold text-slate-800">
+                  {resumen.totalRechazados}
+                </p>
                 <p className="mt-2 text-sm text-slate-500">Con observaciones</p>
               </div>
             </div>
@@ -311,20 +407,31 @@ function DashboardAdmin() {
 
         <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
           <article className={`${panelBaseClass} !bg-white`}>
-            <h2 className="text-xl font-semibold text-slate-900">Categorias destacadas</h2>
+            <h2 className="text-xl font-semibold text-slate-900">
+              Categorias destacadas
+            </h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Categorias con mayor volumen reciente de reportes.
             </p>
             <div className="mt-5 space-y-3">
               {resumen.categoriasTop.slice(0, 4).map((item, index) => (
-                <div key={item.id} className="flex items-start gap-4 rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4">
+                <div
+                  key={item.id}
+                  className="flex items-start gap-4 rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4"
+                >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#eef5ff] font-montserrat text-sm font-bold text-[#1958df]">
                     {String(index + 1).padStart(2, "0")}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-slate-800">{item.name}</p>
-                    <p className="mt-1 text-sm text-slate-500">{item.total_reports} reportes enviados</p>
-                    <p className="mt-1 text-sm text-slate-400">{item.total_hours_approved} horas aprobadas</p>
+                    <p className="truncate font-semibold text-slate-800">
+                      {item.name}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {item.total_reports} reportes enviados
+                    </p>
+                    <p className="mt-1 text-sm text-slate-400">
+                      {item.total_hours_approved} horas aprobadas
+                    </p>
                   </div>
                 </div>
               ))}
@@ -332,16 +439,25 @@ function DashboardAdmin() {
           </article>
 
           <article className={`${panelBaseClass} !bg-white`}>
-            <h2 className="text-xl font-semibold text-slate-900">Cursos activos</h2>
+            <h2 className="text-xl font-semibold text-slate-900">
+              Cursos activos
+            </h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
               Cursos con actividad visible dentro del sistema.
             </p>
             <div className="mt-5 space-y-3">
               {resumen.cursosTop.slice(0, 4).map((item) => (
-                <div key={item.id} className="flex items-center justify-between gap-4 rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4">
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between gap-4 rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4"
+                >
                   <div className="min-w-0">
-                    <p className="truncate font-semibold text-slate-800">{item.name}</p>
-                    <p className="mt-1 text-sm text-slate-500">{item.total_students} estudiantes visibles</p>
+                    <p className="truncate font-semibold text-slate-800">
+                      {item.name}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {item.total_students} estudiantes visibles
+                    </p>
                   </div>
                   <span className="rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#1958df]">
                     Activo
@@ -351,6 +467,23 @@ function DashboardAdmin() {
             </div>
           </article>
         </section>
+        {reporteSeleccionado ? (
+          <ReporteDetalleModal
+            canReview
+            onClose={cerrarDetalle}
+            onReview={abrirRevision}
+            reporte={reporteSeleccionado}
+          />
+        ) : null}
+
+        {reporteRevisando ? (
+          <ReporteRevisionModal
+            loading={guardandoRevision}
+            onClose={cerrarRevision}
+            onSubmit={guardarRevision}
+            reporte={reporteRevisando}
+          />
+        ) : null}
       </div>
     </PageShell>
   );

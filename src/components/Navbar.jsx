@@ -201,7 +201,7 @@ export default function Navbar({ isSidebarOpen = false, onToggleSidebar }) {
             </button>
 
             <div
-              className={`absolute right-0 top-[calc(100%+0.75rem)] z-[90] w-[min(24rem,calc(100vw-2rem))] rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-[0_22px_45px_rgba(15,23,42,0.16)] transition duration-200 ${
+              className={`absolute right-0 top-[calc(100%+0.75rem)] z-[90] w-xs md:w-[min(24rem,calc(100vw-2rem))] rounded-[1.5rem] border border-slate-200 bg-white p-3 shadow-[0_22px_45px_rgba(15,23,42,0.16)] transition duration-200 ${
                 isNotificationOpen ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"
               }`}
             >

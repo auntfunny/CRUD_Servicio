@@ -159,17 +159,10 @@ export default function UsuariosCards() {
                         </div>
                         <p className="truncate">{u.email}</p>
                         <p>{u.document_number || "--"}</p>
-                        <span className="w-fit rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#1958df]">
+                        <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${ u.role === "ADMIN" ? "bg-[#eef5ff] text-[#1958df]" : "bg-emerald-50 text-emerald-700" }`}>
                           {u.role}
                         </span>
                         <div className="flex flex-wrap gap-2">
-                          <button
-                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
-                            onClick={() => navigate(`/usuarios/${u.id}/editar`)}
-                            type="button"
-                          >
-                            Editar
-                          </button>
                           <button
                             className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
                             onClick={() => {
@@ -210,7 +203,7 @@ export default function UsuariosCards() {
                             {u.email}
                           </p>
                         </div>
-                        <span className="w-fit rounded-full bg-[#eef5ff] px-3 py-1 text-xs font-semibold text-[#1958df]">
+                        <span className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${ u.role === "ADMIN" ? "bg-[#eef5ff] text-[#1958df]" : "bg-emerald-50 text-emerald-700" }`}>
                           {u.role}
                         </span>
                       </div>
@@ -223,13 +216,6 @@ export default function UsuariosCards() {
                       </div>
 
                       <div className="mt-4 flex flex-col gap-2">
-                        <button
-                          className="w-full inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
-                          onClick={() => navigate(`/usuarios/${u.id}/editar`)}
-                          type="button"
-                        >
-                          Editar
-                        </button>
                         <button
                           className="w-full inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
                           onClick={() => {
