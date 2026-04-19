@@ -1,5 +1,8 @@
 function construirPaginasVisibles(page, totalPages, maximoBotones = 5) {
-  const inicio = Math.max(1, Math.min(page - 2, totalPages - maximoBotones + 1));
+  const inicio = Math.max(
+    1,
+    Math.min(page - 2, totalPages - maximoBotones + 1),
+  );
   const fin = Math.min(totalPages, inicio + maximoBotones - 1);
 
   return Array.from(
@@ -8,12 +11,7 @@ function construirPaginasVisibles(page, totalPages, maximoBotones = 5) {
   );
 }
 
-function Paginacion({
-  page = 1,
-  page_size = 10,
-  total = 0,
-  onPageChange,
-}) {
+function Paginacion({ page = 1, page_size = 10, total = 0, onPageChange }) {
   const totalPages = Math.max(1, Math.ceil(total / page_size));
   const paginasVisibles = construirPaginasVisibles(page, totalPages);
   const puedeRetroceder = page > 1;
@@ -26,7 +24,9 @@ function Paginacion({
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm font-medium text-slate-500">
-        {total > 0 ? `Mostrando pagina ${page} de ${totalPages}` : `Pagina ${page} de ${totalPages}`}
+        {total > 0
+          ? `Mostrando pagina ${page} de ${totalPages}`
+          : `Pagina ${page} de ${totalPages}`}
       </p>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -36,7 +36,21 @@ function Paginacion({
           onClick={() => onPageChange(page - 1)}
           type="button"
         >
-          Anterior
+          <span className="hidden md:inline">Anterior</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="2.5"
+            stroke="currentColor"
+            className="md:hidden size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+            />
+          </svg>
         </button>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -66,7 +80,21 @@ function Paginacion({
           onClick={() => onPageChange(page + 1)}
           type="button"
         >
-          Siguiente
+          <span className="hidden md:inline">Siguiente</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="md:hidden size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+            />
+          </svg>
         </button>
       </div>
     </div>

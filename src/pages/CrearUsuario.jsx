@@ -117,6 +117,12 @@ export default function CrearUsuario() {
           )}
         />
 
+        {mensaje ? (
+          <section className={`${panelBaseClass} !bg-white ${mensaje.tipo === "ok" ? "text-emerald-700" : "text-rose-700"}`}>
+            {mensaje.texto}
+          </section>
+        ) : null}
+
         <form className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]" id="crear-usuario-form" onSubmit={handleSubmit}>
           <section className={`${panelBaseClass} !bg-white space-y-6`}>
             <div>
@@ -163,6 +169,13 @@ export default function CrearUsuario() {
                 <h2 className="mt-2 text-2xl font-semibold text-slate-900">Rol y contexto</h2>
               </div>
 
+              <Field error={errors.role} label="Rol">
+                <select className={controlClass} name="role" onChange={handleChange} value={form.role}>
+                  <option value="ADMIN">Administrador</option>
+                  <option value="STUDENT">Estudiante</option>
+                </select>
+              </Field>
+
               <Field error={errors.country_id} label="Pais">
                 <select className={controlClass} name="country_id" onChange={handleChange} required value={form.country_id}>
                   <option value="">Selecciona un pais</option>
@@ -178,13 +191,6 @@ export default function CrearUsuario() {
                   {cursoData?.map((curso) => (
                     <option key={curso.id} value={curso.id}>{curso.name}</option>
                   ))}
-                </select>
-              </Field>
-
-              <Field error={errors.role} label="Rol">
-                <select className={controlClass} name="role" onChange={handleChange} value={form.role}>
-                  <option value="ADMIN">Administrador</option>
-                  <option value="STUDENT">Estudiante</option>
                 </select>
               </Field>
 
@@ -206,11 +212,6 @@ export default function CrearUsuario() {
           </aside>
         </form>
 
-        {mensaje ? (
-          <section className={`${panelBaseClass} !bg-white ${mensaje.tipo === "ok" ? "text-emerald-700" : "text-rose-700"}`}>
-            {mensaje.texto}
-          </section>
-        ) : null}
       </div>
     </PageShell>
   );

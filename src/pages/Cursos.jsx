@@ -155,7 +155,9 @@ function Cursos() {
         </section>
 
         <section className={`${panelBaseClass} !bg-white overflow-hidden p-0`}>
-          <div className="overflow-x-auto">
+
+          {/* Vista Tabla */}
+          <div className="hidden overflow-x-auto md:block">
             <div className="min-w-[980px]">
               <div className="grid grid-cols-[0.45fr_1.4fr_0.8fr_0.95fr_0.8fr_0.95fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 <span>ID</span>
@@ -205,6 +207,72 @@ function Cursos() {
                 <div className="px-6 py-10 text-sm text-slate-500">No hay cursos para mostrar.</div>
               )}
             </div>
+          </div>
+
+          {/* Vista Tarjetas*/}
+          <div className="space-y-3 p-4 md:hidden">
+            {error ? (
+              <div className="text-sm text-rose-600">Error al cargar los cursos.</div>
+            ) : loading ? (
+              <div className="text-sm text-slate-500">Cargando cursos...</div>
+            ) : filtrados.length > 0 ? (
+              filtrados.map((item) => (
+                <div key={item.id} className="rounded-[1.4rem] border border-slate-100 bg-slate-50/50 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-slate-800">
+                        {item.name}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">
+                        ID: {item.id}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Duracion</p>
+                      <p className="mt-1 text-sm font-medium text-slate-700">
+                        {item.duration} meses
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Precio</p>
+                      <p className="mt-1 text-sm font-medium text-slate-700">
+                        ${item.price}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Horas requeridas</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-800">
+                      {item.required_service_hours} horas
+                    </p>
+                  </div>
+
+                  <div className="mt-4 flex flex-col gap-2">
+                    <button
+                      className="w-full inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                      onClick={() => handleAbrirEditar(item)}
+                      type="button"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      className="w-full inline-flex items-center justify-center rounded-full border border-rose-200 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                      disabled={loadingBorrar && idBorrar === item.id}
+                      onClick={() => handleAbrirBorrar(item.id)}
+                      type="button"
+                    >
+                      {loadingBorrar && idBorrar === item.id ? "..." : "Eliminar"}
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-sm text-slate-500">No hay cursos para mostrar.</div>
+            )}
           </div>
         </section>
       </div>

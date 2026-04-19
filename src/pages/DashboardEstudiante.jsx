@@ -163,7 +163,8 @@ function DashboardEstudiante() {
               </Link>
             </div>
 
-            <div className="mt-6 overflow-x-auto">
+            {/* Vista Tabla */}
+            <div className="mt-6 hidden overflow-x-auto md:block">
               <div className="min-w-[720px] overflow-hidden rounded-[1.6rem] border border-slate-100">
                 <div className="grid grid-cols-[1.5fr_1fr_0.9fr_0.8fr_0.7fr] gap-4 bg-slate-50/90 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Actividad</span>
@@ -210,6 +211,57 @@ function DashboardEstudiante() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Vista Tarjetas */}
+            <div className="mt-6 space-y-3 md:hidden">
+              {loadingReportes ? (
+                <div className="px-4 py-8 text-sm text-slate-500">Cargando reportes...</div>
+              ) : reportesRecientes.length > 0 ? (
+                reportesRecientes.map((reporte) => (
+                  <div key={reporte.id} className="rounded-[1.4rem] border border-slate-100 bg-slate-50/50 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-slate-800">
+                          {reporte.description || "Actividad sin descripcion"}
+                        </p>
+                      </div>
+                      <BadgeEstadoReporte estado={reporte.status} />
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Categoria</p>
+                        <p className="mt-1 text-sm font-medium text-slate-700">
+                          {reporte.category?.name ?? "Sin categoria"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Horas</p>
+                        <p className="mt-1 text-sm font-semibold text-slate-800">
+                          {formatHoras(reporte.hours_spent)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 text-xs text-slate-400">
+                      {formatFecha(reporte.created_at)}
+                    </div>
+
+                    <button
+                      className="mt-4 w-full inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                      onClick={() => abrirDetalle(reporte)}
+                      type="button"
+                    >
+                      Ver detalle
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <div className="px-4 py-10 text-sm text-slate-500">
+                  Aun no tienes reportes registrados.
+                </div>
+              )}
             </div>
           </article>
 

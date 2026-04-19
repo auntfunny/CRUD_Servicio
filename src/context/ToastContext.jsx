@@ -96,7 +96,7 @@ export const ToastProvider = ({ children }) => {
         notifications,
         setToastMensaje,
         unreadCount,
-        toastMensaje,
+        activeToast,
       }}
     >
       <ToastCaja

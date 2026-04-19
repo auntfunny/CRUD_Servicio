@@ -133,7 +133,8 @@ function EstudiantesDeuda() {
 
         {!loading && !error ? (
           <>
-            <section className={`${panelBaseClass} overflow-x-auto !bg-white !p-0`}>
+            {/* Vista Tabla */}
+            <section className={`${panelBaseClass} hidden overflow-x-auto !bg-white !p-0 md:block`}>
               <div className="min-w-[900px]">
                 <div className="grid grid-cols-[1.35fr_1.2fr_0.75fr_0.75fr_0.75fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Estudiante</span>
@@ -161,6 +162,54 @@ function EstudiantesDeuda() {
                   </div>
                 )}
               </div>
+            </section>
+
+            {/* Vista Tarjetas */}
+            <section className={`${panelBaseClass} md:hidden !bg-white`}>
+              {estudiantesVisibles.length === 0 ? (
+                <div className="px-4 py-10 text-sm text-slate-500">No hay estudiantes pendientes.</div>
+              ) : (
+                <div className="space-y-3">
+                  {estudiantesVisibles.map((estudiante) => (
+                    <div key={estudiante.id ?? `${estudiante.email}-${getNombreEstudiante(estudiante)}`} className="rounded-[1.4rem] border border-slate-100 bg-slate-50/50 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-slate-800">
+                            {getNombreEstudiante(estudiante)}
+                          </p>
+                          <p className="mt-1 truncate text-xs text-slate-400">
+                            {estudiante.email ?? "Sin correo"}
+                          </p>
+                        </div>
+                        <span className="w-fit rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-600">
+                          {getHorasFaltantes(estudiante)} h
+                        </span>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-3 gap-3 text-center">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Requeridas</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-800">
+                            {getHorasRequeridas(estudiante)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Aprobadas</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-800">
+                            {getHorasAprobadas(estudiante)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Faltantes</p>
+                          <p className="mt-1 text-sm font-semibold text-rose-600">
+                            {getHorasFaltantes(estudiante)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </section>
 
             <Paginacion onPageChange={setPage} page={page} page_size={pageSize} total={total} />

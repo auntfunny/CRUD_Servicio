@@ -162,55 +162,103 @@ function DashboardAdmin() {
               </Link>
             </div>
 
-            <div className="mt-6 overflow-x-auto">
-              <div className="min-w-[840px] overflow-hidden rounded-[1.6rem] border border-slate-100">
-                <div className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr_0.7fr] gap-4 bg-slate-50/90 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  <span>Estudiante</span>
-                  <span>Categoria</span>
-                  <span>Horas</span>
-                  <span>Fecha</span>
-                  <span>Estado</span>
-                  <span>Accion</span>
+            {loadingPendientes ? (
+              <div className="mt-6 px-5 py-8 text-sm text-slate-500">Cargando reportes...</div>
+            ) : pendientes.length > 0 ? (
+              <>
+                {/* Vista Tabla */}
+                <div className="mt-6 hidden overflow-x-auto md:block">
+                  <div className="overflow-hidden rounded-[1.6rem] border border-slate-100">
+                    <div className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr_0.7fr] gap-4 bg-slate-50/90 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      <span>Estudiante</span>
+                      <span>Categoria</span>
+                      <span>Horas</span>
+                      <span>Fecha</span>
+                      <span>Estado</span>
+                      <span>Accion</span>
+                    </div>
+                    <div className="divide-y divide-slate-100">
+                      {pendientes.map((reporte) => (
+                        <div key={reporte.id} className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr_0.7fr] items-center gap-4 px-5 py-4 text-sm text-slate-600">
+                          <div className="min-w-0">
+                            <p className="truncate font-semibold text-slate-800">
+                              {reporte.student?.full_name ?? "Sin estudiante"}
+                            </p>
+                            <p className="mt-1 truncate text-xs text-slate-400">
+                              {reporte.student?.email ?? "Sin correo"}
+                            </p>
+                          </div>
+                          <p className="truncate font-medium text-slate-700">
+                            {reporte.category?.name ?? "Sin categoria"}
+                          </p>
+                          <p className="font-semibold text-slate-800">{formatHoras(reporte.hours_spent)}</p>
+                          <p>{formatFecha(reporte.created_at)}</p>
+                          <BadgeEstadoReporte estado={reporte.status} />
+                          <div>
+                            <Link
+                              className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                              to="/reportes"
+                            >
+                              Revisar
+                            </Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                {loadingPendientes ? (
-                  <div className="px-5 py-8 text-sm text-slate-500">Cargando reportes...</div>
-                ) : pendientes.length > 0 ? (
-                  <div className="divide-y divide-slate-100">
-                    {pendientes.map((reporte) => (
-                      <div key={reporte.id} className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr_0.7fr] items-center gap-4 px-5 py-4 text-sm text-slate-600">
-                        <div className="min-w-0">
-                          <p className="truncate font-semibold text-slate-800">
+                {/* Vista Tarjetas */}
+                <div className="mt-6 space-y-3 md:hidden">
+                  {pendientes.map((reporte) => (
+                    <div key={reporte.id} className="rounded-[1.4rem] border border-slate-100 bg-slate-50/50 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-slate-800">
                             {reporte.student?.full_name ?? "Sin estudiante"}
                           </p>
                           <p className="mt-1 truncate text-xs text-slate-400">
                             {reporte.student?.email ?? "Sin correo"}
                           </p>
                         </div>
-                        <p className="truncate font-medium text-slate-700">
-                          {reporte.category?.name ?? "Sin categoria"}
-                        </p>
-                        <p className="font-semibold text-slate-800">{formatHoras(reporte.hours_spent)}</p>
-                        <p>{formatFecha(reporte.created_at)}</p>
                         <BadgeEstadoReporte estado={reporte.status} />
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-3">
                         <div>
-                          <Link
-                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
-                            to="/reportes"
-                          >
-                            Revisar
-                          </Link>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Categoria</p>
+                          <p className="mt-1 text-sm font-medium text-slate-700">
+                            {reporte.category?.name ?? "Sin categoria"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Horas</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-800">
+                            {formatHoras(reporte.hours_spent)}
+                          </p>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="px-5 py-10 text-sm text-slate-500">
-                    No hay reportes pendientes en este momento.
-                  </div>
-                )}
+
+                      <div className="mt-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Fecha</p>
+                        <p className="mt-1 text-sm text-slate-600">{formatFecha(reporte.created_at)}</p>
+                      </div>
+
+                      <Link
+                        className="mt-4 flex w-full items-center justify-center rounded-full bg-[#eef5ff] px-4 py-3 text-sm font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                        to="/reportes"
+                      >
+                        Revisar
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="mt-6 px-5 py-10 text-sm text-slate-500">
+                No hay reportes pendientes en este momento.
               </div>
-            </div>
+            )}
           </article>
 
           <aside className={`xl:col-span-1 ${panelBaseClass} !bg-white`}>

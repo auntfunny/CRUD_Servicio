@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PageShell, PageHero, panelBaseClass, primaryButtonClass, secondaryButtonClass } from "../components/PageShell";
 import { ProfileSkeleton } from "../components/SkeletonBlocks";
 import useAxios from "../hooks/useAxios";
+import { useToast } from "../context/ToastContext";
 
 function CampoPerfil({ etiqueta, valor }) {
   return (
@@ -16,6 +17,7 @@ function CampoPerfil({ etiqueta, valor }) {
 }
 
 export default function Perfil() {
+  const {activeToast} = useToast();
   const [form, setForm] = useState({
     id: "",
     first_name: "",
@@ -27,6 +29,7 @@ export default function Perfil() {
     birthdate: "",
     country_id: "",
   });
+  const [cambioPerfil, setCambioPerfil] = useState(false);
   const navigate = useNavigate();
   const { data: perfil, loading: loadingPerfil } = useAxios("/profile/me");
   const { loading: loadingPais, request: requestPais } = useAxios("", { auto: false });
@@ -68,7 +71,15 @@ export default function Perfil() {
     return partes.map((parte) => parte[0]?.toUpperCase()).join("").slice(0, 2) || "FP";
   }, [form.first_name, form.last_name]);
 
-  if (loading) {
+  useEffect(() => {
+    if(activeToast?.message === "Perfil actualizado"){
+      setCambioPerfil(true);
+      setTimeout(() => setCambioPerfil(false), 500)
+    }
+  }, [activeToast]);
+
+
+  if (loading || cambioPerfil) {
     return (
       <PageShell>
         <ProfileSkeleton />

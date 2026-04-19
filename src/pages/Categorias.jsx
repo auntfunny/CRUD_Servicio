@@ -109,28 +109,88 @@ const Categorias = () => {
           {loading ? <p className="px-6 py-8 text-sm text-slate-500">Cargando categorias...</p> : null}
 
           {!loading && !error ? (
-            <div className="min-w-[820px]">
-              <div className="grid grid-cols-[0.65fr_1fr_1.8fr_0.8fr_0.9fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                <span>ID</span>
-                <span>Nombre</span>
-                <span>Descripcion</span>
-                <span>Creado</span>
-                <span>Accion</span>
+            <>
+              {/* Vista Tabla */}
+              <div className="hidden min-w-[820px] md:block">
+                <div className="grid grid-cols-[0.65fr_1fr_1.8fr_0.8fr_0.9fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  <span>ID</span>
+                  <span>Nombre</span>
+                  <span>Descripcion</span>
+                  <span>Creado</span>
+                  <span>Accion</span>
+                </div>
+
+                {categorias.length === 0 ? (
+                  <div className="px-6 py-10 text-sm text-slate-500">No hay categorias.</div>
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {categorias.map((category) => (
+                      <div key={category.id} className="grid grid-cols-[0.65fr_1fr_1.8fr_0.8fr_0.9fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60">
+                        <p className="font-semibold text-slate-800">#{category.id}</p>
+                        <p className="truncate font-medium text-slate-800">{category.name}</p>
+                        <p className="truncate">{category.description || "Sin descripcion registrada."}</p>
+                        <p>{category.created_at?.split("T")[0] ?? "--"}</p>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                            onClick={() => {
+                              setEditarCampos({ name: category.name, description: category.description });
+                              setEditarId(category.id);
+                              setModalEditar(true);
+                            }}
+                            type="button"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
+                            onClick={() => {
+                              setIdBorrar(category.id);
+                              setConfirmarBorrar(true);
+                            }}
+                            type="button"
+                          >
+                            {loadingBorrar && idBorrar === category.id ? "..." : "Borrar"}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {categorias.length === 0 ? (
-                <div className="px-6 py-10 text-sm text-slate-500">No hay categorias.</div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {categorias.map((category) => (
-                    <div key={category.id} className="grid grid-cols-[0.65fr_1fr_1.8fr_0.8fr_0.9fr] items-center gap-4 px-6 py-4 text-sm text-slate-600 transition hover:bg-slate-50/60">
-                      <p className="font-semibold text-slate-800">#{category.id}</p>
-                      <p className="truncate font-medium text-slate-800">{category.name}</p>
-                      <p className="truncate">{category.description || "Sin descripcion registrada."}</p>
-                      <p>{category.created_at?.split("T")[0] ?? "--"}</p>
-                      <div className="flex flex-wrap gap-2">
+              {/* Vista Tarjetas */}
+              <div className="space-y-3 p-4 md:hidden">
+                {categorias.length === 0 ? (
+                  <div className="px-2 py-10 text-sm text-slate-500">No hay categorias.</div>
+                ) : (
+                  categorias.map((category) => (
+                    <div key={category.id} className="rounded-[1.4rem] border border-slate-100 bg-slate-50/50 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-slate-800">
+                            {category.name}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-400">
+                            #{category.id}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Descripcion</p>
+                        <p className="mt-1 text-sm text-slate-600">
+                          {category.description || "Sin descripcion registrada."}
+                        </p>
+                      </div>
+
+                      <div className="mt-3 text-xs text-slate-400">
+                        Creado: {category.created_at?.split("T")[0] ?? "--"}
+                      </div>
+
+                      <div className="mt-4 flex flex-col gap-2">
                         <button
-                          className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                          className="w-full inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
                           onClick={() => {
                             setEditarCampos({ name: category.name, description: category.description });
                             setEditarId(category.id);
@@ -141,7 +201,7 @@ const Categorias = () => {
                           Editar
                         </button>
                         <button
-                          className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
+                          className="w-full inline-flex items-center justify-center rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-100"
                           onClick={() => {
                             setIdBorrar(category.id);
                             setConfirmarBorrar(true);
@@ -152,10 +212,10 @@ const Categorias = () => {
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  ))
+                )}
+              </div>
+            </>
           ) : null}
         </section>
       </div>
