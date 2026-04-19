@@ -141,7 +141,7 @@ export default function Navbar({ isSidebarOpen = false, onToggleSidebar }) {
         <div className="flex min-w-0 items-center gap-3 sm:gap-5">
           <button
             aria-label={isSidebarOpen ? "Cerrar menu" : "Abrir menu"}
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-800 lg:hidden"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-slate-300 hover:text-slate-800 xl:hidden"
             onClick={onToggleSidebar}
             type="button"
           >
@@ -157,7 +157,7 @@ export default function Navbar({ isSidebarOpen = false, onToggleSidebar }) {
             imageClassName="h-8 w-8 rounded-full"
           />
 
-          <div className="hidden h-10 w-px bg-slate-200 lg:block xl:block" />
+          <div className="hidden h-10 w-px bg-slate-200 xl:block" />
 
           <div className="hidden min-w-0 md:block">
             <h1 className="truncate text-lg font-semibold text-slate-900 xl:text-xl">

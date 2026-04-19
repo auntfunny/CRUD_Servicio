@@ -216,7 +216,7 @@ export default function ImportUsers() {
         />
       ) : null}
 
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
         <PageHero
           eyebrow="Usuarios"
           title="Importar usuarios"
@@ -230,7 +230,7 @@ export default function ImportUsers() {
           )}
         />
 
-        <section className={`grid gap-6 ${result ? "xl:grid-cols-[1.15fr_0.85fr]" : ""}`}>
+        <section className={`grid gap-6 ${result ? "2xl:grid-cols-[1.15fr_0.85fr]" : ""}`}>
           <article className={`${panelBaseClass} !bg-white`}>
             <div className="flex items-center justify-between gap-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">

@@ -124,7 +124,7 @@ function DashboardAdmin() {
   return (
     <PageShell>
       <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
-        <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
               Dashboard
@@ -142,14 +142,14 @@ function DashboardAdmin() {
           </Link>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
           {cards.map((card) => (
             <KpiCard key={card.label} {...card} />
           ))}
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-4">
-          <article className={`xl:col-span-3 ${panelBaseClass} !bg-white`}>
+        <section className="grid gap-6 2xl:grid-cols-4">
+          <article className={`2xl:col-span-3 ${panelBaseClass} !bg-white`}>
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-semibold text-slate-900">Reportes por revisar</h2>
@@ -157,13 +157,66 @@ function DashboardAdmin() {
                   Cola prioritaria de revision para el equipo administrativo.
                 </p>
               </div>
-              <Link className="text-sm font-semibold text-[#1958df]" to="/reportes">
+              <Link className="whitespace-nowrap text-[1.05rem] font-semibold text-[#1958df] sm:text-[1.12rem]" to="/reportes">
                 Ver todo
               </Link>
             </div>
 
             <div className="mt-6 overflow-x-auto">
-              <div className="min-w-[840px] overflow-hidden rounded-[1.6rem] border border-slate-100">
+              <div className="space-y-4 2xl:hidden">
+                {loadingPendientes ? (
+                  <div className="px-2 py-6 text-sm text-slate-500">Cargando reportes...</div>
+                ) : pendientes.length > 0 ? (
+                  pendientes.map((reporte) => (
+                    <article
+                      className="rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4"
+                      key={reporte.id}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-slate-900">
+                            {reporte.student?.full_name ?? "Sin estudiante"}
+                          </p>
+                          <p className="mt-1 text-sm text-slate-500">
+                            {reporte.student?.email ?? "Sin correo"}
+                          </p>
+                        </div>
+                        <BadgeEstadoReporte estado={reporte.status} />
+                      </div>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Categoria</p>
+                          <p className="mt-1 text-sm text-slate-600">{reporte.category?.name ?? "Sin categoria"}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Horas</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-800">{formatHoras(reporte.hours_spent)}</p>
+                        </div>
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Fecha</p>
+                          <p className="mt-1 text-sm text-slate-600">{formatFecha(reporte.created_at)}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <Link
+                          className="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-[#eef5ff] px-5 py-2.5 text-[0.95rem] font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                          to="/reportes"
+                        >
+                          Revisar
+                        </Link>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="px-2 py-6 text-sm text-slate-500">
+                    No hay reportes pendientes en este momento.
+                  </div>
+                )}
+              </div>
+
+              <div className="hidden min-w-[840px] overflow-hidden rounded-[1.6rem] border border-slate-100 2xl:block">
                 <div className="grid grid-cols-[1.4fr_1fr_0.8fr_0.8fr_0.9fr_0.7fr] gap-4 bg-slate-50/90 px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Estudiante</span>
                   <span>Categoria</span>
@@ -195,7 +248,7 @@ function DashboardAdmin() {
                         <BadgeEstadoReporte estado={reporte.status} />
                         <div>
                           <Link
-                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                            className="inline-flex whitespace-nowrap items-center justify-center rounded-full bg-[#eef5ff] px-5 py-2.5 text-[0.95rem] font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
                             to="/reportes"
                           >
                             Revisar
@@ -213,7 +266,7 @@ function DashboardAdmin() {
             </div>
           </article>
 
-          <aside className={`xl:col-span-1 ${panelBaseClass} !bg-white`}>
+          <aside className={`2xl:col-span-1 ${panelBaseClass} !bg-white`}>
             <div>
               <h2 className="text-2xl font-semibold text-slate-900">Resumen del flujo</h2>
               <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -261,7 +314,7 @@ function DashboardAdmin() {
           </aside>
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+        <section className="grid gap-6 2xl:grid-cols-[1fr_1fr]">
           <article className={`${panelBaseClass} !bg-white`}>
             <h2 className="text-xl font-semibold text-slate-900">Categorias destacadas</h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">

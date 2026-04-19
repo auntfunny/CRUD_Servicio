@@ -37,19 +37,19 @@ export default function Sidebar({ isOpen = false, onClose }) {
     <>
       <div
         aria-hidden={!isOpen}
-        className={`fixed inset-0 top-20 z-30 bg-slate-950/30 transition duration-300 lg:hidden ${
+        className={`fixed inset-0 top-20 z-30 bg-slate-950/30 transition duration-300 xl:hidden ${
           isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
         }`}
         onClick={onClose}
       />
 
       <aside
-        className={`fixed left-0 top-20 z-40 h-[calc(100dvh-5rem)] w-[17rem] border-r border-slate-200/70 bg-[linear-gradient(180deg,_#f8fafd,_#f4f7fb)] shadow-[0_18px_45px_rgba(15,23,42,0.12)] transition-transform duration-300 ease-out lg:translate-x-0 lg:shadow-none ${
+        className={`fixed left-0 top-20 z-40 h-[calc(100dvh-5rem)] w-[17rem] border-r border-slate-200/70 bg-[linear-gradient(180deg,_#f8fafd,_#f4f7fb)] shadow-[0_18px_45px_rgba(15,23,42,0.12)] transition-transform duration-300 ease-out xl:translate-x-0 xl:shadow-none ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex h-full flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-4 lg:hidden">
+          <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-4 xl:hidden">
             <FunvalBrand
               compactOnMobile
               iconClassName="bg-white"

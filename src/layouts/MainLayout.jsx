@@ -36,7 +36,7 @@ export default function MainLayout() {
             onClose={() => setIsSidebarOpen(false)}
           />
           <div
-            className="w-full flex-1 px-4 pb-8 pt-4 transition-[padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-5 sm:pt-5 md:pr-8 md:pt-6 lg:pl-[18rem]"
+            className="w-full flex-1 px-4 pb-8 pt-4 transition-[padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] sm:px-5 sm:pt-5 md:pr-8 md:pt-6 xl:pl-[18rem]"
           >
             <div className="mx-auto w-full max-w-[1500px]">
               <Outlet />

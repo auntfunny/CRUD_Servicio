@@ -280,7 +280,7 @@ function ReportesEstudiante() {
   return (
     <PageShell>
       <div className="mx-auto max-w-7xl space-y-6 p-6">
-        <section className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <section className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--color-acc1)]">
               Mis reportes
@@ -303,7 +303,7 @@ function ReportesEstudiante() {
         </section>
 
         {!(loading && !data) ? (
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
             <TarjetaEstadistica label="Total" tone="text-slate-800" value={totalVisible} />
             <TarjetaEstadistica label="Pendientes" tone="text-amber-700" value={resumen.pendientes} />
             <TarjetaEstadistica label="Aprobados" tone="text-emerald-700" value={resumen.aprobados} />
@@ -359,7 +359,97 @@ function ReportesEstudiante() {
         {!loading && !error ? (
           <>
             <section className={`${panelBaseClass} overflow-x-auto !bg-white !p-0`}>
-              <div className="min-w-[860px]">
+              {cargandoResumen ? (
+                <div className="px-6 py-6">
+                  <TableSkeleton columns={6} rows={4} />
+                </div>
+              ) : null}
+
+              {!cargandoResumen ? (
+                <div className="space-y-4 p-4 2xl:hidden">
+                  {reportesVisibles.length > 0 ? (
+                    reportesVisibles.map((reporte) => (
+                    <article
+                      className="cursor-pointer rounded-[1.4rem] border border-slate-100 bg-slate-50/70 p-4 transition hover:bg-slate-50"
+                      key={reporte.id}
+                      onClick={() => abrirDetalle(reporte)}
+                      onKeyDown={(evento) => {
+                        if (evento.key === "Enter" || evento.key === " ") {
+                          evento.preventDefault();
+                          abrirDetalle(reporte);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-800">
+                              {reporte.description || "Actividad sin descripcion"}
+                            </p>
+                            <p className="mt-1 text-sm text-slate-400">
+                              Reporte #{reporte.id}
+                            </p>
+                          </div>
+                          <BadgeEstadoReporte estado={reporte.status} />
+                        </div>
+
+                        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Categoria</p>
+                            <p className="mt-1 text-sm font-medium text-slate-700">
+                              {reporte.category?.name ?? "Sin categoria"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Horas</p>
+                            <p className="mt-1 text-sm font-semibold text-slate-800">
+                              {formatHoras(reporte.hours_spent)}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-400">Fecha</p>
+                            <p className="mt-1 text-sm text-slate-600">
+                              {formatFecha(reporte.created_at)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <button
+                            className="inline-flex items-center justify-center rounded-full bg-[#eef5ff] px-4 py-2 text-xs font-semibold text-[#1958df] transition hover:bg-[#e0ecff]"
+                            onClick={(evento) => {
+                              evento.stopPropagation();
+                              abrirDetalle(reporte);
+                            }}
+                            type="button"
+                          >
+                            Ver
+                          </button>
+                          {reporte.status === "PENDING" ? (
+                            <button
+                              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-300 hover:bg-slate-50"
+                              onClick={(evento) => {
+                                evento.stopPropagation();
+                                setReporteEditando(reporte);
+                              }}
+                              type="button"
+                            >
+                              Editar
+                            </button>
+                          ) : null}
+                        </div>
+                      </article>
+                    ))
+                  ) : (
+                    <div className="px-2 py-6 text-sm text-slate-500">
+                      No se encontraron reportes para este filtro.
+                    </div>
+                  )}
+                </div>
+              ) : null}
+
+              <div className="hidden 2xl:block min-w-[860px]">
                 <div className="grid grid-cols-[1.7fr_0.9fr_0.8fr_0.85fr_0.95fr_0.8fr] gap-4 border-b border-slate-100 bg-slate-50/90 px-6 py-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   <span>Actividad</span>
                   <span>Categoria</span>
@@ -369,11 +459,7 @@ function ReportesEstudiante() {
                   <span>Accion</span>
                 </div>
 
-                {cargandoResumen ? (
-                  <div className="px-6 py-6">
-                    <TableSkeleton columns={6} rows={4} />
-                  </div>
-                ) : reportesVisibles.length > 0 ? (
+                {reportesVisibles.length > 0 ? (
                   <div className="divide-y divide-slate-100">
                     {reportesVisibles.map((reporte) => (
                       <div

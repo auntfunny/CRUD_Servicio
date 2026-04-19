@@ -78,7 +78,7 @@ export default function Perfil() {
 
   return (
     <PageShell>
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6">
         <PageHero
           eyebrow="Perfil"
           title={nombreCompleto || "Mi perfil"}
@@ -100,7 +100,7 @@ export default function Perfil() {
           )}
         />
 
-        <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <section className="grid gap-6 2xl:grid-cols-[1.2fr_0.8fr]">
           <article className={`${panelBaseClass} !bg-white`}>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
               Información personal
